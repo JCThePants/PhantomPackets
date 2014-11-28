@@ -51,12 +51,12 @@ public class PhantomPackets extends GenericsPlugin {
 
     @Override
     public String getChatPrefix() {
-        return TextColor.WHITE.toString() + '[' + TextColor.GRAY + "PhantomRegions" + TextColor.WHITE + "] ";
+        return TextColor.WHITE.toString() + '[' + TextColor.GRAY + "PhantomPackets" + TextColor.WHITE + "] ";
     }
 
     @Override
     public String getConsolePrefix() {
-        return "[PhantomRegions] ";
+        return "[PhantomPackets] ";
     }
 
     public PhantomRegionManager getRegionManager() {
