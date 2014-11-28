@@ -44,13 +44,13 @@ import org.bukkit.entity.Player;
         command="add",
         staticParams={ "regionName" },
         usage="/{plugin-command} add <regionName>",
-        description="Adds a new disguise region using your current area selection.")
+        description="Adds a new phantom region using your current area selection.")
 
 public class AddCommand extends AbstractCommand {
 
-    @Localizable static final String _REGION_ALREADY_EXISTS = "A disguise region named '{0}' already exists.";
-    @Localizable static final String _FAILED = "Failed to add disguise region.";
-    @Localizable static final String _SUCCESS = "Disguise region named '{0}' was added.";
+    @Localizable static final String _REGION_ALREADY_EXISTS = "A phantom region named '{0}' already exists.";
+    @Localizable static final String _FAILED = "Failed to add phantom region.";
+    @Localizable static final String _SUCCESS = "Phantom region named '{0}' was added.";
 
     @Override
     public void execute(CommandSender sender, CommandArguments args)

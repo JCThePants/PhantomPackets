@@ -49,7 +49,7 @@ import java.util.List;
 
 public class ListCommand extends AbstractCommand {
 
-    @Localizable static final String _PAGINATOR_TITLE = "Disguise Regions";
+    @Localizable static final String _PAGINATOR_TITLE = "Phantom Regions";
 
     @Override
     public void execute(CommandSender sender, CommandArguments args) throws InvalidValueException {

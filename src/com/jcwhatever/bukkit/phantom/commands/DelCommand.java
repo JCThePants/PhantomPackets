@@ -40,13 +40,13 @@ import org.bukkit.command.CommandSender;
         command="del",
         staticParams={ "regionName" },
         usage="/{plugin-command} del <regionName>",
-        description="Removes a disguise region.")
+        description="Removes a phantom region.")
 
 public class DelCommand extends AbstractCommand {
 
-    @Localizable static final String _REGION_NOT_FOUND = "A disguise region named '{0}' was not found.";
-    @Localizable static final String _FAILED = "Failed to remove disguise region.";
-    @Localizable static final String _SUCCESS = "Disguise region named '{0}' was removed.";
+    @Localizable static final String _REGION_NOT_FOUND = "A phantom region named '{0}' was not found.";
+    @Localizable static final String _FAILED = "Failed to remove phantom region.";
+    @Localizable static final String _SUCCESS = "Phantom region named '{0}' was removed.";
 
     @Override
     public void execute(CommandSender sender, CommandArguments args) throws InvalidValueException {

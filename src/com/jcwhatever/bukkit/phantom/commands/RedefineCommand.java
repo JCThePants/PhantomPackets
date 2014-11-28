@@ -44,12 +44,12 @@ import org.bukkit.entity.Player;
         command="redefine",
         staticParams={ "regionName" },
         usage="/{plugin-command} redefine <regionName>",
-        description="Redefine a disguise regions coordinates using your current area selection.")
+        description="Redefine a phantom regions coordinates using your current area selection.")
 
 public class RedefineCommand extends AbstractCommand {
 
-    @Localizable static final String _REGION_NOT_FOUND = "A disguise region named '{0}' was not found.";
-    @Localizable static final String _SUCCESS = "Disguise region named '{0}' was redefined.";
+    @Localizable static final String _REGION_NOT_FOUND = "A phantom region named '{0}' was not found.";
+    @Localizable static final String _SUCCESS = "Phantom region named '{0}' was redefined.";
 
     @Override
     public void execute(CommandSender sender, CommandArguments args)

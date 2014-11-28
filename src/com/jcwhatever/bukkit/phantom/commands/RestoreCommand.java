@@ -53,9 +53,9 @@ import javax.annotation.Nullable;
 
 public class RestoreCommand extends AbstractCommand {
 
-    @Localizable static final String _REGION_NOT_FOUND = "A disguise region named '{0}' was not found.";
-    @Localizable static final String _SAVING = "Restoring disguise region '{0}'...";
-    @Localizable static final String _SUCCESS = "Disguise region named '{0}' restored.";
+    @Localizable static final String _REGION_NOT_FOUND = "A phantom region named '{0}' was not found.";
+    @Localizable static final String _SAVING = "Phantom disguise region '{0}'...";
+    @Localizable static final String _SUCCESS = "Phantom region named '{0}' restored.";
 
     @Override
     public void execute(final CommandSender sender, CommandArguments args)

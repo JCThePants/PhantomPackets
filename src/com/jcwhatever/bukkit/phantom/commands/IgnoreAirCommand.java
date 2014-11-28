@@ -41,15 +41,15 @@ import org.bukkit.command.CommandSender;
         command="ignoreair",
         staticParams={ "regionName", "on|off|info=info" },
         usage="/{plugin-command} ignoreair <regionName> [on|off]",
-        description="View or set a disguise regions 'Ignore Air' setting.")
+        description="View or set a phantom regions 'Ignore Air' setting.")
 
 public class IgnoreAirCommand extends AbstractCommand {
 
-    @Localizable static final String _REGION_NOT_FOUND = "A disguise region named '{0}' was not found.";
-    @Localizable static final String _INFO_IGNORES = "Disguise region '{0}' ignores air blocks.";
-    @Localizable static final String _INFO_NOT_IGNORES = "Disguise region '{0}' does NOT ignore air blocks.";
-    @Localizable static final String _SET_IGNORES = "Disguise region '{0}' set to ignore air blocks.";
-    @Localizable static final String _SET_NOT_IGNORES = "Disguise region '{0}' set to use air blocks.";
+    @Localizable static final String _REGION_NOT_FOUND = "A phantom region named '{0}' was not found.";
+    @Localizable static final String _INFO_IGNORES = "Phantom region '{0}' ignores air blocks.";
+    @Localizable static final String _INFO_NOT_IGNORES = "Phantom region '{0}' does NOT ignore air blocks.";
+    @Localizable static final String _SET_IGNORES = "Phantom region '{0}' set to ignore air blocks.";
+    @Localizable static final String _SET_NOT_IGNORES = "Phantom region '{0}' set to use air blocks.";
 
     @Override
     public void execute(CommandSender sender, CommandArguments args)

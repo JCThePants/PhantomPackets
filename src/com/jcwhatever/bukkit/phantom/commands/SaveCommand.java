@@ -48,13 +48,13 @@ import javax.annotation.Nullable;
         command="save",
         staticParams={ "regionName" },
         usage="/{plugin-command} save <regionName>",
-        description="Save the region to disk. The disk file is used to display the region disguise.")
+        description="Save the region to disk. The disk file is used to display the region.")
 
 public class SaveCommand extends AbstractCommand {
 
-    @Localizable static final String _REGION_NOT_FOUND = "A disguise region named '{0}' was not found.";
-    @Localizable static final String _SAVING = "Saving disguise region '{0}'...";
-    @Localizable static final String _SUCCESS = "Disguise region named '{0}' saved.";
+    @Localizable static final String _REGION_NOT_FOUND = "A phantom region named '{0}' was not found.";
+    @Localizable static final String _SAVING = "Saving phantom region '{0}'...";
+    @Localizable static final String _SUCCESS = "Phantom region named '{0}' saved.";
 
     @Override
     public void execute(final CommandSender sender, CommandArguments args)

@@ -44,13 +44,13 @@ import org.bukkit.entity.Player;
         command="show",
         staticParams={ "regionName", "playerName=$self" },
         usage="/{plugin-command} show <regionName> [playerName]",
-        description="Shows the specified regions disguise to the command sender or a specified player.")
+        description="Shows the specified region to the command sender or a specified player.")
 
 public class ShowCommand extends AbstractCommand {
 
-    @Localizable static final String _REGION_NOT_FOUND = "A disguise region named '{0}' was not found.";
+    @Localizable static final String _REGION_NOT_FOUND = "A phantom region named '{0}' was not found.";
     @Localizable static final String _PLAYER_NOT_FOUND = "Player '{0}' not found.";
-    @Localizable static final String _SUCCESS = "Disguise region named '{0}' is now visible to you.";
+    @Localizable static final String _SUCCESS = "Phantom region named '{0}' is now visible to you.";
 
     @Override
     public void execute(CommandSender sender, CommandArguments args)
