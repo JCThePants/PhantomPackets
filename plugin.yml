@@ -1,6 +1,6 @@
 name: PhantomPackets
 author: JCThePants
-main: com.jcwhatever.bukkit.phantomregions.PhantomPackets
+main: com.jcwhatever.bukkit.phantom.PhantomPackets
 version: 0.0-beta
 depend: [GenericsLib, ProtocolLib]
 commands:
