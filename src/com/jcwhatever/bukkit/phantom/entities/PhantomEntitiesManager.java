@@ -42,13 +42,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
 
 /**
- * 
+ * Manage phantom entities.
+ *
+ * <p>Allows adding and removing entities so viewers can be set.</p>
  */
 public class PhantomEntitiesManager {
 
-    // Packets that update remote player entities
+    // entity packets
     private static final PacketType[] ENTITY_PACKETS = {
             Server.ENTITY_EQUIPMENT,       Server.BED,                   Server.ANIMATION,
             Server.NAMED_ENTITY_SPAWN,     Server.COLLECT,               Server.SPAWN_ENTITY,
@@ -64,6 +67,11 @@ public class PhantomEntitiesManager {
     private Map<Integer, PhantomEntity> _entities = new HashMap<>(30);
     private ProtocolManager _manager;
 
+    /**
+     * Constructor.
+     *
+     * @param plugin  The owning plugin.
+     */
     public PhantomEntitiesManager(Plugin plugin) {
         _plugin = plugin;
         _manager = ProtocolLibrary.getProtocolManager();
@@ -73,14 +81,28 @@ public class PhantomEntitiesManager {
         Bukkit.getPluginManager().registerEvents(new BukkitListener(), _plugin);
     }
 
+    /**
+     * Get the owning plugin.
+     */
     public Plugin getPlugin() {
         return _plugin;
     }
 
+    /**
+     * Get the protocol manager.
+     */
     public ProtocolManager getProtocolManager() {
         return _manager;
     }
 
+    /**
+     * Add an entity so viewers can be set.
+     *
+     * <p>If the entity is already added, the current
+     * {@code PhantomEntity} is returned.</p>
+     *
+     * @param entity  The entity to add.
+     */
     public PhantomEntity addEntity(Entity entity) {
 
         PhantomEntity phantom = _entities.get(entity.getEntityId());
@@ -96,18 +118,38 @@ public class PhantomEntitiesManager {
         return phantom;
     }
 
+    /**
+     * Remove an entity.
+     *
+     * @param entity  The entity to remove.
+     */
     public boolean removeEntity(Entity entity) {
         return _entities.remove(entity.getEntityId()) != null;
     }
 
+    /**
+     * Get a phantom entity that has already been
+     * created from the specified entity.
+     *
+     * @param entity  The entity.
+     *
+     * @return  Null if there is no phantom entity created.
+     */
+    @Nullable
     public PhantomEntity getEntity(Entity entity) {
         return _entities.get(entity.getEntityId());
     }
 
+    /**
+     * Get all phantom entities.
+     */
     public List<PhantomEntity> getEntities() {
         return new ArrayList<>(_entities.values());
     }
 
+    /*
+     * Get the entity packet listener
+     */
     private PacketAdapter getPacketListener() {
         return new PacketAdapter(_plugin, ENTITY_PACKETS) {
             @Override
@@ -125,11 +167,13 @@ public class PhantomEntitiesManager {
         };
     }
 
+    /*
+     * Bukkit event listener
+     */
     private class BukkitListener implements Listener {
         @EventHandler
         public void onEntityDeath(EntityDeathEvent e) {
             _entities.remove(e.getEntity().getEntityId());
         }
     }
-
 }

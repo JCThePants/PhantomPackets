@@ -41,7 +41,8 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Represents a single entity
+ * Represents a single entity whose visibility is
+ * being manipulated.
  */
 public class PhantomEntity implements IViewable {
 
@@ -51,24 +52,43 @@ public class PhantomEntity implements IViewable {
     private PlayerSet _viewers;
     private ViewPolicy _viewMode = ViewPolicy.WHITELIST;
 
+    /**
+     * Constructor.
+     *
+     * @param manager  The owning manager.
+     * @param entity   The entity to encapsulate.
+     */
     public PhantomEntity (PhantomEntitiesManager manager, Entity entity) {
         _manager = manager;
         _entity = entity;
         _id = entity.getUniqueId();
     }
 
+    /**
+     * Get the owning manager.
+     */
     public PhantomEntitiesManager getManager() {
         return _manager;
     }
 
+    /**
+     * Get the encapsulated entity.
+     */
     public Entity getEntity() {
         return _entity;
     }
 
+    /**
+     * Get the entity ID.
+     */
     public int getId() {
         return _entity.getEntityId();
     }
 
+    /**
+     * Get the entities unique ID.
+     * @return
+     */
     public UUID getUniqueId() {
         return _id;
     }
