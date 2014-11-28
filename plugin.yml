@@ -1,0 +1,14 @@
+name: PhantomPackets
+author: JCThePants
+main: com.jcwhatever.bukkit.phantomregions.PhantomPackets
+version: 0.0-beta
+depend: [GenericsLib, ProtocolLib]
+commands:
+    phantom:
+        description: Base command for PhantomPackets
+        usage: |
+            ERROR!
+    phantompackets:
+        description: Base command for PhantomPackets
+        usage: |
+            ERROR!

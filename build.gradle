@@ -1,0 +1,131 @@
+def projectName = 'PhantomPackets'
+def majorVersion = '0'
+def buildBy = null
+def providedDepends = [
+        'C:/JavaRepo/bukkit/bukkit-1.7.9-R0.jar',
+        'C:/JavaRepo/bukkit/ProtocolLib-3.2.0.jar',
+        'GenericsLib.jar'
+]
+
+def compileDepends = null
+def includeFiles = [
+        'plugin.yml',
+        'LICENSE.txt'
+]
+
+// Set version number
+if (hasProperty("teamcity")) {
+    version = majorVersion + '.' + teamcity["build.number"] + '.git-' + teamcity["build.vcs.number"]
+
+    if (buildBy == null) {
+        buildBy = teamcity["build.triggeredBy.username"]
+
+        if (!buildBy) {
+            buildBy = teamcity["build.triggeredBy"]
+        }
+
+        if (!buildBy) {
+            buildBy = teamcity["agent.name"]
+        }
+    }
+
+}else {
+    version = majorVersion + '.000.git-unknown'
+}
+
+if (buildBy == null) {
+    buildBy = System.properties['user.name']
+}
+
+defaultTasks 'clean', 'build'
+
+apply plugin: 'java'
+
+// Minimum Java Version
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+repositories {
+    mavenCentral()
+}
+
+// Add provided configuration to prevent dependencies
+// from being included in the jar
+configurations {
+    provided
+}
+
+sourceSets {
+
+    main {
+        compileClasspath += configurations.provided
+        runtimeClasspath += configurations.provided
+
+        java {
+            srcDir 'src'
+        }
+    }
+
+    test {
+        compileClasspath += configurations.provided
+        runtimeClasspath += configurations.provided
+    }
+}
+
+// Add dependencies
+dependencies {
+
+    if (compileDepends) {
+        compile files(compileDepends)
+    }
+
+    if (providedDepends) {
+        provided files(providedDepends)
+    }
+}
+
+
+// Jar file output with version number
+jar {
+
+    archiveName = projectName + '.' + version + '.jar'
+
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+
+    if (includeFiles) {
+        from includeFiles
+    }
+
+    manifest {
+        attributes("Built-By": buildBy,
+                "Created-By": System.properties['java.vm.version'] + " (" + System.properties['java.vm.vendor'] + ")",
+                "Implementation-Title": projectName,
+                "Implementation-Version": version)
+    }
+
+}
+
+// Task to create a Jar file artifact with no version number
+task simpleNamedJar(type: Jar) {
+
+    archiveName = projectName + '.jar'
+
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+
+    if (includeFiles) {
+        from includeFiles
+    }
+
+    manifest {
+        attributes("Built-By": buildBy,
+                "Created-By": System.properties['java.vm.version'] + " (" + System.properties['java.vm.vendor'] + ")",
+                "Implementation-Title": projectName,
+                "Implementation-Version": version)
+    }
+
+    with jar
+}
+
+artifacts {
+    archives simpleNamedJar
+}
