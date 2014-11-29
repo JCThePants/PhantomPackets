@@ -29,7 +29,10 @@ import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
 import com.jcwhatever.bukkit.generic.mixins.IViewable;
 import com.jcwhatever.bukkit.generic.player.collections.PlayerSet;
+import com.jcwhatever.bukkit.generic.utils.entity.EntityUtils;
+import com.jcwhatever.bukkit.generic.utils.entity.TrackedEntity;
 
+import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
@@ -38,7 +41,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
+import javax.annotation.Nullable;
 
 /**
  * Represents a single entity whose visibility is
@@ -46,8 +49,7 @@ import java.util.UUID;
  */
 public class PhantomEntity implements IViewable {
 
-    private Entity _entity;
-    private UUID _id;
+    private TrackedEntity _trackedEntity;
     private PhantomEntitiesManager _manager;
     private PlayerSet _viewers;
     private ViewPolicy _viewPolicy = ViewPolicy.WHITELIST;
@@ -60,8 +62,8 @@ public class PhantomEntity implements IViewable {
      */
     public PhantomEntity (PhantomEntitiesManager manager, Entity entity) {
         _manager = manager;
-        _entity = entity;
-        _id = entity.getUniqueId();
+
+        _trackedEntity = EntityUtils.trackEntity(entity);
 
         updateLocalPlayers();
     }
@@ -76,23 +78,27 @@ public class PhantomEntity implements IViewable {
     /**
      * Get the encapsulated entity.
      */
+    @Nullable
     public Entity getEntity() {
-        return _entity;
+        return _trackedEntity.getEntity();
+    }
+
+    /**
+     * Get the tracked entity.
+     */
+    public TrackedEntity getTrackedEntity() {
+        return _trackedEntity;
     }
 
     /**
      * Get the entity ID.
      */
     public int getId() {
-        return _entity.getEntityId();
-    }
+        Entity entity = getEntity();
+        if (entity == null)
+            return -1;
 
-    /**
-     * Get the entities unique ID.
-     * @return
-     */
-    public UUID getUniqueId() {
-        return _id;
+        return entity.getEntityId();
     }
 
     @Override
@@ -214,16 +220,20 @@ public class PhantomEntity implements IViewable {
     }
 
     private void showTo(Player player) {
-        if (_entity.isDead())
+        Entity entity = getEntity();
+
+        if (entity == null || entity.isDead())
             return;
 
         ProtocolManager manager = _manager.getProtocolManager();
-        manager.updateEntity(_entity, Arrays.asList(player));
+        manager.updateEntity(entity, Arrays.asList(player));
     }
 
     private void showToViewers(Collection<Player> viewers) {
 
-        if (_entity.isDead())
+        Entity entity = getEntity();
+
+        if (entity == null || entity.isDead())
             return;
 
         if (viewers == null || viewers.isEmpty())
@@ -234,12 +244,13 @@ public class PhantomEntity implements IViewable {
                 : new ArrayList<>(viewers);
 
         ProtocolManager manager = _manager.getProtocolManager();
-        manager.updateEntity(_entity, players);
+        manager.updateEntity(entity, players);
     }
 
     private void hideFrom(Player player) {
 
-        if (_entity.isDead())
+        Entity entity = getEntity();
+        if (entity == null || entity.isDead())
             return;
 
         PacketContainer destroyPacket = getDestroyPacket();
@@ -253,8 +264,9 @@ public class PhantomEntity implements IViewable {
     }
 
     private void hideFromViewers(Collection<Player> viewers) {
+        Entity entity = getEntity();
 
-        if (_entity.isDead())
+        if (entity == null || entity.isDead())
             return;
 
         if (viewers == null || viewers.isEmpty())
@@ -274,32 +286,37 @@ public class PhantomEntity implements IViewable {
 
     private void updateLocalPlayers() {
 
-        if (_entity.isDead())
+        Entity entity = getEntity();
+
+        if (entity == null || entity.isDead())
             return;
 
-        List<Entity> nearby = _entity.getNearbyEntities(20.0D, 20.0D, 20.0D);
+        World world = _trackedEntity.getWorld();
 
-        for (Entity entity : nearby) {
+        for (Player player : world.getPlayers()) {
 
-            if (entity.hasMetadata("NPC"))
+            if (player.hasMetadata("NPC"))
                 continue;
 
-            if (entity instanceof Player) {
-
-                Player player = (Player)entity;
-
-                if (canSee(player)) {
-                    showTo(player);
-                } else {
-                    hideFrom(player);
-                }
+            if (canSee(player)) {
+                showTo(player);
+            }
+            else {
+                hideFrom(player);
             }
         }
     }
 
+    @Nullable
     private PacketContainer getDestroyPacket() {
+
+        Entity entity = getEntity();
+
+        if (entity == null || entity.isDead())
+            return null;
+
         PacketContainer destroyEntity = new PacketContainer(Server.ENTITY_DESTROY);
-        destroyEntity.getIntegerArrays().write(0, new int[] { _entity.getEntityId() });
+        destroyEntity.getIntegerArrays().write(0, new int[] { entity.getEntityId() });
 
         return destroyEntity;
     }

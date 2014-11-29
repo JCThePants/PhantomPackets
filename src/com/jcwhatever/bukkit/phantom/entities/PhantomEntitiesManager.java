@@ -30,6 +30,9 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
+import com.jcwhatever.bukkit.generic.utils.PreCon;
+import com.jcwhatever.bukkit.generic.utils.entity.TrackedEntity;
+import com.jcwhatever.bukkit.generic.utils.entity.TrackedEntity.ITrackedEntityHandler;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
@@ -42,6 +45,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import javax.annotation.Nullable;
 
 /**
@@ -64,8 +68,10 @@ public class PhantomEntitiesManager {
     };
 
     private final Plugin _plugin;
-    private Map<Integer, PhantomEntity> _entities = new HashMap<>(30);
+    private Map<UUID, PhantomEntity> _entities = new HashMap<>(30);
+    private Map<Integer, PhantomEntity> _loadedEntities = new HashMap<>(30);
     private ProtocolManager _manager;
+    private final EntityHandler _handler;
 
     /**
      * Constructor.
@@ -73,10 +79,14 @@ public class PhantomEntitiesManager {
      * @param plugin  The owning plugin.
      */
     public PhantomEntitiesManager(Plugin plugin) {
+        PreCon.notNull(plugin);
+
         _plugin = plugin;
         _manager = ProtocolLibrary.getProtocolManager();
 
         _manager.addPacketListener(getPacketListener());
+
+        _handler = new EntityHandler();
 
         Bukkit.getPluginManager().registerEvents(new BukkitListener(), _plugin);
     }
@@ -104,15 +114,23 @@ public class PhantomEntitiesManager {
      * @param entity  The entity to add.
      */
     public PhantomEntity addEntity(Entity entity) {
+        PreCon.notNull(entity);
 
-        PhantomEntity phantom = _entities.get(entity.getEntityId());
+        PhantomEntity phantom = _entities.get(entity.getUniqueId());
         if (phantom != null)
             return phantom;
 
         phantom = new PhantomEntity(this, entity);
-        
+
         if (!entity.isDead()) {
-            _entities.put(entity.getEntityId(), phantom);
+
+            phantom.getTrackedEntity().addHandler(_handler);
+
+            _entities.put(entity.getUniqueId(), phantom);
+
+            if (entity.getLocation().getChunk().isLoaded()) {
+                _loadedEntities.put(entity.getEntityId(), phantom);
+            }
         }
 
         return phantom;
@@ -124,7 +142,18 @@ public class PhantomEntitiesManager {
      * @param entity  The entity to remove.
      */
     public boolean removeEntity(Entity entity) {
-        return _entities.remove(entity.getEntityId()) != null;
+        PreCon.notNull(entity);
+
+        PhantomEntity phantom = _entities.remove(entity.getUniqueId());
+        if (phantom == null)
+            return false;
+
+        Entity phantomEntity = phantom.getEntity();
+        if (phantomEntity != null) {
+            _loadedEntities.remove(phantomEntity.getEntityId());
+        }
+
+        return true;
     }
 
     /**
@@ -137,7 +166,9 @@ public class PhantomEntitiesManager {
      */
     @Nullable
     public PhantomEntity getEntity(Entity entity) {
-        return _entities.get(entity.getEntityId());
+        PreCon.notNull(entity);
+
+        return _entities.get(entity.getUniqueId());
     }
 
     /**
@@ -156,7 +187,7 @@ public class PhantomEntitiesManager {
             public void onPacketSending(PacketEvent event) {
                 int entityID = event.getPacket().getIntegers().read(0);
 
-                PhantomEntity entity = _entities.get(entityID);
+                PhantomEntity entity = _loadedEntities.get(entityID);
                 if (entity == null)
                     return;
 
@@ -171,9 +202,32 @@ public class PhantomEntitiesManager {
      * Bukkit event listener
      */
     private class BukkitListener implements Listener {
+
         @EventHandler
-        public void onEntityDeath(EntityDeathEvent e) {
-            _entities.remove(e.getEntity().getEntityId());
+        private void onEntityDeath(EntityDeathEvent event) {
+            removeEntity(event.getEntity());
+        }
+    }
+
+    private class EntityHandler implements ITrackedEntityHandler {
+
+        @Override
+        public void onChanged(TrackedEntity trackedEntity) {
+
+            if (trackedEntity.isChunkLoaded() && !trackedEntity.isDisposed()) {
+
+                PhantomEntity phantom = _entities.get(trackedEntity.getUniqueId());
+                if (phantom != null) {
+                    _loadedEntities.put(trackedEntity.getEntity().getEntityId(), phantom);
+                }
+
+            } else if (!trackedEntity.isDisposed()) {
+                _loadedEntities.remove(trackedEntity.getEntity().getEntityId());
+            }
+            else {
+                _loadedEntities.remove(trackedEntity.getEntity().getEntityId());
+                _entities.remove(trackedEntity.getUniqueId());
+            }
         }
     }
 }
