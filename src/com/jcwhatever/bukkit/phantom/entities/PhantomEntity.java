@@ -50,7 +50,7 @@ public class PhantomEntity implements IViewable {
     private UUID _id;
     private PhantomEntitiesManager _manager;
     private PlayerSet _viewers;
-    private ViewPolicy _viewMode = ViewPolicy.WHITELIST;
+    private ViewPolicy _viewPolicy = ViewPolicy.WHITELIST;
 
     /**
      * Constructor.
@@ -62,6 +62,8 @@ public class PhantomEntity implements IViewable {
         _manager = manager;
         _entity = entity;
         _id = entity.getUniqueId();
+
+        updateLocalPlayers();
     }
 
     /**
@@ -95,15 +97,15 @@ public class PhantomEntity implements IViewable {
 
     @Override
     public ViewPolicy getViewPolicy() {
-        return _viewMode;
+        return _viewPolicy;
     }
 
     @Override
     public void setViewMode(ViewPolicy viewMode) {
-        if (_viewMode == viewMode)
+        if (_viewPolicy == viewMode)
             return;
 
-        _viewMode = viewMode;
+        _viewPolicy = viewMode;
 
         switch (viewMode) {
             case WHITELIST:
@@ -120,8 +122,8 @@ public class PhantomEntity implements IViewable {
     @Override
     public boolean canSee(Player player) {
         boolean hasViewer = hasViewer(player);
-        return (_viewMode == ViewPolicy.BLACKLIST && !hasViewer) ||
-                (_viewMode == ViewPolicy.WHITELIST && hasViewer);
+        return (_viewPolicy == ViewPolicy.BLACKLIST && !hasViewer) ||
+                (_viewPolicy == ViewPolicy.WHITELIST && hasViewer);
     }
 
     @Override
@@ -138,7 +140,7 @@ public class PhantomEntity implements IViewable {
             return false;
         }
 
-        switch (_viewMode) {
+        switch (_viewPolicy) {
             case WHITELIST:
                 showTo(player);
                 break;
@@ -161,7 +163,7 @@ public class PhantomEntity implements IViewable {
             return false;
         }
 
-        switch (_viewMode) {
+        switch (_viewPolicy) {
             case WHITELIST:
                 hideFrom(player);
                 break;
@@ -184,7 +186,7 @@ public class PhantomEntity implements IViewable {
 
         _viewers.clear();
 
-        switch (_viewMode) {
+        switch (_viewPolicy) {
             case WHITELIST:
                 hideFromViewers(viewers);
                 break;
@@ -267,6 +269,31 @@ public class PhantomEntity implements IViewable {
             }
         } catch (InvocationTargetException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void updateLocalPlayers() {
+
+        if (_entity.isDead())
+            return;
+
+        List<Entity> nearby = _entity.getNearbyEntities(20.0D, 20.0D, 20.0D);
+
+        for (Entity entity : nearby) {
+
+            if (entity.hasMetadata("NPC"))
+                continue;
+
+            if (entity instanceof Player) {
+
+                Player player = (Player)entity;
+
+                if (canSee(player)) {
+                    showTo(player);
+                } else {
+                    hideFrom(player);
+                }
+            }
         }
     }
 
