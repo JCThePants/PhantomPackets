@@ -100,6 +100,23 @@ public class PhantomScriptApi extends GenericsScriptApi {
         public class PhantomRegionsAPI {
 
             /**
+             * Determine if a region has a viewer.
+             *
+             * @param player      The player to check.
+             * @param regionName  The region to check.
+             */
+            public boolean hasViewer(Object player, String regionName) {
+                PreCon.notNull(player);
+                PreCon.notNull(entity);
+
+                Player p = PlayerUtils.getPlayer(player);
+                PreCon.notNull(p);
+
+                PhantomRegion region = PhantomPackets.getPlugin().getRegionManager().getRegion(regionName);
+                return region != null && region.hasViewer(p);
+            }
+
+            /**
              * Add a player to a phantom region as a whitelisted viewer.
              *
              * @param player      The player to show the region to.
@@ -162,6 +179,50 @@ public class PhantomScriptApi extends GenericsScriptApi {
         }
 
         public class PhantomEntityAPI {
+
+            /**
+             * Make the specified entity a phantom entity.
+             *
+             * @param entity  The entity.
+             */
+            public void addEntity(Entity entity) {
+                PreCon.notNull(entity);
+
+                PhantomPackets.getPlugin().getEntitiesManager().addEntity(entity);
+            }
+
+            /**
+             * Remove the specified entity as a phantom entity.
+             *
+             * @param entity  The entity to remove.
+             */
+            public void removeEntity(Entity entity) {
+                PreCon.notNull(entity);
+
+                PhantomPackets.getPlugin().getEntitiesManager().removeEntity(entity);
+            }
+
+            /**
+             * Determine if an entity has a viewer.
+             *
+             * <p>If the entity is not a phantom entity then false
+             * is returned.</p>
+             *
+             * @param player  The player to check.
+             * @param entity  The entity to check.
+             */
+            public boolean hasViewer(Object player, Entity entity) {
+                PreCon.notNull(player);
+                PreCon.notNull(entity);
+
+                Player p = PlayerUtils.getPlayer(player);
+                PreCon.notNull(p);
+
+                PhantomEntity phantomEntity = PhantomPackets.getPlugin()
+                        .getEntitiesManager().getEntity(entity);
+
+                return phantomEntity != null && phantomEntity.hasViewer(p);
+            }
 
             /**
              * Add a player to a phantom entity as a whitelisted viewer.
