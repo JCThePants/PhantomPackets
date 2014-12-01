@@ -71,7 +71,7 @@ public class PhantomScriptApi extends GenericsScriptApi {
         Map<Player, Set<PhantomEntity>> _entityMap = new WeakHashMap<>(30);
 
         @Override
-        public void reset() {
+        public void dispose() {
             for (Entry<Player, Set<PhantomRegion>> playerSetEntry : _regionMap.entrySet()) {
 
                 Set<PhantomRegion> regionList = playerSetEntry.getValue();
