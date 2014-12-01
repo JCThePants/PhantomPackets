@@ -69,6 +69,12 @@ public class PhantomScriptApi extends GenericsScriptApi {
 
         Map<Player, Set<PhantomRegion>> _regionMap = new WeakHashMap<>(30);
         Map<Player, Set<PhantomEntity>> _entityMap = new WeakHashMap<>(30);
+        private boolean _isDisposed;
+
+        @Override
+        public boolean isDisposed() {
+            return _isDisposed;
+        }
 
         @Override
         public void dispose() {
@@ -92,6 +98,8 @@ public class PhantomScriptApi extends GenericsScriptApi {
             }
 
             _entityMap.clear();
+
+            _isDisposed = true;
         }
 
         public final PhantomRegionsAPI regions = new PhantomRegionsAPI();
