@@ -71,6 +71,6 @@ public class ListCommand extends AbstractCommand {
             pagin.add(region.getName(), description);
         }
 
-        pagin.show(sender, page, FormatTemplate.ITEM_DESCRIPTION);
+        pagin.show(sender, page, FormatTemplate.LIST_ITEM_DESCRIPTION);
     }
 }
