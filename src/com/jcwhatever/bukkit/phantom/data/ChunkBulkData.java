@@ -27,6 +27,8 @@ package com.jcwhatever.bukkit.phantom.data;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.StructureModifier;
 
+import net.minecraft.server.v1_8_R1.ChunkMap;
+
 public class ChunkBulkData {
 
     private final WorldInfo _world;
@@ -52,17 +54,17 @@ public class ChunkBulkData {
     public static ChunkBulkData fromMapChunkBulkPacket(PacketContainer packet, WorldInfo world) {
 
         ChunkBulkData bulk = new ChunkBulkData(world);
+        StructureModifier<Object> objects = packet.getModifier();
 
-        StructureModifier<int[]> integerArrays = packet.getSpecificModifier(int[].class);
-        StructureModifier<byte[]> byteArrays = packet.getSpecificModifier(byte[].class);
+        // TODO: Use of NMS code will break with version changes
 
-        int[] chunkX = integerArrays.read(0);
-        int[] chunkZ = integerArrays.read(1);
-        int[] sectionMasks = integerArrays.read(2);
-        int totalChunks = chunkX.length;
+        int[] chunkX = (int[])objects.read(0);
+        int[] chunkZ = (int[])objects.read(1);
+        ChunkMap[] nmsChunkMaps = (ChunkMap[])objects.read(2);
+
+        int totalChunks = nmsChunkMaps.length;
+
         bulk._chunkData = new IChunkData[totalChunks];
-
-        int dataIndex = 0;
 
         // iterate over chunk data and create ChunkData instance for each chunk
         for (int i=0; i < totalChunks; i++) {
@@ -72,19 +74,10 @@ public class ChunkBulkData {
 
             int x = chunkX[i];
             int z = chunkZ[i];
-            int mask = sectionMasks[i];
-            byte[] data = byteArrays.read(1);
-
-            if (data == null || data.length == 0) {
-                // spigot
-                data = packet.getSpecificModifier(byte[][].class).read(0)[i];
-            }
-            else {
-                chunkData.setStartIndex(dataIndex);
-            }
+            int mask = nmsChunkMaps[i].b; // section mask
+            byte[] data = nmsChunkMaps[i].a; // chunk data
 
             chunkData.init(x, z, mask, data, true);
-            dataIndex += chunkData.getChunkSize();
         }
 
         return bulk;

@@ -91,14 +91,6 @@ public interface IChunkData extends IChunkCoordinates {
     int getBlockStart(int sectionDataIndex);
 
     /**
-     * Get the starting index position of block meta data for the specified
-     * chunk section using the chunk sections index position within the data.
-     *
-     * @param sectionDataIndex  The chunk section index position within the data.
-     */
-    int getBlockMetaStart(int sectionDataIndex);
-
-    /**
      * Get the starting index position of block light data for the specified
      * chunk section using the chunk sections index position within the data.
      *

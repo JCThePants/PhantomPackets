@@ -25,18 +25,20 @@
 package com.jcwhatever.bukkit.phantom.translators;
 
 import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.reflect.StructureModifier;
-import com.comphenix.protocol.reflect.accessors.Accessors;
-import com.comphenix.protocol.reflect.accessors.FieldAccessor;
 import com.jcwhatever.bukkit.generic.regions.data.ChunkBlockInfo;
 import com.jcwhatever.bukkit.generic.utils.EntryValidator;
 import com.jcwhatever.bukkit.phantom.data.ChunkBulkData;
 import com.jcwhatever.bukkit.phantom.data.ChunkData;
 import com.jcwhatever.bukkit.phantom.data.ChunkDataBlockIterator;
 import com.jcwhatever.bukkit.phantom.data.ChunkInfo;
-import com.jcwhatever.bukkit.phantom.data.IChunkData;
 import com.jcwhatever.bukkit.phantom.data.IChunkCoordinates;
+import com.jcwhatever.bukkit.phantom.data.IChunkData;
 import com.jcwhatever.bukkit.phantom.data.WorldInfo;
+import com.jcwhatever.bukkit.phantom.packets.BlockChangePacket;
+import com.jcwhatever.bukkit.phantom.packets.MultiBlockChangePacket;
+import com.jcwhatever.bukkit.phantom.packets.MultiBlockChangePacket.PacketBlock;
+
+import org.bukkit.Material;
 
 /*
  * 
@@ -44,67 +46,48 @@ import com.jcwhatever.bukkit.phantom.data.WorldInfo;
 public class BlockPacketTranslator {
 
 
-    public boolean translateBlockChange(PacketContainer packet, WorldInfo world,
+    public boolean translateBlockChange(BlockChangePacket packet, WorldInfo world,
                                         BlockTypeTranslator translator) {
 
-        StructureModifier<Integer> ints = packet.getIntegers();
-        int x = ints.read(0);
-        int y = ints.read(1);
-        int z = ints.read(2);
+        // TODO: Use of NMS code breaks with version changes
 
-        ChunkBlockInfo info = translator.translate(world, x, y, z, 0);
+        int x = packet.getX();
+        int y = packet.getY();
+        int z = packet.getZ();
+
+        ChunkBlockInfo info = translator.translate(world, x, y, z, packet.getMaterial(), packet.getMeta());
         if (info == null)
             return false;
 
-        packet.getBlocks().write(0, info.getMaterial());
-        ints.write(3, info.getData());
+        packet.setBlock(info.getMaterial(), (byte) info.getData());
 
         return true;
     }
 
-    public boolean translateMultiBlockChange(PacketContainer packet, WorldInfo world,
+    public boolean translateMultiBlockChange(MultiBlockChangePacket packet, WorldInfo world,
                                               BlockTypeTranslator translator,
                                               EntryValidator<IChunkCoordinates> chunkValidator) {
 
-        StructureModifier<byte[]> byteArrays = packet.getByteArrays();
-
         boolean isChanged = false;
 
-        ChunkInfo chunkCoords = getChunkInfo(packet, world);
+        int chunkX = packet.getChunkX();
+        int chunkZ = packet.getChunkZ();
 
-        if (!chunkValidator.isValid(chunkCoords))
+        if (!chunkValidator.isValid(new ChunkInfo(world, chunkX, chunkZ)))
             return false;
 
-        byte[] data = byteArrays.read(0);
+        for (PacketBlock block : packet) {
+            int x = block.getX();
+            int y = block.getY();
+            int z = block.getZ();
 
-        int xStart = chunkCoords.getX() * 16;
-        int zStart = chunkCoords.getZ() * 16;
+            ChunkBlockInfo info = translator.translate(world, x, y, z, block.getMaterial(), block.getMeta());
+            if (info == null)
+                continue;
 
-        for (int position=0; position < data.length; position += 4) {
+            isChanged = true;
 
-            int xz = data[position];
-            int y = data[position + 1];
-
-            int z = zStart + (xz & 0x0F);
-            int x = xStart + (xz >> 4);
-
-            int lower = data[position + 2];
-            int upper = data[position + 3];
-            int blockId = (lower << 8) | upper;
-
-            ChunkBlockInfo info = translator.translate(world, x, y, z, blockId);
-            if (info != null) {
-
-                blockId = (info.getMaterial().getId() << 4) | info.getData();
-
-                lower = blockId >> 8;
-                upper = blockId & 0x00FF;
-
-                data[position + 2] = (byte)lower;
-                data[position + 3] = (byte)upper;
-
-                isChanged = true;
-            }
+            block.setBlock(info.getMaterial(), info.getData());
         }
 
         return isChanged;
@@ -153,40 +136,27 @@ public class BlockPacketTranslator {
         while (iterator.hasNext()) {
             iterator.next();
 
+            int blockId = iterator.getBlockId();
+            Material material = Material.getMaterial(blockId);
+            byte meta = iterator.getBlockMeta();
+
             ChunkBlockInfo info = translator.translate(
                     chunkData.getWorld(),
                     iterator.getX(),
                     iterator.getY(),
                     iterator.getZ(),
-                    iterator.getBlockId());
+                    material,
+                    meta);
 
             if (info == null)
                 continue;
 
-            iterator.setBlockId(info.getMaterial().getId());
+            iterator.setBlockMaterial(info.getMaterial());
             iterator.setBlockMeta(info.getData());
             iterator.setBlockLight(info.getEmittedLight());
 
             if (iterator.hasSkylight())
                 iterator.setSkylight(info.getSkylight());
-        }
-    }
-
-
-    private ChunkInfo getChunkInfo(PacketContainer packet, WorldInfo world) {
-        StructureModifier<Integer> integers = packet.getSpecificModifier(int.class);
-
-        if (integers.size() >= 2) {
-            return new ChunkInfo(world, integers.read(0), integers.read(1));
-        }
-        else {
-
-            Object handle = packet.getModifier().read(0);
-
-            FieldAccessor xField = Accessors.getFieldAccessor(handle.getClass(), "x", true);
-            FieldAccessor zField = Accessors.getFieldAccessor(handle.getClass(), "z", true);
-
-            return new ChunkInfo(world, (Integer)xField.get(handle), (Integer)zField.get(handle));
         }
     }
 }

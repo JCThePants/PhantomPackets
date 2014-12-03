@@ -51,45 +51,37 @@ public class Utils {
 
     private Utils() {}
 
+    public static int getLegacyId(Material material, byte meta) {
+        return (material.getId() << 4) | meta;
+    }
+
+    public static Material getMaterialFromLegacyId(int id) {
+        int materialId = id >> 4;
+        return Material.getMaterial(materialId);
+    }
+
+    public static byte getMetaFromLegacyId(int id) {
+        return (byte)(id & 0xF);
+    }
+
+    public static int getCombinedId(Material material, byte meta) {
+        return (material.getId() & 0xFFF) | ((meta & 0xF) << 12);
+    }
+
+    public static Material getMaterialFromCombinedId(int id) {
+        int materialId = id & 0xFFF;
+        return Material.getMaterial(materialId);
+    }
+
+    public static byte getMetaFromCombinedId(int id) {
+        return (byte)(id >> 12);
+    }
+
     public static boolean isChunkNearby(int chunkX, int chunkZ, Location location) {
         Chunk chunk = location.getChunk();
 
         return Math.abs(chunkX - (chunk.getX() >> 4)) == 0 &&
                Math.abs(chunkZ - (chunk.getZ() >> 4)) == 0;
-    }
-
-    public static PacketContainer cloneBlockChangePacket(PacketContainer packet) {
-
-        PacketContainer clone = clonePacket(packet);
-
-        StructureModifier<Integer> ints = packet.getIntegers();
-        StructureModifier<Integer> cloneInts = clone.getIntegers();
-
-        for (int i=0; i < ints.size(); i++) {
-            cloneInts.write(i, ints.read(i));
-        }
-
-        StructureModifier<Material> blocks = packet.getBlocks();
-        StructureModifier<Material> cloneBlocks = packet.getBlocks();
-
-        for (int i=0; i < ints.size(); i++) {
-            cloneBlocks.write(i, blocks.read(i));
-        }
-
-        return clone;
-    }
-
-    public static PacketContainer cloneMultiBlockPacket(PacketContainer packet) {
-        PacketContainer clone = clonePacket(packet);
-
-        byte[] source = packet.getByteArrays().read(0);
-        byte[] dest = new byte[source.length];
-
-        System.arraycopy(source, 0, dest, 0, source.length);
-
-        clone.getByteArrays().write(0, dest);
-
-        return clone;
     }
 
     public static PacketContainer clonePacket(PacketContainer packet) {

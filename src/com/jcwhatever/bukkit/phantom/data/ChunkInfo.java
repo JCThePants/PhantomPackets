@@ -24,7 +24,9 @@
 
 package com.jcwhatever.bukkit.phantom.data;
 
-/* 
+import org.bukkit.Chunk;
+
+/*
  * 
  */
 public class ChunkInfo implements IChunkCoordinates {
@@ -37,6 +39,12 @@ public class ChunkInfo implements IChunkCoordinates {
         _world = world;
         _x = x;
         _z = z;
+    }
+
+    public ChunkInfo (Chunk chunk) {
+        _world = new WorldInfo(chunk.getWorld());
+        _x = chunk.getX();
+        _z = chunk.getZ();
     }
 
     @Override

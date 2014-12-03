@@ -24,6 +24,10 @@
 
 package com.jcwhatever.bukkit.phantom.data;
 
+import com.jcwhatever.bukkit.phantom.Utils;
+
+import org.bukkit.Material;
+
 /*
  * Iterate over block data contained in chunk byte data.
  */
@@ -32,9 +36,9 @@ public class ChunkDataBlockIterator {
     private IChunkData _chunkData;
     private byte[] _data;
 
-    private int _blockIndex = -1;
-    private int _metaIndex = -1;
-    private int _lightIndex = -1;
+    private int _blockIndex;
+    private int _blockDataIndex;
+    private int _lightIndex;
     private int _skylightIndex = -1;
 
     private int _sectionDataIndex = 0;
@@ -56,7 +60,7 @@ public class ChunkDataBlockIterator {
         _data = data.getData();
 
         _blockIndex = data.getBlockStart(0);
-        _metaIndex = data.getBlockMetaStart(0);
+        _blockDataIndex = _blockIndex;
         _lightIndex = data.getBlockLightStart(0);
 
         _xStart = data.getX() * 16;
@@ -115,15 +119,15 @@ public class ChunkDataBlockIterator {
             _sectionChunkIndex = _chunkData.getSectionChunkIndex(_sectionDataIndex);
 
             _blockIndex = _chunkData.getBlockStart(_sectionDataIndex) - 1;
-            _metaIndex = _chunkData.getBlockMetaStart(_sectionDataIndex) - 1;
+            _blockDataIndex = _blockIndex - (ChunkData.BLOCK_SIZE - 1);
             _lightIndex = _chunkData.getBlockLightStart(_sectionDataIndex) - 1;
             _skylightIndex = _chunkData.getSkylightStart(_sectionDataIndex) - 1;
         }
 
         _blockIndex++;
+        _blockDataIndex += ChunkData.BLOCK_SIZE;
 
         if ((_blockIndex & 0x1) == 0) { // MODULUS
-            _metaIndex++;
             _lightIndex++;
             _skylightIndex++;
         }
@@ -172,30 +176,56 @@ public class ChunkDataBlockIterator {
     }
 
     /**
-     * Get the current block type ID.
+     * Get the current block legacy ID.
+     *
+     * <p>
+     *     blockId << 4 | meta
+     * </p>
+     *
      */
     public int getBlockId() {
-        return _data[_blockIndex];
+         return (_data[_blockDataIndex] & 0xFF) | ((_data[_blockDataIndex + 1] << 8) & 0xFF00);
     }
 
     /**
-     * Set the current block ID. Block ID is 8 bits but in some cases might be 12 bits.
+     * Set the current block legacy ID.
+     *
+     * <p>
+     *     blockId << 4 | meta
+     * </p>
      *
      * @param id  The ID value.
      */
     public void setBlockId(int id) {
-        _data[_blockIndex] = (byte)id;
+        _data[_blockDataIndex] = (byte) (id & 0xFF);
+        _data[_blockDataIndex + 1] = (byte) (id >> 8 & 0xFF);
+    }
+
+    /**
+     * Get the current block material.
+     */
+    public Material getBlockMaterial() {
+        int id = getBlockId();
+        return Utils.getMaterialFromLegacyId(id);
+    }
+
+    /**
+     * Set the current block material.
+     *
+     * @param material
+     */
+    public void setBlockMaterial(Material material) {
+        byte meta = getBlockMeta();
+        int legacyId = Utils.getLegacyId(material, meta);
+
+        setBlockId(legacyId);
     }
 
     /**
      * Get the current block meta data value.
      */
-    public int getBlockMeta() {
-        int meta = _data[_metaIndex];
-
-        return (_blockIndex & 0x1) == 0 // MODULUS
-                ? meta & 0x0F
-                : (meta & 0xF0) >> 4;
+    public byte getBlockMeta() {
+        return Utils.getMetaFromLegacyId(getBlockId());
     }
 
     /**
@@ -204,16 +234,9 @@ public class ChunkDataBlockIterator {
      * @param meta  A value from 0-15.
      */
     public void setBlockMeta(int meta) {
-        int current = _data[_metaIndex];
-
-        if ((_blockIndex & 0x1) == 0) { // MODULUS
-            current &= 0xF0;
-        } else {
-            current &= 0x0F;
-            meta <<= 4;
-        }
-
-        _data[_metaIndex] = (byte)(current | meta);
+        Material material = getBlockMaterial();
+        int combinedId = Utils.getLegacyId(material, (byte) meta);
+        setBlockId(combinedId);
     }
 
     /**

@@ -29,14 +29,16 @@ import com.comphenix.protocol.reflect.StructureModifier;
 
 import org.bukkit.World.Environment;
 
+import net.minecraft.server.v1_8_R1.ChunkMap;
+
 /*
  * 
  */
 public class ChunkData implements IChunkData {
 
-    public static final int BLOCK_DATA_SIZE = 4096;
-    public static final int BLOCK_META_DATA_SIZE = 2048;
-    public static final int BLOCK_LIGHT_DATA_SIZE = 2048;
+    public static final int BLOCK_SIZE = 2;
+    public static final int BLOCK_DATA_SIZE = 8192;
+    public static final int EMITTED_LIGHT_DATA_SIZE = 2048;
     public static final int SKYLIGHT_DATA_SIZE = 2048;
     public static final int BIOME_DATA_SIZE = 256;
 
@@ -61,7 +63,6 @@ public class ChunkData implements IChunkData {
     private int _chunkSize;
     private int _blockSize;
 
-    private int _blockMetaStart;
     private int _blockLightStart;
     private int _skylightStart;
 
@@ -138,13 +139,8 @@ public class ChunkData implements IChunkData {
     }
 
     @Override
-    public int getBlockMetaStart(int sectionDataIndex) {
-        return _blockMetaStart + (sectionDataIndex * BLOCK_META_DATA_SIZE);
-    }
-
-    @Override
     public int getBlockLightStart(int sectionDataIndex) {
-        return _blockLightStart + (sectionDataIndex * BLOCK_LIGHT_DATA_SIZE);
+        return _blockLightStart + (sectionDataIndex * EMITTED_LIGHT_DATA_SIZE);
     }
 
     @Override
@@ -185,28 +181,30 @@ public class ChunkData implements IChunkData {
             }
         }
 
-        _blockSize = BLOCK_DATA_SIZE * _sectionDataCount;
-        _chunkSize = 2048 * ((4 + _skylight) * _sectionDataCount) + _continuous;
+        _chunkSize = (_sectionDataCount * BLOCK_DATA_SIZE * EMITTED_LIGHT_DATA_SIZE *
+                (hasSkylight() ? SKYLIGHT_DATA_SIZE : 1)) + _continuous;
 
-        _blockMetaStart = _startIndex + _sectionDataCount * BLOCK_DATA_SIZE;
-        _blockLightStart = _startIndex + (_sectionDataCount * BLOCK_DATA_SIZE) +
-                                         (_sectionDataCount * BLOCK_META_DATA_SIZE);
-        _skylightStart = hasSkylight() ? -1 : _startIndex +
-                        (_sectionDataCount * BLOCK_DATA_SIZE) +
-                        (_sectionDataCount * BLOCK_META_DATA_SIZE) +
-                        (_sectionDataCount * BLOCK_LIGHT_DATA_SIZE);
+        _blockSize = BLOCK_DATA_SIZE * _sectionDataCount;
+
+        _blockLightStart = _startIndex + _blockSize;
+
+        _skylightStart = hasSkylight() ? -1 : _startIndex + _blockSize +
+                        (_sectionDataCount * EMITTED_LIGHT_DATA_SIZE);
     }
 
     private void initMapChunkPacket(PacketContainer packet) {
 
         StructureModifier<Integer> integers = packet.getSpecificModifier(int.class);
-        StructureModifier<byte[]> byteArrays = packet.getSpecificModifier(byte[].class);
+        StructureModifier<Object> objects = packet.getModifier();
+
+        //TODO: Current use of NMS code will break with version changes
+
+        ChunkMap nmsChunkMap = (ChunkMap)objects.read(2);
 
         int chunkX = integers.read(0);
         int chunkZ = integers.read(1);
-        int mask = integers.read(2);
-        // _extraMask = integers.read(3);
-        byte[] data = byteArrays.read(1);
+        int mask = nmsChunkMap.b; // sectionMask
+        byte[] data = nmsChunkMap.a; // data array
 
         Boolean isContinuous = packet.getBooleans().readSafely(0);
 

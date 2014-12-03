@@ -22,32 +22,30 @@
  * THE SOFTWARE.
  */
 
-package com.jcwhatever.bukkit.phantom.translators;
+package com.jcwhatever.bukkit.phantom.packets;
 
-import com.jcwhatever.bukkit.generic.regions.data.ChunkBlockInfo;
-import com.jcwhatever.bukkit.phantom.data.WorldInfo;
+import com.comphenix.protocol.events.PacketContainer;
+import com.jcwhatever.bukkit.generic.utils.PreCon;
 
-import org.bukkit.Material;
-
-import javax.annotation.Nullable;
-
-/**
- * Represents a function to get alternative block info from.
+/*
+ * 
  */
-public interface BlockTypeTranslator {
+public abstract class AbstractPacket {
 
-    /**
-     * Translate block info.
-     *
-     * @param world       The world the block is in.
-     * @param x           The world X coordinates.
-     * @param y           The world Y coordinates.
-     * @param z           The world Z coordinates.
-     * @param material    The material of the current block.
-     * @param meta        The current block meta
-     *
-     * @return  Null to leave block as is.
-     */
-    @Nullable
-    ChunkBlockInfo translate(WorldInfo world, int x, int y, int z, Material material, byte meta);
+    protected final PacketContainer _packet;
+
+    protected AbstractPacket (PacketContainer packet) {
+        PreCon.notNull(packet);
+
+        _packet = packet;
+    }
+
+    public PacketContainer getPacket() {
+        return _packet;
+    }
+
+    public abstract void saveChanges();
+
+    public abstract AbstractPacket clonePacket();
+
 }

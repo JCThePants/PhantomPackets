@@ -34,6 +34,7 @@ import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.StructureModifier;
+import com.jcwhatever.bukkit.generic.messaging.Messenger;
 import com.jcwhatever.bukkit.generic.mixins.IViewable;
 import com.jcwhatever.bukkit.generic.performance.queued.QueueResult.Future;
 import com.jcwhatever.bukkit.generic.player.collections.PlayerSet;
@@ -45,10 +46,15 @@ import com.jcwhatever.bukkit.generic.regions.data.ChunkBlockInfo;
 import com.jcwhatever.bukkit.generic.storage.IDataNode;
 import com.jcwhatever.bukkit.generic.utils.EntryValidator;
 import com.jcwhatever.bukkit.generic.utils.PreCon;
+import com.jcwhatever.bukkit.phantom.PhantomPackets;
 import com.jcwhatever.bukkit.phantom.Utils;
+import com.jcwhatever.bukkit.phantom.data.ChunkInfo;
 import com.jcwhatever.bukkit.phantom.data.Coordinate;
 import com.jcwhatever.bukkit.phantom.data.IChunkCoordinates;
 import com.jcwhatever.bukkit.phantom.data.WorldInfo;
+import com.jcwhatever.bukkit.phantom.packets.BlockChangePacket;
+import com.jcwhatever.bukkit.phantom.packets.MultiBlockChangeFactory;
+import com.jcwhatever.bukkit.phantom.packets.MultiBlockChangePacket;
 import com.jcwhatever.bukkit.phantom.translators.BlockPacketTranslator;
 import com.jcwhatever.bukkit.phantom.translators.BlockTypeTranslator;
 
@@ -60,18 +66,22 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 /*
  * Region that saves to disk and uses saved version to
  * display to specified players only.
  */
 public class PhantomRegion extends RestorableRegion implements IViewable {
+
+    private static Map<Object, Void> _sentPackets = new WeakHashMap<>(10);
 
     private final ProtocolManager _protocolManager = ProtocolLibrary.getProtocolManager();
     private final BlockPacketTranslator _packetTranslator;
@@ -83,6 +93,7 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
     private boolean _isAsyncListenerStarted;
 
     private Map<Coordinate, ChunkBlockInfo> _blocks;
+    private Map<ChunkInfo, MultiBlockChangeFactory> _chunkBlocks = new HashMap<>(10);
 
     private Set<Player> _viewers;
     private ViewPolicy _viewMode = ViewPolicy.WHITELIST;
@@ -112,11 +123,11 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
         // initialize block type translator
         _blockTranslator = new BlockTypeTranslator() {
             @Override
-            public ChunkBlockInfo translate(WorldInfo world, int x, int y, int z, int currentId) {
-
+            public ChunkBlockInfo translate(WorldInfo world,
+                                            int x, int y, int z,
+                                            Material material, byte meta) {
                 if (!contains(x, y, z))
                     return null;
-
 
                 ChunkBlockInfo blockInfo = _blocks.get(new Coordinate(x, y, z));
                 return _ignoreAir && blockInfo.getMaterial() == Material.AIR
@@ -393,6 +404,10 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
                     if (!canSee(event.getPlayer()))
                         return;
 
+                    // don't process packets sent by a phantom region
+                    if (_sentPackets.containsKey(event.getPacket().getHandle()))
+                        return;
+
                     World world = event.getPlayer().getWorld();
 
                     worldInfo = new WorldInfo(world);
@@ -429,8 +444,15 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
 
                 WorldInfo worldInfo;
 
-                if (!canSee(event.getPlayer()))
-                    return;
+                synchronized (_sync) {
+
+                    if (!canSee(event.getPlayer()))
+                        return;
+
+                    // don't process packets sent by a phantom region
+                    if (_sentPackets.containsKey(event.getPacket().getHandle()))
+                        return;
+                }
 
                 World world = event.getPlayer().getWorld();
 
@@ -443,17 +465,22 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
 
                 if (type == Server.BLOCK_CHANGE) {
 
-                    PacketContainer cloned = Utils.clonePacket(packet);
-                    if (_packetTranslator.translateBlockChange(cloned, worldInfo, _blockTranslator)) {
-                        event.setPacket(cloned);
+                    BlockChangePacket wrapper = new BlockChangePacket(packet);
+                    if (_packetTranslator.translateBlockChange(wrapper, worldInfo, _blockTranslator)) {
+
+                        wrapper.saveChanges();
+                        event.setPacket(wrapper.clonePacket().getPacket());
                     }
                 }
                 else if (type == Server.MULTI_BLOCK_CHANGE) {
 
-                    PacketContainer cloned = Utils.cloneMultiBlockPacket(packet);
+                    MultiBlockChangePacket wrapper = new MultiBlockChangePacket(packet);
                     if (_packetTranslator.translateMultiBlockChange(
-                            cloned, worldInfo, _blockTranslator, _chunkValidator)) {
-                        event.setPacket(cloned);
+                            wrapper, worldInfo, _blockTranslator, _chunkValidator)) {
+
+                        wrapper.saveChanges();
+
+                        event.setPacket(wrapper.clonePacket().getPacket());
                     }
                 }
                 else if (type == Server.MAP_CHUNK) {
@@ -532,7 +559,13 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
 
                     if (isLoadSuccess) {
 
+                        ChunkInfo chunkInfo = new ChunkInfo(chunk);
+
                         LinkedList<ChunkBlockInfo> blockInfos = loader.getBlockInfo();
+
+                        MultiBlockChangeFactory factory = new MultiBlockChangeFactory(chunkInfo, blockInfos);
+
+                        _chunkBlocks.put(chunkInfo, factory);
 
                         while (!blockInfos.isEmpty()) {
                             ChunkBlockInfo info = blockInfos.remove();
@@ -547,6 +580,10 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
 
                         loadPacketListener();
                     }
+                    else {
+                        Messenger.warning(PhantomPackets.getPlugin(),
+                                "Failed to load chunk data for phantom region named '{0}'.", getName());
+                    }
                 }
             });
         }
@@ -557,9 +594,31 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
         if (!p.getWorld().equals(getWorld()))
             return;
 
+        Messenger.warning(PhantomPackets.getPlugin(), "Resending chunks to player {0}.", p.getName());
+
         for (Chunk chunk : getChunks()) {
-            Utils.refreshChunk(p, chunk.getX(), chunk.getZ());
+
+            if (canSee(p)) {
+                MultiBlockChangeFactory factory = _chunkBlocks.get(new ChunkInfo(chunk));
+                if (factory == null)
+                    continue;
+
+                PacketContainer packet = factory.createPacket();
+
+               // _sentPackets.put(packet.getHandle(), null);
+
+                try {
+                    _protocolManager.sendServerPacket(p, packet);
+                } catch (InvocationTargetException e) {
+                    e.printStackTrace();
+                }
+            }
+            else {
+                Utils.refreshChunk(p, chunk.getX(), chunk.getZ());
+            }
         }
+
+
     }
 
     private boolean initViewers() {
