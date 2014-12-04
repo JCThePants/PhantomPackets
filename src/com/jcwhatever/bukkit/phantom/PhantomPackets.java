@@ -26,7 +26,7 @@ package com.jcwhatever.bukkit.phantom;
 
 import com.jcwhatever.bukkit.generic.GenericsPlugin;
 import com.jcwhatever.bukkit.generic.scripting.ScriptApiRepo;
-import com.jcwhatever.bukkit.generic.utils.TextUtils.TextColor;
+import com.jcwhatever.bukkit.generic.utils.text.TextColor;
 import com.jcwhatever.bukkit.phantom.commands.CommandHandler;
 import com.jcwhatever.bukkit.phantom.entities.PhantomEntitiesManager;
 import com.jcwhatever.bukkit.phantom.regions.PhantomRegionManager;
