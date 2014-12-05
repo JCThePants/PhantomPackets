@@ -24,10 +24,12 @@
 
 package com.jcwhatever.bukkit.phantom.data;
 
+import com.jcwhatever.bukkit.generic.regions.data.IChunkInfo;
+
 /**
  * Represents a chunk data array and pre-calculated values.
  */
-public interface IChunkData extends IChunkCoordinates {
+public interface IChunkData extends IChunkInfo {
 
     /**
      * Get the bit mask that contains information about which chunk

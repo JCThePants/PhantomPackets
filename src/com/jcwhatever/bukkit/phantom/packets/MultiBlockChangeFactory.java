@@ -30,8 +30,8 @@ import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.wrappers.ChunkCoordIntPair;
 import com.jcwhatever.bukkit.generic.messaging.Messenger;
 import com.jcwhatever.bukkit.generic.regions.data.ChunkBlockInfo;
+import com.jcwhatever.bukkit.generic.regions.data.ChunkInfo;
 import com.jcwhatever.bukkit.phantom.PhantomPackets;
-import com.jcwhatever.bukkit.phantom.data.ChunkInfo;
 
 import net.minecraft.server.v1_8_R1.Block;
 import net.minecraft.server.v1_8_R1.IBlockData;

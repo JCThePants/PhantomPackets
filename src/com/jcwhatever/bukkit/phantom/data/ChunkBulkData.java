@@ -26,6 +26,7 @@ package com.jcwhatever.bukkit.phantom.data;
 
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.StructureModifier;
+import com.jcwhatever.bukkit.generic.regions.data.WorldInfo;
 
 import net.minecraft.server.v1_8_R1.ChunkMap;
 

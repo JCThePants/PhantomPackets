@@ -26,14 +26,14 @@ package com.jcwhatever.bukkit.phantom.translators;
 
 import com.comphenix.protocol.events.PacketContainer;
 import com.jcwhatever.bukkit.generic.regions.data.ChunkBlockInfo;
+import com.jcwhatever.bukkit.generic.regions.data.ChunkInfo;
+import com.jcwhatever.bukkit.generic.regions.data.IChunkInfo;
+import com.jcwhatever.bukkit.generic.regions.data.WorldInfo;
 import com.jcwhatever.bukkit.generic.utils.EntryValidator;
 import com.jcwhatever.bukkit.phantom.data.ChunkBulkData;
 import com.jcwhatever.bukkit.phantom.data.ChunkData;
 import com.jcwhatever.bukkit.phantom.data.ChunkDataBlockIterator;
-import com.jcwhatever.bukkit.phantom.data.ChunkInfo;
-import com.jcwhatever.bukkit.phantom.data.IChunkCoordinates;
 import com.jcwhatever.bukkit.phantom.data.IChunkData;
-import com.jcwhatever.bukkit.phantom.data.WorldInfo;
 import com.jcwhatever.bukkit.phantom.packets.BlockChangePacket;
 import com.jcwhatever.bukkit.phantom.packets.MultiBlockChangePacket;
 import com.jcwhatever.bukkit.phantom.packets.MultiBlockChangePacket.PacketBlock;
@@ -66,7 +66,7 @@ public class BlockPacketTranslator {
 
     public boolean translateMultiBlockChange(MultiBlockChangePacket packet, WorldInfo world,
                                               BlockTypeTranslator translator,
-                                              EntryValidator<IChunkCoordinates> chunkValidator) {
+                                              EntryValidator<IChunkInfo> chunkValidator) {
 
         boolean isChanged = false;
 
@@ -96,7 +96,7 @@ public class BlockPacketTranslator {
 
     public void translateMapChunk(PacketContainer packet, WorldInfo world,
                                    BlockTypeTranslator translator,
-                                   EntryValidator<IChunkCoordinates> chunkValidator) {
+                                   EntryValidator<IChunkInfo> chunkValidator) {
 
         ChunkData data = ChunkData.fromMapChunkPacket(packet, world);
 
@@ -114,7 +114,7 @@ public class BlockPacketTranslator {
 
     public void translateMapChunkBulk(PacketContainer packet, WorldInfo world,
                                       BlockTypeTranslator translator,
-                                      EntryValidator<IChunkCoordinates> chunkValidator) {
+                                      EntryValidator<IChunkInfo> chunkValidator) {
 
         ChunkBulkData bulkData = ChunkBulkData.fromMapChunkBulkPacket(packet, world);
 

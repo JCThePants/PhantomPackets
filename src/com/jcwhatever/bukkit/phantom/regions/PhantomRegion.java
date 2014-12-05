@@ -43,15 +43,15 @@ import com.jcwhatever.bukkit.generic.regions.RegionChunkFileLoader.LoadFileCallb
 import com.jcwhatever.bukkit.generic.regions.RegionChunkFileLoader.LoadType;
 import com.jcwhatever.bukkit.generic.regions.RestorableRegion;
 import com.jcwhatever.bukkit.generic.regions.data.ChunkBlockInfo;
+import com.jcwhatever.bukkit.generic.regions.data.ChunkInfo;
+import com.jcwhatever.bukkit.generic.regions.data.IChunkInfo;
+import com.jcwhatever.bukkit.generic.regions.data.WorldInfo;
 import com.jcwhatever.bukkit.generic.storage.IDataNode;
 import com.jcwhatever.bukkit.generic.utils.EntryValidator;
 import com.jcwhatever.bukkit.generic.utils.PreCon;
 import com.jcwhatever.bukkit.phantom.PhantomPackets;
 import com.jcwhatever.bukkit.phantom.Utils;
-import com.jcwhatever.bukkit.phantom.data.ChunkInfo;
 import com.jcwhatever.bukkit.phantom.data.Coordinate;
-import com.jcwhatever.bukkit.phantom.data.IChunkCoordinates;
-import com.jcwhatever.bukkit.phantom.data.WorldInfo;
 import com.jcwhatever.bukkit.phantom.packets.BlockChangePacket;
 import com.jcwhatever.bukkit.phantom.packets.MultiBlockChangeFactory;
 import com.jcwhatever.bukkit.phantom.packets.MultiBlockChangePacket;
@@ -86,7 +86,7 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
     private final ProtocolManager _protocolManager = ProtocolLibrary.getProtocolManager();
     private final BlockPacketTranslator _packetTranslator;
     private final BlockTypeTranslator _blockTranslator;
-    private final EntryValidator<IChunkCoordinates> _chunkValidator;
+    private final EntryValidator<IChunkInfo> _chunkValidator;
 
     private PacketAdapter _packetListener;
     private AsyncListenerHandler _asyncListener;
@@ -138,9 +138,9 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
         };
 
         // initialize chunk validator
-        _chunkValidator = new EntryValidator<IChunkCoordinates>() {
+        _chunkValidator = new EntryValidator<IChunkInfo>() {
             @Override
-            public boolean isValid(IChunkCoordinates entry) {
+            public boolean isValid(IChunkInfo entry) {
                 return intersects(entry.getX(), entry.getZ());
             }
         };
@@ -410,10 +410,10 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
 
                     World world = event.getPlayer().getWorld();
 
-                    worldInfo = new WorldInfo(world);
-
-                    if (!worldInfo.equalsBukkitWorld(getWorld()))
+                    if (!world.equals(getWorld()))
                         return;
+
+                    worldInfo = new WorldInfo(world);
                 }
 
                 PacketContainer packet = event.getPacket();
@@ -456,10 +456,11 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
 
                 World world = event.getPlayer().getWorld();
 
+                if (!world.equals(getWorld()))
+                    return;
+
                 worldInfo = new WorldInfo(world);
 
-                if (!worldInfo.equalsBukkitWorld(getWorld()))
-                    return;
 
                 PacketContainer packet = event.getPacket();
 
