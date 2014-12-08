@@ -34,7 +34,7 @@ import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.StructureModifier;
-import com.jcwhatever.bukkit.generic.messaging.Messenger;
+import com.jcwhatever.bukkit.generic.internal.Msg;
 import com.jcwhatever.bukkit.generic.mixins.IViewable;
 import com.jcwhatever.bukkit.generic.performance.queued.QueueResult.Future;
 import com.jcwhatever.bukkit.generic.player.collections.PlayerSet;
@@ -49,7 +49,6 @@ import com.jcwhatever.bukkit.generic.regions.data.WorldInfo;
 import com.jcwhatever.bukkit.generic.storage.IDataNode;
 import com.jcwhatever.bukkit.generic.utils.EntryValidator;
 import com.jcwhatever.bukkit.generic.utils.PreCon;
-import com.jcwhatever.bukkit.phantom.PhantomPackets;
 import com.jcwhatever.bukkit.phantom.Utils;
 import com.jcwhatever.bukkit.phantom.data.Coordinate;
 import com.jcwhatever.bukkit.phantom.packets.BlockChangePacket;
@@ -73,15 +72,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.WeakHashMap;
 
 /*
  * Region that saves to disk and uses saved version to
  * display to specified players only.
  */
 public class PhantomRegion extends RestorableRegion implements IViewable {
-
-    private static Map<Object, Void> _sentPackets = new WeakHashMap<>(10);
 
     private final ProtocolManager _protocolManager = ProtocolLibrary.getProtocolManager();
     private final BlockPacketTranslator _packetTranslator;
@@ -404,10 +400,6 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
                     if (!canSee(event.getPlayer()))
                         return;
 
-                    // don't process packets sent by a phantom region
-                    if (_sentPackets.containsKey(event.getPacket().getHandle()))
-                        return;
-
                     World world = event.getPlayer().getWorld();
 
                     if (!world.equals(getWorld()))
@@ -447,10 +439,6 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
                 synchronized (_sync) {
 
                     if (!canSee(event.getPlayer()))
-                        return;
-
-                    // don't process packets sent by a phantom region
-                    if (_sentPackets.containsKey(event.getPacket().getHandle()))
                         return;
                 }
 
@@ -582,8 +570,7 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
                         loadPacketListener();
                     }
                     else {
-                        Messenger.warning(PhantomPackets.getPlugin(),
-                                "Failed to load chunk data for phantom region named '{0}'.", getName());
+                        Msg.warning("Failed to load chunk data for phantom region named '{0}'.", getName());
                     }
                 }
             });
@@ -594,8 +581,6 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
     private void resendChunks(Player p) {
         if (!p.getWorld().equals(getWorld()))
             return;
-
-        Messenger.warning(PhantomPackets.getPlugin(), "Resending chunks to player {0}.", p.getName());
 
         for (Chunk chunk : getChunks()) {
 

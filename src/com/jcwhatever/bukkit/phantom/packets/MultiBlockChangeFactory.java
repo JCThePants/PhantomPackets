@@ -28,10 +28,8 @@ import com.comphenix.protocol.PacketType.Play.Server;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.wrappers.ChunkCoordIntPair;
-import com.jcwhatever.bukkit.generic.messaging.Messenger;
 import com.jcwhatever.bukkit.generic.regions.data.ChunkBlockInfo;
 import com.jcwhatever.bukkit.generic.regions.data.ChunkInfo;
-import com.jcwhatever.bukkit.phantom.PhantomPackets;
 
 import net.minecraft.server.v1_8_R1.Block;
 import net.minecraft.server.v1_8_R1.IBlockData;
@@ -90,8 +88,6 @@ public class MultiBlockChangeFactory {
     public PacketContainer createPacket() {
 
         int totalBlocks = _blockData.length;
-
-        Messenger.warning(PhantomPackets.getPlugin(), "Generating Multiblock packet for {0} blocks.", totalBlocks);
 
         PacketContainer packet = new PacketContainer(Server.MULTI_BLOCK_CHANGE);
         packet.getModifier().writeDefaults();
