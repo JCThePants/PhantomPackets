@@ -1,3 +1,5 @@
+package com.jcwhatever.bukkit.phantom;
+
 import com.jcwhatever.bukkit.generic.messaging.ChatPaginator;
 import com.jcwhatever.bukkit.generic.messaging.IMessenger;
 import com.jcwhatever.bukkit.generic.utils.text.TextUtils;
