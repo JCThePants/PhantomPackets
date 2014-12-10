@@ -26,17 +26,14 @@ package com.jcwhatever.bukkit.phantom.packets;
 
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.StructureModifier;
+import com.jcwhatever.bukkit.generic.utils.reflection.Fields;
+import com.jcwhatever.bukkit.generic.utils.reflection.ReflectedArray;
+import com.jcwhatever.bukkit.generic.utils.reflection.ReflectedInstance;
+import com.jcwhatever.bukkit.phantom.NmsTypes;
 import com.jcwhatever.bukkit.phantom.Utils;
 import com.jcwhatever.bukkit.phantom.packets.MultiBlockChangePacket.PacketBlock;
 
 import org.bukkit.Material;
-
-import net.minecraft.server.v1_8_R1.Block;
-import net.minecraft.server.v1_8_R1.BlockPosition;
-import net.minecraft.server.v1_8_R1.ChunkCoordIntPair;
-import net.minecraft.server.v1_8_R1.IBlockData;
-import net.minecraft.server.v1_8_R1.MultiBlockChangeInfo;
-import net.minecraft.server.v1_8_R1.PacketPlayOutMultiBlockChange;
 
 import java.util.Iterator;
 
@@ -45,8 +42,9 @@ import java.util.Iterator;
  */
 public class MultiBlockChangePacket extends AbstractPacket implements Iterable<PacketBlock> {
 
-    private ChunkCoordIntPair _nmsCoords;
-    private MultiBlockChangeInfo[] _nmsBlockChanges;
+    private int _chunkX;
+    private int _chunkZ;
+    private ReflectedArray<?> _nmsBlockChanges;
     private PacketBlock[] _packetBlocks;
 
     public MultiBlockChangePacket(PacketContainer packet) {
@@ -54,16 +52,25 @@ public class MultiBlockChangePacket extends AbstractPacket implements Iterable<P
 
         StructureModifier<Object> objects = packet.getModifier();
 
-        _nmsCoords = (ChunkCoordIntPair)objects.read(0);
-        _nmsBlockChanges = (MultiBlockChangeInfo[])objects.read(1);
+        ReflectedInstance<?> nmsCoords = NmsTypes.CHUNK_COORD_INT_PAIR.reflect(objects.read(0));
+        if (nmsCoords == null)
+            throw new RuntimeException("Failed to ChunkCoordIntPair for MultiBlockChangePacket");
+
+        Fields fields = nmsCoords.getFields(int.class);
+
+        _chunkX = fields.get(0);
+        _chunkZ = fields.get(1);
+
+        Object blockChangeArray = objects.read(1); // MultiBlockChangeInfo[]
+        _nmsBlockChanges = new ReflectedArray<>(NmsTypes.MULTI_BLOCK_CHANGE_INFO, blockChangeArray);
     }
 
     public int getChunkX() {
-        return _nmsCoords.x;
+        return _chunkX;
     }
 
     public int getChunkZ() {
-        return _nmsCoords.z;
+        return _chunkZ;
     }
 
     @Override
@@ -74,16 +81,18 @@ public class MultiBlockChangePacket extends AbstractPacket implements Iterable<P
 
         for (int i=0; i < _packetBlocks.length; i++) {
 
-            short blockPosition = _nmsBlockChanges[i].b();
+            short blockPosition = _nmsBlockChanges.getReflected(i).getFields(short.class).get(0); //b();
 
             PacketBlock packetBlock = _packetBlocks[i];
 
             int id = Utils.getCombinedId(packetBlock.getMaterial(), packetBlock.getMeta());
 
-            IBlockData nmsBlockData = Block.getByCombinedId(id);
+            Object nmsBlockData = NmsTypes.BLOCK.call("getByCombinedId", id);//Block.getByCombinedId(id);
 
-            _nmsBlockChanges[i] = new MultiBlockChangeInfo(
-                    (PacketPlayOutMultiBlockChange)_packet.getHandle(), blockPosition, nmsBlockData);
+            Object blockChangeInfo = NmsTypes.MULTI_BLOCK_CHANGE_INFO
+                    .newInstance(_packet.getHandle(), blockPosition, nmsBlockData);
+
+            _nmsBlockChanges.set(i, blockChangeInfo);
         }
     }
 
@@ -94,19 +103,23 @@ public class MultiBlockChangePacket extends AbstractPacket implements Iterable<P
 
         StructureModifier<Object> cloneObj = clone.getModifier();
 
-        MultiBlockChangeInfo[] info = new MultiBlockChangeInfo[_nmsBlockChanges.length];
+        ReflectedArray newArray = NmsTypes.MULTI_BLOCK_CHANGE_INFO.newArray(_nmsBlockChanges.length());
 
-        for (int i=0; i < info.length; i++) {
+        for (int i=0; i < newArray.length(); i++) {
 
-            short blockPosition = _nmsBlockChanges[i].b();
-            IBlockData nmsBlockData = _nmsBlockChanges[i].c();
+            ReflectedInstance<?> info = _nmsBlockChanges.getReflected(i);
 
-            info[i] = new MultiBlockChangeInfo(
-                    (PacketPlayOutMultiBlockChange)clone.getHandle(), blockPosition, nmsBlockData);
+            short blockPosition = info.getFields(short.class).get(0);//.b();
+            Object nmsBlockData = info.getFields().get(1); //(IBlockData)_nmsBlockChanges[i].c();
 
+            Object multiBlockChangeInfo = NmsTypes.MULTI_BLOCK_CHANGE_INFO.newInstance(
+                    clone.getHandle(), blockPosition, nmsBlockData
+            );
+
+            newArray.set(i, multiBlockChangeInfo);
         }
 
-        cloneObj.write(1, info);
+        cloneObj.write(1, newArray.getHandle());
 
         return new MultiBlockChangePacket(clone);
     }
@@ -115,10 +128,10 @@ public class MultiBlockChangePacket extends AbstractPacket implements Iterable<P
     public Iterator<PacketBlock> iterator() {
 
         if (_packetBlocks == null) {
-            _packetBlocks = new PacketBlock[_nmsBlockChanges.length];
+            _packetBlocks = new PacketBlock[_nmsBlockChanges.length()];
 
             for (int i = 0; i < _packetBlocks.length; i++) {
-                _packetBlocks[i] =  new PacketBlock(_nmsBlockChanges[i]);
+                _packetBlocks[i] =  new PacketBlock(_nmsBlockChanges.get(i), _chunkX, _chunkZ);
             }
         }
 
@@ -146,7 +159,6 @@ public class MultiBlockChangePacket extends AbstractPacket implements Iterable<P
         };
     }
 
-
     public static class PacketBlock {
         private int _x;
         private int _y;
@@ -154,19 +166,24 @@ public class MultiBlockChangePacket extends AbstractPacket implements Iterable<P
         private Material _material;
         private byte _meta;
 
-        public PacketBlock(MultiBlockChangeInfo info) {
-            BlockPosition nmsPosition = info.a();
+        public PacketBlock(Object objectInfo, int chunkX, int chunkZ) { // MultiBlockChangeInfo info) {
 
-            _x = nmsPosition.getX();
-            _y = nmsPosition.getY();
-            _z = nmsPosition.getZ();
+            ReflectedInstance<?> info = new ReflectedInstance<>(NmsTypes.MULTI_BLOCK_CHANGE_INFO, objectInfo);
 
-            IBlockData nmsBlockData = info.c();
+            Fields fields = info.getFields();
 
-            int combinedId = Block.getCombinedId(nmsBlockData);
+            short position = fields.get(0);// .a(); block position
+            Object nmsBlockData = fields.get(1); //.c(); // IBlockData
 
-            _material = Utils.getMaterialFromCombinedId(combinedId);
-            _meta = Utils.getMetaFromCombinedId(combinedId);
+            _x = (chunkX << 4) + (position >> 12 & 15);
+            _y = position & 255;
+            _z = (chunkZ << 4) + (position >> 8 & 15);
+
+            Integer combinedId = NmsTypes.BLOCK.call("getCombinedId", nmsBlockData); // Block.getCombinedId(nmsBlockData);
+            if (combinedId != null) {
+                _material = Utils.getMaterialFromCombinedId(combinedId);
+                _meta = Utils.getMetaFromCombinedId(combinedId);
+            }
         }
 
         public int getX() {
@@ -193,6 +210,5 @@ public class MultiBlockChangePacket extends AbstractPacket implements Iterable<P
             _material = material;
             _meta = (byte)meta;
         }
-
     }
 }

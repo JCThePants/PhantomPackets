@@ -26,58 +26,67 @@ package com.jcwhatever.bukkit.phantom.packets;
 
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.StructureModifier;
+import com.jcwhatever.bukkit.generic.utils.reflection.Fields;
+import com.jcwhatever.bukkit.generic.utils.reflection.ReflectedInstance;
+import com.jcwhatever.bukkit.phantom.NmsTypes;
 import com.jcwhatever.bukkit.phantom.Utils;
 
 import org.bukkit.Material;
-
-import net.minecraft.server.v1_8_R1.Block;
-import net.minecraft.server.v1_8_R1.BlockPosition;
-import net.minecraft.server.v1_8_R1.IBlockData;
 
 /*
  * 
  */
 public class BlockChangePacket extends AbstractPacket {
 
-    private final BlockPosition _nmsBlockPosition;
-    private IBlockData _nmsBlockData;
+    private int _x;
+    private int _y;
+    private int _z;
+    private ReflectedInstance<?> _nmsBlockData; // IBlockData
 
     public BlockChangePacket(PacketContainer packet) {
         super(packet);
 
         StructureModifier<Object> objects = packet.getModifier();
 
-        _nmsBlockPosition = (BlockPosition)objects.read(0);
-        _nmsBlockData = (IBlockData)objects.read(1);
+        ReflectedInstance<?> nmsBlockPosition = NmsTypes.BASE_BLOCK_POSITION.reflect(objects.read(0));
+        Fields intFields = nmsBlockPosition.getFields(int.class);
+
+        _x = intFields.get(0);
+        _y = intFields.get(1);
+        _z = intFields.get(2);
+
+        _nmsBlockData = NmsTypes.IBLOCK_DATA.reflect(objects.read(1));
     }
 
     @Override
     public void saveChanges() {
 
         StructureModifier<Object> objects = _packet.getModifier();
-        objects.write(1, _nmsBlockData);
+        objects.write(1, _nmsBlockData.getHandle());
     }
 
     public int getX() {
-        return _nmsBlockPosition.getX();
+        return _x;
     }
 
     public int getY() {
-        return _nmsBlockPosition.getY();
+        return _y;
     }
 
     public int getZ() {
-        return _nmsBlockPosition.getZ();
+        return _z;
     }
 
     public Material getMaterial() {
-        int id = Block.getCombinedId(_nmsBlockData);
+        //noinspection ConstantConditions
+        int id = NmsTypes.BLOCK.call("getCombinedId", _nmsBlockData.getHandle());
 
         return Utils.getMaterialFromCombinedId(id);
     }
 
     public byte getMeta() {
-        int id = Block.getCombinedId(_nmsBlockData);
+        //noinspection ConstantConditions
+        int id = NmsTypes.BLOCK.call("getCombinedId", _nmsBlockData.getHandle());
 
         return Utils.getMetaFromCombinedId(id);
     }
@@ -85,11 +94,11 @@ public class BlockChangePacket extends AbstractPacket {
     public void setBlock(Material material, byte meta) {
         int id = Utils.getCombinedId(material, meta);
 
-        IBlockData data = Block.getByCombinedId(id);
+        Object data = NmsTypes.BLOCK.call("getByCombinedId", id);
         if (data == null)
             throw new IllegalArgumentException("Failed to create block data.");
 
-        _nmsBlockData = data;
+        _nmsBlockData = NmsTypes.IBLOCK_DATA.reflect(data);
     }
 
     @Override
@@ -100,11 +109,12 @@ public class BlockChangePacket extends AbstractPacket {
         StructureModifier<Object> cloneObj = clone.getModifier();
         StructureModifier<Object> sourceObj = source.getModifier();
 
-        IBlockData nmsBlockData = (IBlockData)sourceObj.read(1);
+        /*IBlockData*/ Object nmsBlockData = NmsTypes.IBLOCK_DATA.reflect(sourceObj.read(1));
 
-        int id = Block.getCombinedId(nmsBlockData);
+        //noinspection ConstantConditions
+        int id = NmsTypes.BLOCK.call("getCombinedId", nmsBlockData);
 
-        IBlockData nmsCloneData = Block.getByCombinedId(id);
+        /*IBlockData*/ Object nmsCloneData = NmsTypes.BLOCK.call("getByCombinedId", id);
 
         cloneObj.write(1, nmsCloneData);
 
