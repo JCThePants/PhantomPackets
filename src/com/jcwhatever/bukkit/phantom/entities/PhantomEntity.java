@@ -272,16 +272,7 @@ public class PhantomEntity implements IViewable {
         if (viewers == null || viewers.isEmpty())
             return;
 
-        PacketContainer destroyPacket = getDestroyPacket();
-
-        ProtocolManager manager = _manager.getProtocolManager();
-        try {
-            for (Player player : viewers) {
-                manager.sendServerPacket(player, destroyPacket);
-            }
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        }
+        sendDestroyPacket(viewers);
     }
 
     private void updateLocalPlayers() {
@@ -304,6 +295,30 @@ public class PhantomEntity implements IViewable {
             else {
                 hideFrom(player);
             }
+        }
+    }
+
+    void sendDestroyPacket(Collection<Player> viewers) {
+        PacketContainer destroyPacket = getDestroyPacket();
+
+        ProtocolManager manager = _manager.getProtocolManager();
+        try {
+            for (Player player : viewers) {
+                manager.sendServerPacket(player, destroyPacket);
+            }
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+    }
+
+    void sendDestroyPacket(Player viewer) {
+        PacketContainer destroyPacket = getDestroyPacket();
+
+        ProtocolManager manager = _manager.getProtocolManager();
+        try {
+            manager.sendServerPacket(viewer, destroyPacket);
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
         }
     }
 

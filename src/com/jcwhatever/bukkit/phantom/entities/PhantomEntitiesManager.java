@@ -30,6 +30,7 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
+import com.jcwhatever.bukkit.generic.utils.PlayerUtils;
 import com.jcwhatever.bukkit.generic.utils.PreCon;
 import com.jcwhatever.bukkit.generic.utils.entity.TrackedEntity;
 import com.jcwhatever.bukkit.generic.utils.entity.TrackedEntity.ITrackedEntityHandler;
@@ -193,6 +194,12 @@ public class PhantomEntitiesManager {
 
                 if (!entity.canSee(event.getPlayer())) {
                     event.setCancelled(true);
+
+                    // sometimes the client still receives an entity packet
+                    // when the player first logs in, destroy it
+                    if (PlayerUtils.getSessionTime(event.getPlayer()) < 500) {
+                        entity.sendDestroyPacket(event.getPlayer());
+                    }
                 }
             }
         };
