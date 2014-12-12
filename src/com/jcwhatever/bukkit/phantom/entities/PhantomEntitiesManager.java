@@ -196,8 +196,8 @@ public class PhantomEntitiesManager {
                     event.setCancelled(true);
 
                     // sometimes the client still receives an entity packet
-                    // when the player first logs in, destroy it
-                    if (PlayerUtils.getSessionTime(event.getPlayer()) < 500) {
+                    // when the player first logs in or changes world, destroy it
+                    if (PlayerUtils.getWorldSessionTime(event.getPlayer()) < 500) {
                         entity.sendDestroyPacket(event.getPlayer());
                     }
                 }
