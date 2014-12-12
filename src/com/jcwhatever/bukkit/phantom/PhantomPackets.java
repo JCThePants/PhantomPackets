@@ -24,8 +24,8 @@
 
 package com.jcwhatever.bukkit.phantom;
 
+import com.jcwhatever.bukkit.generic.GenericsLib;
 import com.jcwhatever.bukkit.generic.GenericsPlugin;
-import com.jcwhatever.bukkit.generic.scripting.ScriptApiRepo;
 import com.jcwhatever.bukkit.generic.utils.text.TextColor;
 import com.jcwhatever.bukkit.phantom.commands.CommandHandler;
 import com.jcwhatever.bukkit.phantom.entities.PhantomEntitiesManager;
@@ -74,13 +74,11 @@ public class PhantomPackets extends GenericsPlugin {
         _entitiesManager = new PhantomEntitiesManager(this);
         registerCommands(new CommandHandler(this));
 
-        ScriptApiRepo.registerApiType(this, PhantomScriptApi.class);
+        GenericsLib.getScriptApiRepo().registerApiType(this, PhantomScriptApi.class);
     }
 
     @Override
     protected void onDisablePlugin() {
-
-        ScriptApiRepo.unregisterApiType(this, PhantomScriptApi.class);
 
         if (_regionManager != null)
             _regionManager.dispose();
