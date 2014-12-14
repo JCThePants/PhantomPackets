@@ -27,8 +27,8 @@ package com.jcwhatever.bukkit.phantom.data;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.StructureModifier;
 import com.jcwhatever.bukkit.generic.regions.data.WorldInfo;
-
-import net.minecraft.server.v1_8_R1.ChunkMap;
+import com.jcwhatever.bukkit.generic.utils.reflection.ReflectedArray;
+import com.jcwhatever.bukkit.phantom.NmsTypes;
 
 public class ChunkBulkData {
 
@@ -57,13 +57,12 @@ public class ChunkBulkData {
         ChunkBulkData bulk = new ChunkBulkData(world);
         StructureModifier<Object> objects = packet.getModifier();
 
-        // TODO: Use of NMS code will break with version changes
-
         int[] chunkX = (int[])objects.read(0);
         int[] chunkZ = (int[])objects.read(1);
-        ChunkMap[] nmsChunkMaps = (ChunkMap[])objects.read(2);
 
-        int totalChunks = nmsChunkMaps.length;
+        ReflectedArray<?> nmsChunkMaps = new ReflectedArray<>(NmsTypes.CHUNK_MAP, objects.read(2));
+
+        int totalChunks = nmsChunkMaps.length();
 
         bulk._chunkData = new IChunkData[totalChunks];
 
@@ -75,8 +74,8 @@ public class ChunkBulkData {
 
             int x = chunkX[i];
             int z = chunkZ[i];
-            int mask = nmsChunkMaps[i].b; // section mask
-            byte[] data = nmsChunkMaps[i].a; // chunk data
+            byte[] data = nmsChunkMaps.getReflected(i).getFields().get(0);//.a  chunk data
+            int mask = nmsChunkMaps.getReflected(i).getFields().get(1); //.b  section mask
 
             chunkData.init(x, z, mask, data, true);
         }

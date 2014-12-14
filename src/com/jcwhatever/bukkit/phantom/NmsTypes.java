@@ -48,4 +48,7 @@ public class NmsTypes {
 
     public static ReflectedType<?>
             CHUNK_COORD_INT_PAIR = ReflectedType.from("net.minecraft.server.ChunkCoordIntPair");
+
+    public static ReflectedType<?>
+            CHUNK_MAP = ReflectedType.from("net.minecraft.server.ChunkMap");
 }

@@ -26,11 +26,15 @@ package com.jcwhatever.bukkit.phantom.data;
 
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.StructureModifier;
+import com.jcwhatever.bukkit.generic.regions.data.ChunkInfo;
 import com.jcwhatever.bukkit.generic.regions.data.WorldInfo;
+import com.jcwhatever.bukkit.generic.utils.reflection.Fields;
+import com.jcwhatever.bukkit.generic.utils.reflection.ReflectedInstance;
+import com.jcwhatever.bukkit.phantom.NmsTypes;
+import com.jcwhatever.bukkit.phantom.Utils;
 
+import org.bukkit.Material;
 import org.bukkit.World.Environment;
-
-import net.minecraft.server.v1_8_R1.ChunkMap;
 
 /*
  * 
@@ -68,6 +72,7 @@ public class ChunkData implements IChunkData {
     private int _skylightStart;
 
     private int[] _sectionChunkIndexes = new int[16];
+    private int[] _sectionDataIndexes = new int[16];
 
     ChunkData(WorldInfo world) {
         _world = world;
@@ -154,6 +159,54 @@ public class ChunkData implements IChunkData {
         return (_mask & (1 << sectionChunkIndex)) > 0;
     }
 
+    @Override
+    public boolean hasBlock(int relativeX, int y, int relativeZ) {
+
+        int sectionChunkIndex = (int)Math.floor((double)y / 16);
+
+        return hasChunkSection(sectionChunkIndex);
+    }
+
+    @Override
+    public void setBlock(int relativeX, int y, int relativeZ, Material material, byte meta) {
+
+        int sectionChunkIndex = (int)Math.floor((double)y / 16);
+
+        if (!hasChunkSection(sectionChunkIndex))
+            return;
+
+        int sectionDataIndex = _sectionDataIndexes[sectionChunkIndex];
+
+        y = y % 16;
+
+        int index = 512 * y + 32 * relativeZ + 2 * relativeX;// ((y * 16/*x*/ * 16/*y*/) + (relativeZ * 16) + relativeX) * 2;
+
+        index += getBlockStart(sectionDataIndex);
+
+        int id = Utils.getLegacyId(material, meta);
+
+        _data[index] = (byte) (id & 0xFF);
+        _data[index + 1] = (byte) (id >> 8 & 0xFF);
+    }
+
+    @Override
+    public int hashCode() {
+        return _world.hashCode() ^ getX() ^ getZ();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+
+        if (obj instanceof ChunkInfo) {
+            ChunkInfo other = (ChunkInfo)obj;
+
+            return other.getWorld().getName().equals(_world.getName()) &&
+                    other.getX() == getX() && other.getZ() == getZ();
+        }
+
+        return false;
+    }
+
     void setStartIndex(int index) {
         _startIndex = index;
     }
@@ -170,16 +223,24 @@ public class ChunkData implements IChunkData {
                 ? BIOME_DATA_SIZE
                 : 0;
 
-        for (int i = 0; i < 16; i++) {
+        for (int sectionChunkIndex = 0; sectionChunkIndex < 16; sectionChunkIndex++) {
 
-            if (hasChunkSection(i)) {
+            if (hasChunkSection(sectionChunkIndex)) {
 
                 // record section chunk position
-                _sectionChunkIndexes[_sectionDataCount] = i;
+                _sectionChunkIndexes[_sectionDataCount] = sectionChunkIndex;
+
+                _sectionDataIndexes[sectionChunkIndex] = _sectionDataCount;
 
                 // increment total sections in data
                 _sectionDataCount++;
+
             }
+            else {
+                _sectionDataIndexes[sectionChunkIndex] = -1;
+            }
+
+
         }
 
         _chunkSize = (_sectionDataCount * BLOCK_DATA_SIZE * EMITTED_LIGHT_DATA_SIZE *
@@ -198,14 +259,13 @@ public class ChunkData implements IChunkData {
         StructureModifier<Integer> integers = packet.getSpecificModifier(int.class);
         StructureModifier<Object> objects = packet.getModifier();
 
-        //TODO: Current use of NMS code will break with version changes
-
-        ChunkMap nmsChunkMap = (ChunkMap)objects.read(2);
-
         int chunkX = integers.read(0);
         int chunkZ = integers.read(1);
-        int mask = nmsChunkMap.b; // sectionMask
-        byte[] data = nmsChunkMap.a; // data array
+
+        ReflectedInstance<?> nmsChunkMap = NmsTypes.CHUNK_MAP.reflect(objects.read(2));
+        Fields fields = nmsChunkMap.getFields();
+        byte[] data = fields.get(0);//.a  data array
+        int mask = fields.get(1); //.b sectionMask
 
         Boolean isContinuous = packet.getBooleans().readSafely(0);
 

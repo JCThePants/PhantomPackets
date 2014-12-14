@@ -27,6 +27,7 @@ package com.jcwhatever.bukkit.phantom.regions;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
+import com.jcwhatever.bukkit.generic.collections.ArrayListMap;
 import com.jcwhatever.bukkit.generic.internal.Msg;
 import com.jcwhatever.bukkit.generic.mixins.IViewable;
 import com.jcwhatever.bukkit.generic.performance.queued.QueueProject;
@@ -38,6 +39,7 @@ import com.jcwhatever.bukkit.generic.regions.RegionChunkFileLoader.LoadType;
 import com.jcwhatever.bukkit.generic.regions.RestorableRegion;
 import com.jcwhatever.bukkit.generic.regions.data.ChunkBlockInfo;
 import com.jcwhatever.bukkit.generic.regions.data.ChunkInfo;
+import com.jcwhatever.bukkit.generic.regions.data.IChunkInfo;
 import com.jcwhatever.bukkit.generic.regions.data.WorldInfo;
 import com.jcwhatever.bukkit.generic.storage.IDataNode;
 import com.jcwhatever.bukkit.generic.utils.MetaKey;
@@ -76,12 +78,14 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
     private final BlockTypeTranslator _blockTranslator;
 
     private Map<Coordinate, ChunkBlockInfo> _blocks;
-    private Map<ChunkInfo, MultiBlockChangeFactory> _chunkBlocks = new HashMap<>(10);
+    private ArrayListMap<IChunkInfo, ChunkBlockInfo> _chunkBlocks = new ArrayListMap<>(10);
+    private Map<ChunkInfo, MultiBlockChangeFactory> _chunkBlockFactories = new HashMap<>(10);
 
     private Set<Player> _viewers;
     private ViewPolicy _viewMode = ViewPolicy.WHITELIST;
 
     private boolean _ignoreAir;
+    private boolean _isLoading;
 
     /**
      * Constructor.
@@ -125,6 +129,13 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
         return _blockTranslator;
     }
 
+    public List<ChunkBlockInfo> getChunkBlocks(IChunkInfo chunkInfo) {
+        return _chunkBlocks.getAll(chunkInfo);
+    }
+
+    public boolean isLoading() {
+        return _isLoading;
+    }
 
     /**
      * Determine if the disguise ignores saved air blocks.
@@ -303,11 +314,6 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
         saveData();
     }
 
-    private boolean _isLoading;
-
-    public boolean isLoading() {
-        return _isLoading;
-    }
     /*
      * Load the regions disguise.
      */
@@ -349,7 +355,7 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
 
                              MultiBlockChangeFactory factory = new MultiBlockChangeFactory(chunkInfo, blockInfos);
 
-                             _chunkBlocks.put(chunkInfo, factory);
+                             _chunkBlockFactories.put(chunkInfo, factory);
 
                             while (!blockInfos.isEmpty()) {
                                 ChunkBlockInfo info = blockInfos.remove();
@@ -360,6 +366,7 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
                                 Coordinate coord = new Coordinate(x, info.getY(), z);
 
                                 _blocks.put(coord, info);
+                                _chunkBlocks.put(chunkInfo, info);
                             }
 
                         }
@@ -382,7 +389,7 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
         for (Chunk chunk : getChunks()) {
 
             if (canSee(p)) {
-                MultiBlockChangeFactory factory = _chunkBlocks.get(new ChunkInfo(chunk));
+                MultiBlockChangeFactory factory = _chunkBlockFactories.get(new ChunkInfo(chunk));
                 if (factory == null)
                     continue;
 

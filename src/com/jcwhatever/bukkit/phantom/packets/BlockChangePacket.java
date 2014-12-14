@@ -42,20 +42,19 @@ public class BlockChangePacket extends AbstractPacket {
     private int _y;
     private int _z;
     private ReflectedInstance<?> _nmsBlockData; // IBlockData
+    private StructureModifier<Object> _objects;
 
     public BlockChangePacket(PacketContainer packet) {
         super(packet);
 
-        StructureModifier<Object> objects = packet.getModifier();
+         _objects = packet.getModifier();
 
-        ReflectedInstance<?> nmsBlockPosition = NmsTypes.BASE_BLOCK_POSITION.reflect(objects.read(0));
+        ReflectedInstance<?> nmsBlockPosition = NmsTypes.BASE_BLOCK_POSITION.reflect(_objects.read(0));
         Fields intFields = nmsBlockPosition.getFields(int.class);
 
         _x = intFields.get(0);
         _y = intFields.get(1);
         _z = intFields.get(2);
-
-        _nmsBlockData = NmsTypes.IBLOCK_DATA.reflect(objects.read(1));
     }
 
     @Override
@@ -79,14 +78,14 @@ public class BlockChangePacket extends AbstractPacket {
 
     public Material getMaterial() {
         //noinspection ConstantConditions
-        int id = NmsTypes.BLOCK.call("getCombinedId", _nmsBlockData.getHandle());
+        int id = NmsTypes.BLOCK.call("getCombinedId", getNmsBlockData().getHandle());
 
         return Utils.getMaterialFromCombinedId(id);
     }
 
     public byte getMeta() {
         //noinspection ConstantConditions
-        int id = NmsTypes.BLOCK.call("getCombinedId", _nmsBlockData.getHandle());
+        int id = NmsTypes.BLOCK.call("getCombinedId", getNmsBlockData().getHandle());
 
         return Utils.getMetaFromCombinedId(id);
     }
@@ -109,10 +108,10 @@ public class BlockChangePacket extends AbstractPacket {
         StructureModifier<Object> cloneObj = clone.getModifier();
         StructureModifier<Object> sourceObj = source.getModifier();
 
-        /*IBlockData*/ Object nmsBlockData = NmsTypes.IBLOCK_DATA.reflect(sourceObj.read(1));
+        /*IBlockData*/ ReflectedInstance<?> nmsBlockData = NmsTypes.IBLOCK_DATA.reflect(sourceObj.read(1));
 
         //noinspection ConstantConditions
-        int id = NmsTypes.BLOCK.call("getCombinedId", nmsBlockData);
+        int id = NmsTypes.BLOCK.call("getCombinedId", nmsBlockData.getHandle());
 
         /*IBlockData*/ Object nmsCloneData = NmsTypes.BLOCK.call("getByCombinedId", id);
 
@@ -120,4 +119,12 @@ public class BlockChangePacket extends AbstractPacket {
 
         return new BlockChangePacket(clone);
     }
+
+    private ReflectedInstance<?> getNmsBlockData() {
+        if (_nmsBlockData == null) {
+            _nmsBlockData = NmsTypes.IBLOCK_DATA.reflect(_objects.read(1));
+        }
+        return _nmsBlockData;
+    }
+
 }

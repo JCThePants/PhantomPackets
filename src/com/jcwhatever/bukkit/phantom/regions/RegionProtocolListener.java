@@ -169,9 +169,7 @@ public class RegionProtocolListener extends PacketAdapter {
                 if (!phantom.canSee(event.getPlayer()))
                     continue;
 
-                BlockPacketTranslator.translateMapChunk(
-                        packet, worldInfo, phantom.getBlockPacketTranslator());
-
+                BlockPacketTranslator.translateMapChunk(packet, phantom);
             }
         }
         else if (type == Server.MAP_CHUNK_BULK) {
@@ -203,8 +201,7 @@ public class RegionProtocolListener extends PacketAdapter {
                     if (!phantom.canSee(event.getPlayer()))
                         continue;
 
-                    BlockPacketTranslator.translateMapChunkBulk(
-                            packet, worldInfo, phantom.getBlockPacketTranslator());
+                    BlockPacketTranslator.translateMapChunkBulk(packet, phantom);
 
                 }
 

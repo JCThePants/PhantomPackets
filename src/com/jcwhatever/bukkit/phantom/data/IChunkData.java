@@ -26,6 +26,8 @@ package com.jcwhatever.bukkit.phantom.data;
 
 import com.jcwhatever.bukkit.generic.regions.data.IChunkInfo;
 
+import org.bukkit.Material;
+
 /**
  * Represents a chunk data array and pre-calculated values.
  */
@@ -117,4 +119,24 @@ public interface IChunkData extends IChunkInfo {
      * @param sectionChunkIndex  The index position of the chunk section within the chunk.
      */
     boolean hasChunkSection(int sectionChunkIndex);
+
+    /**
+     * Determine if the specified block is contained in the chunk data.
+     *
+     * @param relativeX  The X coordinates relative to the chunk.
+     * @param y          The Y coordinates.
+     * @param relativeZ  The Z coordinates relative to the chunk.
+     */
+    boolean hasBlock(int relativeX, int y, int relativeZ);
+
+    /**
+     * Set the specified blocks material and meta data.
+     *
+     * @param relativeX  The X coordinates relative to the chunk.
+     * @param y          The Y coordinates.
+     * @param relativeZ  The Z coordinates relative to the chunk.
+     * @param material   The material to set.
+     * @param meta       The meta data to set.
+     */
+    void setBlock(int relativeX, int y, int relativeZ, Material material, byte meta);
 }

@@ -29,30 +29,31 @@ import com.jcwhatever.bukkit.generic.regions.data.ChunkBlockInfo;
 import com.jcwhatever.bukkit.generic.regions.data.WorldInfo;
 import com.jcwhatever.bukkit.phantom.data.ChunkBulkData;
 import com.jcwhatever.bukkit.phantom.data.ChunkData;
-import com.jcwhatever.bukkit.phantom.data.ChunkDataBlockIterator;
 import com.jcwhatever.bukkit.phantom.data.IChunkData;
 import com.jcwhatever.bukkit.phantom.packets.BlockChangePacket;
 import com.jcwhatever.bukkit.phantom.packets.MultiBlockChangePacket;
 import com.jcwhatever.bukkit.phantom.packets.MultiBlockChangePacket.PacketBlock;
+import com.jcwhatever.bukkit.phantom.regions.PhantomRegion;
 
 import org.bukkit.Material;
+
+import java.util.List;
 
 /*
  * 
  */
 public class BlockPacketTranslator {
 
+    private BlockPacketTranslator() {}
 
     public static boolean translateBlockChange(BlockChangePacket packet, WorldInfo world,
                                         BlockTypeTranslator translator) {
-
-        // TODO: Use of NMS code breaks with version changes
-
         int x = packet.getX();
         int y = packet.getY();
         int z = packet.getZ();
 
-        ChunkBlockInfo info = translator.translate(world, x, y, z, packet.getMaterial(), packet.getMeta());
+        ChunkBlockInfo info = translator.translate(
+                world, x, y, z, packet.getMaterial(), packet.getMeta());
         if (info == null)
             return false;
 
@@ -71,7 +72,8 @@ public class BlockPacketTranslator {
             int y = block.getY();
             int z = block.getZ();
 
-            ChunkBlockInfo info = translator.translate(world, x, y, z, block.getMaterial(), block.getMeta());
+            ChunkBlockInfo info = translator.translate(
+                    world, x, y, z, block.getMaterial(), block.getMeta());
             if (info == null)
                 continue;
 
@@ -83,11 +85,9 @@ public class BlockPacketTranslator {
         return isChanged;
     }
 
+    public static void translateMapChunk(PacketContainer packet, PhantomRegion region) {
 
-    public static void translateMapChunk(PacketContainer packet, WorldInfo world,
-                                   BlockTypeTranslator translator) {
-
-        ChunkData data = ChunkData.fromMapChunkPacket(packet, world);
+        ChunkData data = ChunkData.fromMapChunkPacket(packet, new WorldInfo(region.getWorld()));
 
         if (data.getData() == null)
             return;
@@ -95,50 +95,30 @@ public class BlockPacketTranslator {
         if (data.getBlockSize() > data.getData().length)
             return;
 
-        translateChunkData(data, translator);
+        translateChunkData(region, data);
     }
 
-    public static void translateMapChunkBulk(PacketContainer packet, WorldInfo world,
-                                      BlockTypeTranslator translator) {
+    public static void translateMapChunkBulk(PacketContainer packet, PhantomRegion region) {
 
-        ChunkBulkData bulkData = ChunkBulkData.fromMapChunkBulkPacket(packet, world);
+        ChunkBulkData bulkData = ChunkBulkData.fromMapChunkBulkPacket(packet, new WorldInfo(region.getWorld()));
 
         IChunkData[] dataArray =  bulkData.getChunkData();
 
         for (IChunkData data : dataArray) {
 
-            translateChunkData(data, translator);
+            translateChunkData(region, data);
         }
     }
 
-    private static void translateChunkData(IChunkData chunkData, BlockTypeTranslator translator) {
+    private static void translateChunkData(PhantomRegion region, IChunkData chunkData) {
 
-        ChunkDataBlockIterator iterator = new ChunkDataBlockIterator(chunkData);
+        List<ChunkBlockInfo> blocks = region.getChunkBlocks(chunkData);
+        for (ChunkBlockInfo info : blocks) {
 
-        while (iterator.hasNext()) {
-            iterator.next();
-
-            int blockId = iterator.getBlockId();
-            Material material = Material.getMaterial(blockId);
-            byte meta = iterator.getBlockMeta();
-
-            ChunkBlockInfo info = translator.translate(
-                    chunkData.getWorld(),
-                    iterator.getX(),
-                    iterator.getY(),
-                    iterator.getZ(),
-                    material,
-                    meta);
-
-            if (info == null)
+            if (info.getMaterial() == Material.AIR && region.ignoresAir())
                 continue;
 
-            iterator.setBlockMaterial(info.getMaterial());
-            iterator.setBlockMeta(info.getData());
-            iterator.setBlockLight(info.getEmittedLight());
-
-            if (iterator.hasSkylight())
-                iterator.setSkylight(info.getSkylight());
+            chunkData.setBlock(info.getChunkBlockX(), info.getY(), info.getChunkBlockZ(), info.getMaterial(), (byte)info.getData());
         }
     }
 }
