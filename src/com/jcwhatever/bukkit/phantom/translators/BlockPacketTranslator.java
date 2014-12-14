@@ -26,10 +26,7 @@ package com.jcwhatever.bukkit.phantom.translators;
 
 import com.comphenix.protocol.events.PacketContainer;
 import com.jcwhatever.bukkit.generic.regions.data.ChunkBlockInfo;
-import com.jcwhatever.bukkit.generic.regions.data.ChunkInfo;
-import com.jcwhatever.bukkit.generic.regions.data.IChunkInfo;
 import com.jcwhatever.bukkit.generic.regions.data.WorldInfo;
-import com.jcwhatever.bukkit.generic.utils.EntryValidator;
 import com.jcwhatever.bukkit.phantom.data.ChunkBulkData;
 import com.jcwhatever.bukkit.phantom.data.ChunkData;
 import com.jcwhatever.bukkit.phantom.data.ChunkDataBlockIterator;
@@ -46,7 +43,7 @@ import org.bukkit.Material;
 public class BlockPacketTranslator {
 
 
-    public boolean translateBlockChange(BlockChangePacket packet, WorldInfo world,
+    public static boolean translateBlockChange(BlockChangePacket packet, WorldInfo world,
                                         BlockTypeTranslator translator) {
 
         // TODO: Use of NMS code breaks with version changes
@@ -64,17 +61,10 @@ public class BlockPacketTranslator {
         return true;
     }
 
-    public boolean translateMultiBlockChange(MultiBlockChangePacket packet, WorldInfo world,
-                                              BlockTypeTranslator translator,
-                                              EntryValidator<IChunkInfo> chunkValidator) {
+    public static boolean translateMultiBlockChange(MultiBlockChangePacket packet, WorldInfo world,
+                                              BlockTypeTranslator translator) {
 
         boolean isChanged = false;
-
-        int chunkX = packet.getChunkX();
-        int chunkZ = packet.getChunkZ();
-
-        if (!chunkValidator.isValid(new ChunkInfo(world, chunkX, chunkZ)))
-            return false;
 
         for (PacketBlock block : packet) {
             int x = block.getX();
@@ -94,9 +84,8 @@ public class BlockPacketTranslator {
     }
 
 
-    public void translateMapChunk(PacketContainer packet, WorldInfo world,
-                                   BlockTypeTranslator translator,
-                                   EntryValidator<IChunkInfo> chunkValidator) {
+    public static void translateMapChunk(PacketContainer packet, WorldInfo world,
+                                   BlockTypeTranslator translator) {
 
         ChunkData data = ChunkData.fromMapChunkPacket(packet, world);
 
@@ -106,15 +95,11 @@ public class BlockPacketTranslator {
         if (data.getBlockSize() > data.getData().length)
             return;
 
-        if (!chunkValidator.isValid(data))
-            return;
-
         translateChunkData(data, translator);
     }
 
-    public void translateMapChunkBulk(PacketContainer packet, WorldInfo world,
-                                      BlockTypeTranslator translator,
-                                      EntryValidator<IChunkInfo> chunkValidator) {
+    public static void translateMapChunkBulk(PacketContainer packet, WorldInfo world,
+                                      BlockTypeTranslator translator) {
 
         ChunkBulkData bulkData = ChunkBulkData.fromMapChunkBulkPacket(packet, world);
 
@@ -122,14 +107,11 @@ public class BlockPacketTranslator {
 
         for (IChunkData data : dataArray) {
 
-            if (!chunkValidator.isValid(data))
-                continue;
-
             translateChunkData(data, translator);
         }
     }
 
-    private void translateChunkData(IChunkData chunkData, BlockTypeTranslator translator) {
+    private static void translateChunkData(IChunkData chunkData, BlockTypeTranslator translator) {
 
         ChunkDataBlockIterator iterator = new ChunkDataBlockIterator(chunkData);
 

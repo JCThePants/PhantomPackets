@@ -24,11 +24,16 @@
 
 package com.jcwhatever.bukkit.phantom.regions;
 
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.events.PacketAdapter;
+import com.jcwhatever.bukkit.generic.collections.EntryCounter;
+import com.jcwhatever.bukkit.generic.collections.EntryCounter.RemovalPolicy;
 import com.jcwhatever.bukkit.generic.storage.IDataNode;
 import com.jcwhatever.bukkit.generic.utils.PreCon;
 import com.jcwhatever.bukkit.phantom.PhantomPackets;
 
 import org.bukkit.Location;
+import org.bukkit.World;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -45,13 +50,25 @@ public class PhantomRegionManager {
 
     private final PhantomPackets _plugin;
     private final IDataNode _dataNode;
-    private Map<String, PhantomRegion> _regions = new HashMap<>(25);
+    private final Map<String, PhantomRegion> _regions = new HashMap<>(25);
+    private final EntryCounter<World> _worlds = new EntryCounter<World>(RemovalPolicy.REMOVE);
 
     public PhantomRegionManager(PhantomPackets plugin) {
         _plugin = plugin;
         _dataNode = plugin.getDataNode().getNode("regions");
 
         loadRegions();
+
+        PacketAdapter packetListener = new RegionProtocolListener(plugin, this);
+        ProtocolLibrary.getProtocolManager().addPacketListener(packetListener);
+    }
+
+    public Set<World> getWorlds() {
+        return _worlds.getEntries();
+    }
+
+    public boolean hasRegionInWorld(World world) {
+        return _worlds.contains(world);
     }
 
     @Nullable
@@ -78,6 +95,8 @@ public class PhantomRegionManager {
         region = new PhantomRegion(_plugin, name, _dataNode.getNode(name));
         region.setCoords(p1, p2);
 
+        _worlds.add(region.getWorld());
+
         try {
             region.saveData();
         } catch (IOException e) {
@@ -95,6 +114,10 @@ public class PhantomRegionManager {
         PhantomRegion region = _regions.remove(name.toLowerCase());
         if (region == null)
             return false;
+
+        if (region.isDefined()) {
+            _worlds.subtract(region.getWorld());
+        }
 
         IDataNode dataNode = region.getDataNode();
         if (dataNode != null) {
@@ -122,6 +145,10 @@ public class PhantomRegionManager {
             PhantomRegion region = new PhantomRegion(_plugin, regionName, _dataNode.getNode(regionName));
 
             _regions.put(region.getSearchName(), region);
+
+            if (region.isDefined()) {
+                _worlds.add(region.getWorld());
+            }
         }
     }
 }
