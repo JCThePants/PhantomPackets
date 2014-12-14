@@ -80,11 +80,8 @@ public class RegionProtocolListener extends PacketAdapter {
 
             BlockChangePacket wrapper = new BlockChangePacket(packet);
 
-            wrapper.getX();
-            wrapper.getY();
-            wrapper.getZ();
-
-            List<IRegion> regions = GenericsLib.getRegionManager().getRegions(world, wrapper.getX(), wrapper.getY(), wrapper.getZ());
+            List<IRegion> regions = GenericsLib.getRegionManager()
+                    .getRegions(world, wrapper.getX(), wrapper.getY(), wrapper.getZ());
 
             if (regions.isEmpty())
                 return;
@@ -101,7 +98,8 @@ public class RegionProtocolListener extends PacketAdapter {
                     clone = wrapper.clonePacket();
                 }
 
-                if (BlockPacketTranslator.translateBlockChange(clone, worldInfo, phantom.getBlockPacketTranslator())) {
+                if (BlockPacketTranslator.translateBlockChange(
+                        clone, worldInfo, phantom.getBlockPacketTranslator())) {
                     isChanged = true;
                 }
             }
@@ -115,7 +113,8 @@ public class RegionProtocolListener extends PacketAdapter {
 
             MultiBlockChangePacket wrapper = new MultiBlockChangePacket(packet);
 
-            Set<IRegion> regions = GenericsLib.getRegionManager().getRegionsInChunk(world, wrapper.getChunkX(), wrapper.getChunkZ());
+            Set<IRegion> regions = GenericsLib.getRegionManager()
+                    .getRegionsInChunk(world, wrapper.getChunkX(), wrapper.getChunkZ());
 
             if (regions.isEmpty())
                 return;
