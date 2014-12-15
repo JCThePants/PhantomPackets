@@ -26,7 +26,7 @@ package com.jcwhatever.bukkit.phantom;
 
 import com.jcwhatever.bukkit.generic.GenericsLib;
 import com.jcwhatever.bukkit.generic.GenericsPlugin;
-import com.jcwhatever.bukkit.generic.reflection.ReflectionManager;
+import com.jcwhatever.bukkit.generic.nms.NmsManager;
 import com.jcwhatever.bukkit.generic.utils.text.TextColor;
 import com.jcwhatever.bukkit.phantom.commands.CommandHandler;
 import com.jcwhatever.bukkit.phantom.entities.PhantomEntitiesManager;
@@ -48,7 +48,7 @@ public class PhantomPackets extends GenericsPlugin {
     private PhantomRegionManager _regionManager;
     private PhantomEntitiesManager _entitiesManager;
 
-    private ReflectionManager _reflectionManager;
+    private NmsManager _reflectionManager;
     private INmsHandler _reflectionHandler;
 
     public PhantomPackets() {
@@ -75,7 +75,7 @@ public class PhantomPackets extends GenericsPlugin {
         return _entitiesManager;
     }
 
-    public ReflectionManager getReflectionManager() {
+    public NmsManager getReflectionManager() {
         return _reflectionManager;
     }
 
@@ -86,10 +86,10 @@ public class PhantomPackets extends GenericsPlugin {
     @Override
     protected void onEnablePlugin() {
 
-        _reflectionManager = new ReflectionManager(this, "v1_8_R1");
-        _reflectionManager.registerNonApiHandler("v1_8_R1", "nms", NmsHandler_v1_8_R1.class);
+        _reflectionManager = new NmsManager(this, "v1_8_R1");
+        _reflectionManager.registerNmsHandler("v1_8_R1", "nms", NmsHandler_v1_8_R1.class);
 
-        _reflectionHandler = _reflectionManager.getNonApiHandler("nms");
+        _reflectionHandler = _reflectionManager.getNmsHandler("nms");
         if (_reflectionHandler == null) {
             Msg.warning("Failed to get an NMS handler. Disabling plugin.");
             Bukkit.getPluginManager().disablePlugin(this);
