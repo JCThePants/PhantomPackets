@@ -41,8 +41,13 @@ import com.jcwhatever.bukkit.phantom.data.ChunkData;
 import com.jcwhatever.bukkit.phantom.data.IChunkData;
 import com.jcwhatever.bukkit.phantom.nms.INmsHandler;
 import com.jcwhatever.bukkit.phantom.nms.NmsTypes;
+import com.jcwhatever.bukkit.phantom.packets.IBlockChangeFactory;
+import com.jcwhatever.bukkit.phantom.packets.IBlockDigPacket;
+import com.jcwhatever.bukkit.phantom.packets.IBlockPlacePacket;
 import com.jcwhatever.bukkit.phantom.packets.IMultiBlockChangeFactory;
 import com.jcwhatever.bukkit.phantom.packets.IMultiBlockChangePacket;
+
+import org.bukkit.Material;
 
 import java.util.List;
 
@@ -75,6 +80,21 @@ public class v1_8_R1_NmsHandler implements INmsHandler, INonApiHandler {
         PACKET_PLAY_OUT_MULTIBLOCK_CHANGE = manager.typeFrom("net.minecraft.server.PacketPlayOutMultiBlockChange");
         CHUNK_COORD_INT_PAIR = manager.typeFrom("net.minecraft.server.ChunkCoordIntPair");
         CHUNK_MAP = manager.typeFrom("net.minecraft.server.ChunkMap");
+    }
+
+    @Override
+    public IBlockDigPacket getBlockDigPacket(PacketContainer packet) {
+        return new BlockDigPacket(packet);
+    }
+
+    @Override
+    public IBlockPlacePacket getBlockPlacePacket(PacketContainer packet) {
+        return new BlockPlacePacket(packet);
+    }
+
+    @Override
+    public IBlockChangeFactory getBlockChangeFactory(int x, int y, int z, Material material, byte meta) {
+        return new BlockChangeFactory(x, y, z, material, meta);
     }
 
     @Override

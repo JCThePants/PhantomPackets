@@ -25,17 +25,22 @@
 package com.jcwhatever.bukkit.phantom.nms;
 
 import com.comphenix.protocol.events.PacketContainer;
-import com.jcwhatever.bukkit.generic.regions.data.ChunkBlockInfo;
-import com.jcwhatever.bukkit.generic.regions.data.ChunkInfo;
-import com.jcwhatever.bukkit.generic.regions.data.WorldInfo;
 import com.jcwhatever.bukkit.generic.reflection.ReflectedArray;
 import com.jcwhatever.bukkit.generic.reflection.ReflectedInstance;
 import com.jcwhatever.bukkit.generic.reflection.ReflectedType;
+import com.jcwhatever.bukkit.generic.regions.data.ChunkBlockInfo;
+import com.jcwhatever.bukkit.generic.regions.data.ChunkInfo;
+import com.jcwhatever.bukkit.generic.regions.data.WorldInfo;
 import com.jcwhatever.bukkit.phantom.data.ChunkBulkData;
 import com.jcwhatever.bukkit.phantom.data.ChunkData;
+import com.jcwhatever.bukkit.phantom.packets.IBlockChangeFactory;
 import com.jcwhatever.bukkit.phantom.packets.IBlockChangePacket;
+import com.jcwhatever.bukkit.phantom.packets.IBlockDigPacket;
+import com.jcwhatever.bukkit.phantom.packets.IBlockPlacePacket;
 import com.jcwhatever.bukkit.phantom.packets.IMultiBlockChangeFactory;
 import com.jcwhatever.bukkit.phantom.packets.IMultiBlockChangePacket;
+
+import org.bukkit.Material;
 
 import java.util.List;
 
@@ -43,6 +48,12 @@ import java.util.List;
  * 
  */
 public interface INmsHandler {
+
+    IBlockDigPacket getBlockDigPacket(PacketContainer packet);
+
+    IBlockPlacePacket getBlockPlacePacket(PacketContainer packet);
+
+    IBlockChangeFactory getBlockChangeFactory(int x, int y, int z, Material material, byte meta);
 
     IBlockChangePacket getBlockChangePacket(PacketContainer packet);
 

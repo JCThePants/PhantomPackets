@@ -25,23 +25,34 @@
 package com.jcwhatever.bukkit.phantom.regions;
 
 import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.PacketType.Play.Client;
 import com.comphenix.protocol.PacketType.Play.Server;
+import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.StructureModifier;
 import com.jcwhatever.bukkit.generic.GenericsLib;
 import com.jcwhatever.bukkit.generic.regions.IRegion;
+import com.jcwhatever.bukkit.generic.regions.data.ChunkBlockInfo;
 import com.jcwhatever.bukkit.generic.regions.data.WorldInfo;
 import com.jcwhatever.bukkit.generic.utils.PreCon;
+import com.jcwhatever.bukkit.generic.utils.Scheduler;
 import com.jcwhatever.bukkit.phantom.PhantomPackets;
+import com.jcwhatever.bukkit.phantom.packets.IBlockChangeFactory;
 import com.jcwhatever.bukkit.phantom.packets.IBlockChangePacket;
+import com.jcwhatever.bukkit.phantom.packets.IBlockDigPacket;
+import com.jcwhatever.bukkit.phantom.packets.IBlockPlacePacket;
 import com.jcwhatever.bukkit.phantom.packets.IMultiBlockChangePacket;
 import com.jcwhatever.bukkit.phantom.translators.BlockPacketTranslator;
 
+import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Set;
 
@@ -56,11 +67,41 @@ public class RegionProtocolListener extends PacketAdapter {
         super(plugin, Server.MAP_CHUNK,
                 Server.MAP_CHUNK_BULK,
                 Server.BLOCK_CHANGE,
-                Server.MULTI_BLOCK_CHANGE);
+                Server.MULTI_BLOCK_CHANGE,
+                Client.BLOCK_DIG,
+                Client.BLOCK_PLACE);
 
         PreCon.notNull(manager);
 
         _manager = manager;
+    }
+
+    @Override
+    public void onPacketReceiving(PacketEvent event) {
+
+        PacketType type = event.getPacketType();
+        PacketContainer packet = event.getPacket();
+
+        if (type == Client.BLOCK_PLACE) {
+
+            IBlockPlacePacket blockPlace = PhantomPackets.getNms().getBlockPlacePacket(packet);
+
+            repairPhantomBlock(event.getPlayer(), blockPlace.getX(), blockPlace.getY(), blockPlace.getZ());
+        }
+        else if (type == Client.BLOCK_DIG) {
+
+            IBlockDigPacket dig = PhantomPackets.getNms().getBlockDigPacket(packet);
+
+            Block block = event.getPlayer().getWorld().getBlockAt(
+                    dig.getX(), dig.getY(), dig.getZ());
+
+            // Packet isn't handled by minecraft if the block material is air,
+            // so its handled here
+            if (block.getType() == Material.AIR) {
+                repairPhantomBlock(event.getPlayer(), dig.getX(), dig.getY(), dig.getZ());
+            }
+
+        }
     }
 
     @Override
@@ -208,6 +249,55 @@ public class RegionProtocolListener extends PacketAdapter {
 
             }
         }
+    }
 
+    private void repairPhantomBlock(final Player player, int x, int y, int z) {
+
+        if (!PhantomPackets.getPlugin().getRegionManager().hasRegionInWorld(player.getWorld()))
+            return;
+
+        List<IRegion> regions = GenericsLib.getRegionManager().getRegions(player.getWorld(), x, y, z);
+        if (regions.isEmpty())
+            return;
+
+        World world = player.getWorld();
+        WorldInfo worldInfo = new WorldInfo(world);
+
+        for (IRegion region : regions) {
+            PhantomRegion phantom = region.getMeta(PhantomRegion.REGION_KEY);
+            if (phantom == null)
+                continue;
+
+            if (phantom.isLoading() || phantom.isSaving() || phantom.isBuilding())
+                continue;
+
+            if (!phantom.canSee(player))
+                continue;
+
+            ChunkBlockInfo blockInfo = phantom.getBlockPacketTranslator()
+                    .translate(worldInfo, x, y, z, null, (byte)0);
+
+            if (blockInfo == null ||
+                    (blockInfo.getMaterial() == Material.AIR && phantom.ignoresAir())) {
+                continue;
+            }
+
+            IBlockChangeFactory factory = PhantomPackets.getNms().getBlockChangeFactory(
+                    x, y, z, blockInfo.getMaterial(), (byte)blockInfo.getData());
+
+            final PacketContainer packet = factory.createPacket();
+
+            Scheduler.runTaskLater(PhantomPackets.getPlugin(), 1, new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        ProtocolLibrary.getProtocolManager().sendServerPacket(player, packet);
+                    } catch (InvocationTargetException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+        }
     }
 }
