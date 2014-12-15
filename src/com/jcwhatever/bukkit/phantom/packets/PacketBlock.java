@@ -24,31 +24,48 @@
 
 package com.jcwhatever.bukkit.phantom.packets;
 
-import com.comphenix.protocol.events.PacketContainer;
-import com.jcwhatever.bukkit.generic.utils.PreCon;
+import org.bukkit.Material;
 
 /*
  * 
  */
-public abstract class AbstractPacket implements IPacket {
+public class PacketBlock {
+    private int _x;
+    private int _y;
+    private int _z;
+    private Material _material;
+    private byte _meta;
 
-    protected final PacketContainer _packet;
-
-    protected AbstractPacket (PacketContainer packet) {
-        PreCon.notNull(packet);
-
-        _packet = packet;
+    public PacketBlock(int x, int y, int z, Material material, byte meta) { // MultiBlockChangeInfo info) {
+        _x = x;
+        _y = y;
+        _z = z;
+        _material = material;
+        _meta = meta;
     }
 
-    @Override
-    public PacketContainer getPacket() {
-        return _packet;
+    public int getX() {
+        return _x;
     }
 
-    @Override
-    public abstract void saveChanges();
+    public int getY() {
+        return _y;
+    }
 
-    @Override
-    public abstract AbstractPacket clonePacket();
+    public int getZ() {
+        return _z;
+    }
 
+    public Material getMaterial() {
+        return _material;
+    }
+
+    public byte getMeta() {
+        return _meta;
+    }
+
+    public void setBlock(Material material, int meta) {
+        _material = material;
+        _meta = (byte)meta;
+    }
 }

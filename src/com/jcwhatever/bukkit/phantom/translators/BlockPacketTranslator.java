@@ -27,12 +27,13 @@ package com.jcwhatever.bukkit.phantom.translators;
 import com.comphenix.protocol.events.PacketContainer;
 import com.jcwhatever.bukkit.generic.regions.data.ChunkBlockInfo;
 import com.jcwhatever.bukkit.generic.regions.data.WorldInfo;
+import com.jcwhatever.bukkit.phantom.PhantomPackets;
 import com.jcwhatever.bukkit.phantom.data.ChunkBulkData;
 import com.jcwhatever.bukkit.phantom.data.ChunkData;
 import com.jcwhatever.bukkit.phantom.data.IChunkData;
-import com.jcwhatever.bukkit.phantom.packets.BlockChangePacket;
-import com.jcwhatever.bukkit.phantom.packets.MultiBlockChangePacket;
-import com.jcwhatever.bukkit.phantom.packets.MultiBlockChangePacket.PacketBlock;
+import com.jcwhatever.bukkit.phantom.packets.IBlockChangePacket;
+import com.jcwhatever.bukkit.phantom.packets.IMultiBlockChangePacket;
+import com.jcwhatever.bukkit.phantom.packets.PacketBlock;
 import com.jcwhatever.bukkit.phantom.regions.PhantomRegion;
 
 import org.bukkit.Material;
@@ -46,7 +47,7 @@ public class BlockPacketTranslator {
 
     private BlockPacketTranslator() {}
 
-    public static boolean translateBlockChange(BlockChangePacket packet, WorldInfo world,
+    public static boolean translateBlockChange(IBlockChangePacket packet, WorldInfo world,
                                         BlockTypeTranslator translator) {
         int x = packet.getX();
         int y = packet.getY();
@@ -62,7 +63,7 @@ public class BlockPacketTranslator {
         return true;
     }
 
-    public static boolean translateMultiBlockChange(MultiBlockChangePacket packet, WorldInfo world,
+    public static boolean translateMultiBlockChange(IMultiBlockChangePacket packet, WorldInfo world,
                                               BlockTypeTranslator translator) {
 
         boolean isChanged = false;
@@ -87,7 +88,7 @@ public class BlockPacketTranslator {
 
     public static void translateMapChunk(PacketContainer packet, PhantomRegion region) {
 
-        ChunkData data = ChunkData.fromMapChunkPacket(packet, new WorldInfo(region.getWorld()));
+        ChunkData data = PhantomPackets.getNms().getChunkData(packet, new WorldInfo(region.getWorld()));
 
         if (data.getData() == null)
             return;
@@ -100,7 +101,7 @@ public class BlockPacketTranslator {
 
     public static void translateMapChunkBulk(PacketContainer packet, PhantomRegion region) {
 
-        ChunkBulkData bulkData = ChunkBulkData.fromMapChunkBulkPacket(packet, new WorldInfo(region.getWorld()));
+        ChunkBulkData bulkData = PhantomPackets.getNms().getChunkBulkData(packet, new WorldInfo(region.getWorld()));
 
         IChunkData[] dataArray =  bulkData.getChunkData();
 
@@ -118,7 +119,7 @@ public class BlockPacketTranslator {
             if (info.getMaterial() == Material.AIR && region.ignoresAir())
                 continue;
 
-            chunkData.setBlock(info.getChunkBlockX(), info.getY(), info.getChunkBlockZ(), info.getMaterial(), (byte)info.getData());
+            chunkData.setBlock(info.getChunkBlockX(), info.getY(), info.getChunkBlockZ(), info.getMaterial(), (byte) info.getData());
         }
     }
 }

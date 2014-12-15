@@ -47,7 +47,7 @@ import com.jcwhatever.bukkit.generic.utils.PreCon;
 import com.jcwhatever.bukkit.phantom.PhantomPackets;
 import com.jcwhatever.bukkit.phantom.Utils;
 import com.jcwhatever.bukkit.phantom.data.Coordinate;
-import com.jcwhatever.bukkit.phantom.packets.MultiBlockChangeFactory;
+import com.jcwhatever.bukkit.phantom.packets.IMultiBlockChangeFactory;
 import com.jcwhatever.bukkit.phantom.translators.BlockTypeTranslator;
 
 import org.bukkit.Chunk;
@@ -79,7 +79,7 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
 
     private Map<Coordinate, ChunkBlockInfo> _blocks;
     private ArrayListMap<IChunkInfo, ChunkBlockInfo> _chunkBlocks = new ArrayListMap<>(10);
-    private Map<ChunkInfo, MultiBlockChangeFactory> _chunkBlockFactories = new HashMap<>(10);
+    private Map<ChunkInfo, IMultiBlockChangeFactory> _chunkBlockFactories = new HashMap<>(10);
 
     private Set<Player> _viewers;
     private ViewPolicy _viewMode = ViewPolicy.WHITELIST;
@@ -353,7 +353,8 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
 
                             LinkedList<ChunkBlockInfo> blockInfos = loader.getBlockInfo();
 
-                             MultiBlockChangeFactory factory = new MultiBlockChangeFactory(chunkInfo, blockInfos);
+                             IMultiBlockChangeFactory factory = PhantomPackets.getNms()
+                                     .getMultiBlockChangeFactory(chunkInfo, blockInfos);
 
                              _chunkBlockFactories.put(chunkInfo, factory);
 
@@ -389,7 +390,7 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
         for (Chunk chunk : getChunks()) {
 
             if (canSee(p)) {
-                MultiBlockChangeFactory factory = _chunkBlockFactories.get(new ChunkInfo(chunk));
+                IMultiBlockChangeFactory factory = _chunkBlockFactories.get(new ChunkInfo(chunk));
                 if (factory == null)
                     continue;
 

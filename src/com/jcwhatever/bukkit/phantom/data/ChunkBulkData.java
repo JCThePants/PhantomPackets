@@ -24,11 +24,7 @@
 
 package com.jcwhatever.bukkit.phantom.data;
 
-import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.reflect.StructureModifier;
 import com.jcwhatever.bukkit.generic.regions.data.WorldInfo;
-import com.jcwhatever.bukkit.generic.utils.reflection.ReflectedArray;
-import com.jcwhatever.bukkit.phantom.NmsTypes;
 
 public class ChunkBulkData {
 
@@ -36,8 +32,9 @@ public class ChunkBulkData {
 
     private IChunkData[] _chunkData;
 
-    ChunkBulkData (WorldInfo world) {
+    public ChunkBulkData (WorldInfo world, IChunkData[] chunkData) {
         _world = world;
+        _chunkData = chunkData;
     }
 
     public WorldInfo getWorld() {
@@ -50,36 +47,5 @@ public class ChunkBulkData {
 
     public IChunkData[] getChunkData() {
         return _chunkData;
-    }
-
-    public static ChunkBulkData fromMapChunkBulkPacket(PacketContainer packet, WorldInfo world) {
-
-        ChunkBulkData bulk = new ChunkBulkData(world);
-        StructureModifier<Object> objects = packet.getModifier();
-
-        int[] chunkX = (int[])objects.read(0);
-        int[] chunkZ = (int[])objects.read(1);
-
-        ReflectedArray<?> nmsChunkMaps = new ReflectedArray<>(NmsTypes.CHUNK_MAP, objects.read(2));
-
-        int totalChunks = nmsChunkMaps.length();
-
-        bulk._chunkData = new IChunkData[totalChunks];
-
-        // iterate over chunk data and create ChunkData instance for each chunk
-        for (int i=0; i < totalChunks; i++) {
-
-            ChunkData chunkData = new ChunkData(world);
-            bulk._chunkData[i] = chunkData;
-
-            int x = chunkX[i];
-            int z = chunkZ[i];
-            byte[] data = nmsChunkMaps.getReflected(i).getFields().get(0);//.a  chunk data
-            int mask = nmsChunkMaps.getReflected(i).getFields().get(1); //.b  section mask
-
-            chunkData.init(x, z, mask, data, true);
-        }
-
-        return bulk;
     }
 }

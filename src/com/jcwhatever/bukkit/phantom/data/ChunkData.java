@@ -24,13 +24,8 @@
 
 package com.jcwhatever.bukkit.phantom.data;
 
-import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.reflect.StructureModifier;
 import com.jcwhatever.bukkit.generic.regions.data.ChunkInfo;
 import com.jcwhatever.bukkit.generic.regions.data.WorldInfo;
-import com.jcwhatever.bukkit.generic.utils.reflection.Fields;
-import com.jcwhatever.bukkit.generic.utils.reflection.ReflectedInstance;
-import com.jcwhatever.bukkit.phantom.NmsTypes;
 import com.jcwhatever.bukkit.phantom.Utils;
 
 import org.bukkit.Material;
@@ -46,12 +41,6 @@ public class ChunkData implements IChunkData {
     public static final int EMITTED_LIGHT_DATA_SIZE = 2048;
     public static final int SKYLIGHT_DATA_SIZE = 2048;
     public static final int BIOME_DATA_SIZE = 256;
-
-    public static ChunkData fromMapChunkPacket(PacketContainer packet, WorldInfo world) {
-        ChunkData data = new ChunkData(world);
-        data.initMapChunkPacket(packet);
-        return data;
-    }
 
     private final WorldInfo _world;
 
@@ -74,7 +63,7 @@ public class ChunkData implements IChunkData {
     private int[] _sectionChunkIndexes = new int[16];
     private int[] _sectionDataIndexes = new int[16];
 
-    ChunkData(WorldInfo world) {
+    public ChunkData(WorldInfo world) {
         _world = world;
     }
 
@@ -207,11 +196,11 @@ public class ChunkData implements IChunkData {
         return false;
     }
 
-    void setStartIndex(int index) {
+    public void setStartIndex(int index) {
         _startIndex = index;
     }
 
-    void init(int x, int z, int mask, byte[] data, boolean isContinuous) {
+    public void init(int x, int z, int mask, byte[] data, boolean isContinuous) {
 
         _chunkX = x;
         _chunkZ = z;
@@ -254,21 +243,4 @@ public class ChunkData implements IChunkData {
                         (_sectionDataCount * EMITTED_LIGHT_DATA_SIZE);
     }
 
-    private void initMapChunkPacket(PacketContainer packet) {
-
-        StructureModifier<Integer> integers = packet.getSpecificModifier(int.class);
-        StructureModifier<Object> objects = packet.getModifier();
-
-        int chunkX = integers.read(0);
-        int chunkZ = integers.read(1);
-
-        ReflectedInstance<?> nmsChunkMap = NmsTypes.CHUNK_MAP.reflect(objects.read(2));
-        Fields fields = nmsChunkMap.getFields();
-        byte[] data = fields.get(0);//.a  data array
-        int mask = fields.get(1); //.b sectionMask
-
-        Boolean isContinuous = packet.getBooleans().readSafely(0);
-
-        init(chunkX, chunkZ, mask, data, isContinuous != null && isContinuous);
-    }
 }

@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-package com.jcwhatever.bukkit.phantom.packets;
+package com.jcwhatever.bukkit.phantom.nms.v1_8_R1;
 
 import com.comphenix.protocol.PacketType.Play.Server;
 import com.comphenix.protocol.events.PacketContainer;
@@ -30,8 +30,10 @@ import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.wrappers.ChunkCoordIntPair;
 import com.jcwhatever.bukkit.generic.regions.data.ChunkBlockInfo;
 import com.jcwhatever.bukkit.generic.regions.data.ChunkInfo;
-import com.jcwhatever.bukkit.generic.utils.reflection.ReflectedArray;
-import com.jcwhatever.bukkit.phantom.NmsTypes;
+import com.jcwhatever.bukkit.generic.reflection.ReflectedArray;
+import com.jcwhatever.bukkit.phantom.nms.INmsHandler;
+import com.jcwhatever.bukkit.phantom.nms.NmsTypes;
+import com.jcwhatever.bukkit.phantom.packets.IMultiBlockChangeFactory;
 
 import java.util.Iterator;
 import java.util.List;
@@ -39,20 +41,23 @@ import java.util.List;
 /*
  * 
  */
-public class MultiBlockChangeFactory {
+public class MultiBlockChangeFactory implements IMultiBlockChangeFactory {
 
+    private final INmsHandler _nms;
     private final ChunkInfo _chunkInfo;
     private short[] _blockPositions;
     private ReflectedArray<?> _blockData; // IBlockData[]
 
-    public MultiBlockChangeFactory(ChunkInfo chunkInfo, List<ChunkBlockInfo> blocks) {
 
+    public MultiBlockChangeFactory(INmsHandler handler, ChunkInfo chunkInfo, List<ChunkBlockInfo> blocks) {
+
+        _nms = handler;
         _chunkInfo = chunkInfo;
 
         Iterator<ChunkBlockInfo> iterator = blocks.iterator();
 
         _blockPositions = new short[blocks.size()];
-        _blockData = NmsTypes.IBLOCK_DATA.newArray(blocks.size());
+        _blockData = _nms.getReflectedType(NmsTypes.IBLOCK_DATA).newArray(blocks.size());
 
         for (int i=0; i < blocks.size(); i++) {
             ChunkBlockInfo block = iterator.next();
@@ -77,11 +82,12 @@ public class MultiBlockChangeFactory {
             data = setValue(data, b,  0, 0x00000FFF);
             data = setValue(data, m, 12, 0x0000F000);
 
-            _blockData.set(i, NmsTypes.BLOCK.call("getByCombinedId", data)); // returns IBlockData
+            _blockData.set(i, _nms.getBlockByCombinedId(data)); // returns IBlockData
         }
     }
 
 
+    @Override
     public PacketContainer createPacket() {
 
         int totalBlocks = _blockData.length();
@@ -94,12 +100,12 @@ public class MultiBlockChangeFactory {
 
         StructureModifier<Object> objects = packet.getModifier();
 
-        ReflectedArray<?> infoArray = NmsTypes.MULTI_BLOCK_CHANGE_INFO.newArray(totalBlocks);
+        ReflectedArray<?> infoArray = _nms.getReflectedType(NmsTypes.MULTI_BLOCK_CHANGE_INFO).newArray(totalBlocks);
 
         for(int i=0; i < totalBlocks; i++) {
 
-            Object info = NmsTypes.MULTI_BLOCK_CHANGE_INFO
-                    .newInstance(packet.getHandle(), _blockPositions[i],  _blockData.get(i));
+            Object info = _nms.getReflectedType(NmsTypes.MULTI_BLOCK_CHANGE_INFO)
+                    .newInstance(packet.getHandle(), _blockPositions[i], _blockData.get(i));
 
             infoArray.set(i, info);
         }

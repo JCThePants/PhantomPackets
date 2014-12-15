@@ -22,33 +22,22 @@
  * THE SOFTWARE.
  */
 
-package com.jcwhatever.bukkit.phantom;
-
-import com.jcwhatever.bukkit.generic.utils.reflection.ReflectedType;
+package com.jcwhatever.bukkit.phantom.nms;
 
 /*
  * 
  */
-public class NmsTypes {
+public enum NmsTypes {
 
-    public static ReflectedType<?>
-            BLOCK = ReflectedType.from("net.minecraft.server.Block");
+    IBLOCK_DATA,
 
-    public static ReflectedType<?>
-            IBLOCK_DATA = ReflectedType.from("net.minecraft.server.IBlockData");
+    BASE_BLOCK_POSITION,
 
-    public static ReflectedType<?>
-            BASE_BLOCK_POSITION = ReflectedType.from("net.minecraft.server.BaseBlockPosition");
+    MULTI_BLOCK_CHANGE_INFO,
 
-    public static ReflectedType<?>
-            MULTI_BLOCK_CHANGE_INFO = ReflectedType.from("net.minecraft.server.MultiBlockChangeInfo");
+    PACKET_PLAY_OUT_MULTIBLOCK_CHANGE,
 
-    public static ReflectedType<?>
-            PACKET_PLAY_OUT_MULTIBLOCK_CHANGE = ReflectedType.from("net.minecraft.server.PacketPlayOutMultiBlockChange");
+    CHUNK_COORD_INT_PAIR,
 
-    public static ReflectedType<?>
-            CHUNK_COORD_INT_PAIR = ReflectedType.from("net.minecraft.server.ChunkCoordIntPair");
-
-    public static ReflectedType<?>
-            CHUNK_MAP = ReflectedType.from("net.minecraft.server.ChunkMap");
+    CHUNK_MAP;
 }

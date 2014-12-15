@@ -24,31 +24,16 @@
 
 package com.jcwhatever.bukkit.phantom.packets;
 
-import com.comphenix.protocol.events.PacketContainer;
-import com.jcwhatever.bukkit.generic.utils.PreCon;
-
 /*
  * 
  */
-public abstract class AbstractPacket implements IPacket {
+public interface IMultiBlockChangePacket extends IPacket, Iterable<PacketBlock> {
 
-    protected final PacketContainer _packet;
+    int getChunkX();
 
-    protected AbstractPacket (PacketContainer packet) {
-        PreCon.notNull(packet);
-
-        _packet = packet;
-    }
+    int getChunkZ();
 
     @Override
-    public PacketContainer getPacket() {
-        return _packet;
-    }
-
-    @Override
-    public abstract void saveChanges();
-
-    @Override
-    public abstract AbstractPacket clonePacket();
+    IMultiBlockChangePacket clonePacket();
 
 }

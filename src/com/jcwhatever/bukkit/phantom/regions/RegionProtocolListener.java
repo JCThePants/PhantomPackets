@@ -34,8 +34,9 @@ import com.jcwhatever.bukkit.generic.GenericsLib;
 import com.jcwhatever.bukkit.generic.regions.IRegion;
 import com.jcwhatever.bukkit.generic.regions.data.WorldInfo;
 import com.jcwhatever.bukkit.generic.utils.PreCon;
-import com.jcwhatever.bukkit.phantom.packets.BlockChangePacket;
-import com.jcwhatever.bukkit.phantom.packets.MultiBlockChangePacket;
+import com.jcwhatever.bukkit.phantom.PhantomPackets;
+import com.jcwhatever.bukkit.phantom.packets.IBlockChangePacket;
+import com.jcwhatever.bukkit.phantom.packets.IMultiBlockChangePacket;
 import com.jcwhatever.bukkit.phantom.translators.BlockPacketTranslator;
 
 import org.bukkit.World;
@@ -78,7 +79,7 @@ public class RegionProtocolListener extends PacketAdapter {
 
         if (type == Server.BLOCK_CHANGE) {
 
-            BlockChangePacket wrapper = new BlockChangePacket(packet);
+            IBlockChangePacket wrapper = PhantomPackets.getNms().getBlockChangePacket(packet);
 
             List<IRegion> regions = GenericsLib.getRegionManager()
                     .getRegions(world, wrapper.getX(), wrapper.getY(), wrapper.getZ());
@@ -86,7 +87,7 @@ public class RegionProtocolListener extends PacketAdapter {
             if (regions.isEmpty())
                 return;
 
-            BlockChangePacket clone = null;
+            IBlockChangePacket clone = null;
             boolean isChanged = false;
 
             for (IRegion region : regions) {
@@ -111,7 +112,7 @@ public class RegionProtocolListener extends PacketAdapter {
         }
         else if (type == Server.MULTI_BLOCK_CHANGE) {
 
-            MultiBlockChangePacket wrapper = new MultiBlockChangePacket(packet);
+            IMultiBlockChangePacket wrapper = PhantomPackets.getNms().getMultiBlockChangePacket(packet);
 
             Set<IRegion> regions = GenericsLib.getRegionManager()
                     .getRegionsInChunk(world, wrapper.getChunkX(), wrapper.getChunkZ());
@@ -119,7 +120,7 @@ public class RegionProtocolListener extends PacketAdapter {
             if (regions.isEmpty())
                 return;
 
-            MultiBlockChangePacket cloned = null;
+            IMultiBlockChangePacket cloned = null;
 
             for (IRegion region : regions) {
                 PhantomRegion phantom = region.getMeta(PhantomRegion.REGION_KEY);
