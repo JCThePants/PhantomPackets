@@ -25,9 +25,6 @@
 package com.jcwhatever.bukkit.phantom.nms;
 
 import com.comphenix.protocol.events.PacketContainer;
-import com.jcwhatever.bukkit.generic.reflection.ReflectedArray;
-import com.jcwhatever.bukkit.generic.reflection.ReflectedInstance;
-import com.jcwhatever.bukkit.generic.reflection.ReflectedType;
 import com.jcwhatever.bukkit.generic.regions.data.ChunkBlockInfo;
 import com.jcwhatever.bukkit.generic.regions.data.ChunkInfo;
 import com.jcwhatever.bukkit.generic.regions.data.WorldInfo;
@@ -64,14 +61,4 @@ public interface INmsHandler {
     ChunkBulkData getChunkBulkData(PacketContainer packet, WorldInfo world);
 
     ChunkData getChunkData(PacketContainer packet, WorldInfo world);
-
-    int getBlockCombinedId(Object iNmsBlockData);
-
-    Object getBlockByCombinedId(int id);
-
-    ReflectedInstance<?> reflect(NmsTypes type, Object instance);
-
-    ReflectedArray<?> reflectArray(NmsTypes type, Object instance);
-
-    ReflectedType<?> getReflectedType(NmsTypes type);
 }

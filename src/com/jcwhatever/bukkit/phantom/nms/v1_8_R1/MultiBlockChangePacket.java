@@ -26,17 +26,19 @@ package com.jcwhatever.bukkit.phantom.nms.v1_8_R1;
 
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.StructureModifier;
-import com.jcwhatever.bukkit.generic.reflection.Fields;
-import com.jcwhatever.bukkit.generic.reflection.ReflectedArray;
-import com.jcwhatever.bukkit.generic.reflection.ReflectedInstance;
 import com.jcwhatever.bukkit.phantom.Utils;
 import com.jcwhatever.bukkit.phantom.nms.INmsHandler;
-import com.jcwhatever.bukkit.phantom.nms.NmsTypes;
 import com.jcwhatever.bukkit.phantom.packets.AbstractPacket;
 import com.jcwhatever.bukkit.phantom.packets.IMultiBlockChangePacket;
 import com.jcwhatever.bukkit.phantom.packets.PacketBlock;
 
 import org.bukkit.Material;
+
+import net.minecraft.server.v1_8_R1.Block;
+import net.minecraft.server.v1_8_R1.BlockPosition;
+import net.minecraft.server.v1_8_R1.IBlockData;
+import net.minecraft.server.v1_8_R1.MultiBlockChangeInfo;
+import net.minecraft.server.v1_8_R1.PacketPlayOutMultiBlockChange;
 
 import java.util.Iterator;
 
@@ -48,7 +50,7 @@ public class MultiBlockChangePacket extends AbstractPacket implements IMultiBloc
     private final INmsHandler _nms;
     private int _chunkX;
     private int _chunkZ;
-    private ReflectedArray<?> _nmsBlockChanges;
+    private MultiBlockChangeInfo[] _nmsBlockChanges;
     private PacketBlock[] _packetBlocks;
     private StructureModifier<Object> _objects;
 
@@ -79,20 +81,22 @@ public class MultiBlockChangePacket extends AbstractPacket implements IMultiBloc
         if (_packetBlocks == null)
             return;
 
+        MultiBlockChangeInfo[] array = getNmsBlockChanges();
+
         for (int i=0; i < _packetBlocks.length; i++) {
 
-            short blockPosition = getNmsBlockChanges().getReflected(i).getFields(short.class).get(0); //b();
+            short blockPosition = array[i].b();
 
             PacketBlock packetBlock = _packetBlocks[i];
 
             int id = Utils.getCombinedId(packetBlock.getMaterial(), packetBlock.getMeta());
 
-            Object nmsBlockData = _nms.getBlockByCombinedId(id);//Block.getByCombinedId(id);
+            IBlockData nmsBlockData = Block.getByCombinedId(id);
 
-            Object blockChangeInfo = _nms.getReflectedType(NmsTypes.MULTI_BLOCK_CHANGE_INFO)
-                    .newInstance(_packet.getHandle(), blockPosition, nmsBlockData);
+            MultiBlockChangeInfo blockChangeInfo = new MultiBlockChangeInfo(
+                    (PacketPlayOutMultiBlockChange)_packet.getHandle(), blockPosition, nmsBlockData);
 
-            getNmsBlockChanges().set(i, blockChangeInfo);
+            array[i] = blockChangeInfo;
         }
     }
 
@@ -103,24 +107,24 @@ public class MultiBlockChangePacket extends AbstractPacket implements IMultiBloc
 
         StructureModifier<Object> cloneObj = clone.getModifier();
 
-        ReflectedArray newArray = _nms.getReflectedType(NmsTypes.MULTI_BLOCK_CHANGE_INFO)
-                .newArray(getNmsBlockChanges().length());
+        MultiBlockChangeInfo[] array = getNmsBlockChanges();
+        MultiBlockChangeInfo[] newArray = new MultiBlockChangeInfo[array.length];
 
-        for (int i=0; i < newArray.length(); i++) {
+        for (int i=0; i < newArray.length; i++) {
 
-            ReflectedInstance<?> info = getNmsBlockChanges().getReflected(i);
+            MultiBlockChangeInfo info = array[i];
 
-            short blockPosition = info.getFields(short.class).get(0);//.b();
-            Object nmsBlockData = info.getFields().get(1); //(IBlockData)_nmsBlockChanges[i].c();
+            short blockPosition = info.b();
+            IBlockData nmsBlockData = info.c();
 
-            Object multiBlockChangeInfo = _nms.getReflectedType(NmsTypes.MULTI_BLOCK_CHANGE_INFO).newInstance(
-                    clone.getHandle(), blockPosition, nmsBlockData
+            MultiBlockChangeInfo multiBlockChangeInfo = new MultiBlockChangeInfo(
+                    (PacketPlayOutMultiBlockChange)clone.getHandle(), blockPosition, nmsBlockData
             );
 
-            newArray.set(i, multiBlockChangeInfo);
+            newArray[i] = multiBlockChangeInfo;
         }
 
-        cloneObj.write(1, newArray.getHandle());
+        cloneObj.write(1, newArray);
 
         return new MultiBlockChangePacket(_nms, clone, _chunkX, _chunkZ);
     }
@@ -129,24 +133,23 @@ public class MultiBlockChangePacket extends AbstractPacket implements IMultiBloc
     public Iterator<PacketBlock> iterator() {
 
         if (_packetBlocks == null) {
-            _packetBlocks = new PacketBlock[getNmsBlockChanges().length()];
+
+            MultiBlockChangeInfo[] array = getNmsBlockChanges();
+
+            _packetBlocks = new PacketBlock[array.length];
 
             for (int i = 0; i < _packetBlocks.length; i++) {
 
-                Object objectInfo = getNmsBlockChanges().get(i);
+                MultiBlockChangeInfo info = array[i];
 
-                ReflectedInstance<?> info = _nms.reflect(NmsTypes.MULTI_BLOCK_CHANGE_INFO, objectInfo);
+                BlockPosition nmsPosition = info.a(); //block position
+                IBlockData nmsBlockData = info.c(); // IBlockData
 
-                Fields fields = info.getFields();
+                int x = nmsPosition.getX();
+                int y = nmsPosition.getY();
+                int z = nmsPosition.getZ();
 
-                short position = fields.get(0);// .a(); block position
-                Object nmsBlockData = fields.get(1); //.c(); // IBlockData
-
-                int x = (_chunkX << 4) + (position >> 12 & 15);
-                int y = position & 255;
-                int z = (_chunkZ << 4) + (position >> 8 & 15);
-
-                int combinedId = _nms.getBlockCombinedId(nmsBlockData); // Block.getCombinedId(nmsBlockData);
+                int combinedId = Block.getCombinedId(nmsBlockData);
 
                 Material material = Utils.getMaterialFromCombinedId(combinedId);
                 byte meta = Utils.getMetaFromCombinedId(combinedId);
@@ -179,10 +182,9 @@ public class MultiBlockChangePacket extends AbstractPacket implements IMultiBloc
         };
     }
 
-    private ReflectedArray<?> getNmsBlockChanges() {
+    private MultiBlockChangeInfo[] getNmsBlockChanges() {
         if (_nmsBlockChanges == null) {
-            Object blockChangeArray = _objects.read(1); // MultiBlockChangeInfo[]
-            _nmsBlockChanges =  _nms.reflectArray(NmsTypes.MULTI_BLOCK_CHANGE_INFO, blockChangeArray);
+            _nmsBlockChanges = (MultiBlockChangeInfo[])_objects.read(1);
         }
         return _nmsBlockChanges;
     }
