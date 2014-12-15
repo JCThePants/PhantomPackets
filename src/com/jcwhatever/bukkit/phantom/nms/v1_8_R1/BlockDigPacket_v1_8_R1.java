@@ -35,7 +35,7 @@ import net.minecraft.server.v1_8_R1.EnumPlayerDigType;
 /*
  * 
  */
-public class BlockDigPacket implements IBlockDigPacket {
+public class BlockDigPacket_v1_8_R1 implements IBlockDigPacket {
 
     private final StructureModifier<Object> _objects;
 
@@ -47,7 +47,7 @@ public class BlockDigPacket implements IBlockDigPacket {
     private DigType _digType;
 
 
-    public BlockDigPacket(PacketContainer packet) {
+    public BlockDigPacket_v1_8_R1(PacketContainer packet) {
         _objects = packet.getModifier();
 
         BlockPosition blockPosition = (BlockPosition)_objects.read(0);

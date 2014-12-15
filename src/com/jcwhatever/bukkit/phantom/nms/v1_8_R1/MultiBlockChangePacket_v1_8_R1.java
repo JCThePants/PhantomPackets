@@ -45,7 +45,7 @@ import java.util.Iterator;
 /*
  * 
  */
-public class MultiBlockChangePacket extends AbstractPacket implements IMultiBlockChangePacket, Iterable<PacketBlock> {
+public class MultiBlockChangePacket_v1_8_R1 extends AbstractPacket implements IMultiBlockChangePacket, Iterable<PacketBlock> {
 
     private final INmsHandler _nms;
     private int _chunkX;
@@ -54,7 +54,7 @@ public class MultiBlockChangePacket extends AbstractPacket implements IMultiBloc
     private PacketBlock[] _packetBlocks;
     private StructureModifier<Object> _objects;
 
-    public MultiBlockChangePacket(INmsHandler handler, PacketContainer packet, int chunkX, int chunkZ) {
+    public MultiBlockChangePacket_v1_8_R1(INmsHandler handler, PacketContainer packet, int chunkX, int chunkZ) {
         super(packet);
 
         _nms = handler;
@@ -101,7 +101,7 @@ public class MultiBlockChangePacket extends AbstractPacket implements IMultiBloc
     }
 
     @Override
-    public MultiBlockChangePacket clonePacket() {
+    public MultiBlockChangePacket_v1_8_R1 clonePacket() {
 
         PacketContainer clone = Utils.clonePacket(_packet);
 
@@ -126,7 +126,7 @@ public class MultiBlockChangePacket extends AbstractPacket implements IMultiBloc
 
         cloneObj.write(1, newArray);
 
-        return new MultiBlockChangePacket(_nms, clone, _chunkX, _chunkZ);
+        return new MultiBlockChangePacket_v1_8_R1(_nms, clone, _chunkX, _chunkZ);
     }
 
     @Override

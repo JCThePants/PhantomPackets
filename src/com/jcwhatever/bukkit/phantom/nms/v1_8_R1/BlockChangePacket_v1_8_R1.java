@@ -40,7 +40,7 @@ import net.minecraft.server.v1_8_R1.IBlockData;
 /*
  * 
  */
-public class BlockChangePacket extends AbstractPacket implements IBlockChangePacket {
+public class BlockChangePacket_v1_8_R1 extends AbstractPacket implements IBlockChangePacket {
 
     private final INmsHandler _nms;
     private final StructureModifier<Object> _objects;
@@ -51,7 +51,7 @@ public class BlockChangePacket extends AbstractPacket implements IBlockChangePac
 
 
 
-    public BlockChangePacket(INmsHandler handler, PacketContainer packet, int x, int y, int z) {
+    public BlockChangePacket_v1_8_R1(INmsHandler handler, PacketContainer packet, int x, int y, int z) {
         super(packet);
 
         _nms = handler;
@@ -113,7 +113,7 @@ public class BlockChangePacket extends AbstractPacket implements IBlockChangePac
     }
 
     @Override
-    public BlockChangePacket clonePacket() {
+    public BlockChangePacket_v1_8_R1 clonePacket() {
         PacketContainer clone = Utils.clonePacket(_packet);
         PacketContainer source = _packet;
 
@@ -128,7 +128,7 @@ public class BlockChangePacket extends AbstractPacket implements IBlockChangePac
 
         cloneObj.write(1, nmsCloneData);
 
-        return new BlockChangePacket(_nms, clone, _x, _y, _z);
+        return new BlockChangePacket_v1_8_R1(_nms, clone, _x, _y, _z);
     }
 
     private IBlockData getNmsBlockData() {

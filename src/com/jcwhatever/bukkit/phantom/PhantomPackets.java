@@ -31,7 +31,7 @@ import com.jcwhatever.bukkit.generic.utils.text.TextColor;
 import com.jcwhatever.bukkit.phantom.commands.CommandHandler;
 import com.jcwhatever.bukkit.phantom.entities.PhantomEntitiesManager;
 import com.jcwhatever.bukkit.phantom.nms.INmsHandler;
-import com.jcwhatever.bukkit.phantom.nms.v1_8_R1.v1_8_R1_NmsHandler;
+import com.jcwhatever.bukkit.phantom.nms.v1_8_R1.NmsHandler_v1_8_R1;
 import com.jcwhatever.bukkit.phantom.regions.PhantomRegionManager;
 import com.jcwhatever.bukkit.phantom.scripts.PhantomScriptApi;
 
@@ -87,7 +87,7 @@ public class PhantomPackets extends GenericsPlugin {
     protected void onEnablePlugin() {
 
         _reflectionManager = new ReflectionManager(this, "v1_8_R1");
-        _reflectionManager.registerNonApiHandler("v1_8_R1", "nms", v1_8_R1_NmsHandler.class);
+        _reflectionManager.registerNonApiHandler("v1_8_R1", "nms", NmsHandler_v1_8_R1.class);
 
         _reflectionHandler = _reflectionManager.getNonApiHandler("nms");
         if (_reflectionHandler == null) {

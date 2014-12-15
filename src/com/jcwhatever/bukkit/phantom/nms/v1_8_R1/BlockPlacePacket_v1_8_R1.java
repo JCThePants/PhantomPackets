@@ -24,56 +24,70 @@
 
 package com.jcwhatever.bukkit.phantom.nms.v1_8_R1;
 
-import com.comphenix.protocol.PacketType.Play.Server;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.StructureModifier;
-import com.jcwhatever.bukkit.generic.utils.PreCon;
-import com.jcwhatever.bukkit.phantom.Utils;
-import com.jcwhatever.bukkit.phantom.packets.IBlockChangeFactory;
+import com.jcwhatever.bukkit.phantom.packets.IBlockPlacePacket;
 
-import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_8_R1.inventory.CraftItemStack;
+import org.bukkit.inventory.ItemStack;
 
-import net.minecraft.server.v1_8_R1.Block;
 import net.minecraft.server.v1_8_R1.BlockPosition;
-import net.minecraft.server.v1_8_R1.IBlockData;
 
+/*
+ * 
+ */
+public class BlockPlacePacket_v1_8_R1 implements IBlockPlacePacket {
 
-public class BlockChangeFactory implements IBlockChangeFactory {
+    private final StructureModifier<Object> _objects;
 
     private final int _x;
     private final int _y;
     private final int _z;
-    private final Material _material;
-    private final byte _meta;
 
-    public BlockChangeFactory(int x, int y, int z, Material material, byte meta) {
-        PreCon.notNull(material);
+    private ItemStack _itemStack;
+    private long _timeStamp = -1;
 
-        _x = x;
-        _y = y;
-        _z = z;
-        _material = material;
-        _meta = meta;
+    public BlockPlacePacket_v1_8_R1(PacketContainer packet) {
+
+        _objects = packet.getModifier();
+
+        BlockPosition blockPosition = (BlockPosition)_objects.read(0);
+
+        _x = blockPosition.getX();
+        _y = blockPosition.getY();
+        _z = blockPosition.getZ();
     }
 
     @Override
-    public PacketContainer createPacket() {
+    public int getX() {
+        return _x;
+    }
 
-        PacketContainer packet = new PacketContainer(Server.BLOCK_CHANGE);
-        packet.getModifier().writeDefaults();
+    @Override
+    public int getY() {
+        return _y;
+    }
 
-        BlockPosition position = new BlockPosition(_x, _y, _z);
+    @Override
+    public int getZ() {
+        return _z;
+    }
 
-        StructureModifier<Object> objects = packet.getModifier();
-        objects.write(0, position);
+    @Override
+    public ItemStack getItemStack() {
+        if (_itemStack == null) {
+            net.minecraft.server.v1_8_R1.ItemStack itemStack =
+                    (net.minecraft.server.v1_8_R1.ItemStack)_objects.read(2);
+            _itemStack = CraftItemStack.asCraftMirror(itemStack);
+        }
+        return _itemStack;
+    }
 
-        int id = Utils.getCombinedId(_material, _meta);
-        IBlockData blockData = Block.getByCombinedId(id);
-        if (blockData == null)
-            throw new IllegalArgumentException("Failed to create block data.");
-
-        objects.write(1, blockData);
-
-        return packet;
+    @Override
+    public long timeStamp() {
+        if (_timeStamp == -1) {
+            _timeStamp = (long)_objects.read(6);
+        }
+        return _timeStamp;
     }
 }

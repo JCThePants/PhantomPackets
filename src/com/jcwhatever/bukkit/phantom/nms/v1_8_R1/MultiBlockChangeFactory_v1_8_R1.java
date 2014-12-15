@@ -43,14 +43,14 @@ import java.util.List;
 /*
  * 
  */
-public class MultiBlockChangeFactory implements IMultiBlockChangeFactory {
+public class MultiBlockChangeFactory_v1_8_R1 implements IMultiBlockChangeFactory {
 
     private final ChunkInfo _chunkInfo;
     private short[] _blockPositions;
     private IBlockData[] _blockData;
 
 
-    public MultiBlockChangeFactory(ChunkInfo chunkInfo, List<ChunkBlockInfo> blocks) {
+    public MultiBlockChangeFactory_v1_8_R1(ChunkInfo chunkInfo, List<ChunkBlockInfo> blocks) {
 
         _chunkInfo = chunkInfo;
 

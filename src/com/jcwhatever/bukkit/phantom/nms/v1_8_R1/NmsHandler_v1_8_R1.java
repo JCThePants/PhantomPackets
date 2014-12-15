@@ -51,27 +51,27 @@ import java.util.List;
 /*
  * 
  */
-public class v1_8_R1_NmsHandler implements INmsHandler, INonApiHandler {
+public class NmsHandler_v1_8_R1 implements INmsHandler, INonApiHandler {
 
-    public v1_8_R1_NmsHandler() {}
+    public NmsHandler_v1_8_R1() {}
 
     @Override
     public IBlockDigPacket getBlockDigPacket(PacketContainer packet) {
-        return new BlockDigPacket(packet);
+        return new BlockDigPacket_v1_8_R1(packet);
     }
 
     @Override
     public IBlockPlacePacket getBlockPlacePacket(PacketContainer packet) {
-        return new BlockPlacePacket(packet);
+        return new BlockPlacePacket_v1_8_R1(packet);
     }
 
     @Override
     public IBlockChangeFactory getBlockChangeFactory(int x, int y, int z, Material material, byte meta) {
-        return new BlockChangeFactory(x, y, z, material, meta);
+        return new BlockChangeFactory_v1_8_R1(x, y, z, material, meta);
     }
 
     @Override
-    public BlockChangePacket getBlockChangePacket(PacketContainer packet) {
+    public BlockChangePacket_v1_8_R1 getBlockChangePacket(PacketContainer packet) {
 
         StructureModifier<Object> objects = packet.getModifier();
 
@@ -81,12 +81,12 @@ public class v1_8_R1_NmsHandler implements INmsHandler, INonApiHandler {
         int y = nmsBlockPosition.getY();
         int z = nmsBlockPosition.getZ();
 
-        return new BlockChangePacket(this, packet, x, y, z);
+        return new BlockChangePacket_v1_8_R1(this, packet, x, y, z);
     }
 
     @Override
     public IMultiBlockChangeFactory getMultiBlockChangeFactory(ChunkInfo chunkInfo, List<ChunkBlockInfo> blocks) {
-        return new MultiBlockChangeFactory(chunkInfo, blocks);
+        return new MultiBlockChangeFactory_v1_8_R1(chunkInfo, blocks);
     }
 
     @Override
@@ -101,7 +101,7 @@ public class v1_8_R1_NmsHandler implements INmsHandler, INonApiHandler {
         int chunkX = nmsCoords.x;
         int chunkZ = nmsCoords.z;
 
-        return new MultiBlockChangePacket(this, packet, chunkX, chunkZ);
+        return new MultiBlockChangePacket_v1_8_R1(this, packet, chunkX, chunkZ);
     }
 
     @Override
