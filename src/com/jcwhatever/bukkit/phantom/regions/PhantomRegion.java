@@ -82,7 +82,7 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
     private Map<ChunkInfo, IMultiBlockChangeFactory> _chunkBlockFactories = new HashMap<>(10);
 
     private Set<Player> _viewers;
-    private ViewPolicy _viewMode = ViewPolicy.WHITELIST;
+    private ViewPolicy _viewPolicy = ViewPolicy.WHITELIST;
 
     private boolean _ignoreAir;
     private boolean _isLoading;
@@ -161,17 +161,17 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
 
     @Override
     public ViewPolicy getViewPolicy() {
-        return _viewMode;
+        return _viewPolicy;
     }
 
     @Override
-    public void setViewMode(ViewPolicy viewMode) {
-        PreCon.notNull(viewMode);
+    public void setViewPolicy(ViewPolicy viewPolicy) {
+        PreCon.notNull(viewPolicy);
 
-        if (_viewMode == viewMode)
+        if (_viewPolicy == viewPolicy)
             return;
 
-        _viewMode = viewMode;
+        _viewPolicy = viewPolicy;
 
         refreshChunks();
     }
@@ -181,8 +181,8 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
         PreCon.notNull(player);
 
         boolean hasViewer = hasViewer(player);
-        return (_viewMode == ViewPolicy.BLACKLIST && !hasViewer) ||
-                (_viewMode == ViewPolicy.WHITELIST && hasViewer);
+        return (_viewPolicy == ViewPolicy.BLACKLIST && !hasViewer) ||
+                (_viewPolicy == ViewPolicy.WHITELIST && hasViewer);
     }
 
     @Override
@@ -240,7 +240,7 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
 
         _viewers.clear();
 
-        switch (_viewMode) {
+        switch (_viewPolicy) {
             case WHITELIST:
                 for (Player p : players) {
                     resendChunks(p);
