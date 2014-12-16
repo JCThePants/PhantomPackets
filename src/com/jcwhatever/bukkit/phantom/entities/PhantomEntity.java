@@ -107,13 +107,13 @@ public class PhantomEntity implements IViewable {
     }
 
     @Override
-    public void setViewMode(ViewPolicy viewMode) {
-        if (_viewPolicy == viewMode)
+    public void setViewPolicy(ViewPolicy viewPolicy) {
+        if (_viewPolicy == viewPolicy)
             return;
 
-        _viewPolicy = viewMode;
+        _viewPolicy = viewPolicy;
 
-        switch (viewMode) {
+        switch (viewPolicy) {
             case WHITELIST:
                 showToViewers(_viewers);
                 break;
