@@ -32,10 +32,10 @@ import com.jcwhatever.bukkit.generic.commands.exceptions.InvalidCommandSenderExc
 import com.jcwhatever.bukkit.generic.commands.exceptions.InvalidValueException;
 import com.jcwhatever.bukkit.generic.internal.Lang;
 import com.jcwhatever.bukkit.generic.language.Localizable;
-import com.jcwhatever.bukkit.generic.regions.selection.RegionSelection;
+import com.jcwhatever.bukkit.generic.regions.selection.IRegionSelection;
+import com.jcwhatever.bukkit.phantom.PhantomPackets;
 import com.jcwhatever.bukkit.phantom.regions.PhantomRegion;
 import com.jcwhatever.bukkit.phantom.regions.PhantomRegionManager;
-import com.jcwhatever.bukkit.phantom.PhantomPackets;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -44,7 +44,7 @@ import org.bukkit.entity.Player;
         command="redefine",
         staticParams={ "regionName" },
         usage="/{plugin-command} redefine <regionName>",
-        description="Redefine a phantom regions coordinates using your current area selection.")
+        description="Redefine a phantom regions coordinates using your current region selection.")
 
 public class RedefineCommand extends AbstractCommand {
 
@@ -61,7 +61,7 @@ public class RedefineCommand extends AbstractCommand {
 
         Player p = (Player)sender;
 
-        RegionSelection sel = getWorldEditSelection(p);
+        IRegionSelection sel = getRegionSelection(p);
         if (sel == null)
             return; // finish
 
