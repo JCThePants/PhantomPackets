@@ -134,7 +134,13 @@ public class RegionProtocolListener extends PacketAdapter {
             for (IRegion region : regions) {
                 PhantomRegion phantom = region.getMeta(PhantomRegion.REGION_KEY);
                 if (phantom == null)
-                    return;
+                    continue;
+
+                if (phantom.isLoading() || phantom.isSaving() || phantom.isBuilding())
+                    continue;
+
+                if (!phantom.canSee(event.getPlayer()))
+                    continue;
 
                 if (clone == null) {
                     clone = wrapper.clonePacket();
