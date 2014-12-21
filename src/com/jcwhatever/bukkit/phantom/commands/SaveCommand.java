@@ -29,7 +29,7 @@ import com.jcwhatever.bukkit.generic.commands.CommandInfo;
 import com.jcwhatever.bukkit.generic.commands.arguments.CommandArguments;
 import com.jcwhatever.bukkit.generic.commands.exceptions.InvalidCommandSenderException;
 import com.jcwhatever.bukkit.generic.commands.exceptions.InvalidCommandSenderException.CommandSenderType;
-import com.jcwhatever.bukkit.generic.commands.exceptions.InvalidValueException;
+import com.jcwhatever.bukkit.generic.commands.exceptions.InvalidArgumentException;
 import com.jcwhatever.bukkit.generic.internal.Lang;
 import com.jcwhatever.bukkit.generic.language.Localizable;
 import com.jcwhatever.bukkit.generic.performance.queued.QueueResult.CancelHandler;
@@ -58,7 +58,7 @@ public class SaveCommand extends AbstractCommand {
 
     @Override
     public void execute(final CommandSender sender, CommandArguments args)
-            throws InvalidValueException, InvalidCommandSenderException {
+            throws InvalidArgumentException, InvalidCommandSenderException {
 
         InvalidCommandSenderException.check(sender, CommandSenderType.PLAYER, "Console cannot select region.");
 
