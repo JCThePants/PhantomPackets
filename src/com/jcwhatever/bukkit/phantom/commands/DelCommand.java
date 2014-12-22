@@ -39,7 +39,6 @@ import org.bukkit.command.CommandSender;
 @CommandInfo(
         command="del",
         staticParams={ "regionName" },
-        usage="/{plugin-command} del <regionName>",
         description="Removes a phantom region.")
 
 public class DelCommand extends AbstractCommand {

@@ -24,18 +24,18 @@
 
 package com.jcwhatever.bukkit.phantom.commands;
 
-import com.jcwhatever.bukkit.generic.commands.AbstractCommandHandler;
+import com.jcwhatever.bukkit.generic.commands.CommandDispatcher;
 
 import org.bukkit.plugin.Plugin;
 
-public class CommandHandler extends AbstractCommandHandler {
+public class PhantomCommandDispatcher extends CommandDispatcher {
 
     /**
      * Constructor
      *
      * @param plugin The plugin the command handler is for
      */
-    public CommandHandler(Plugin plugin) {
+    public PhantomCommandDispatcher(Plugin plugin) {
         super(plugin);
     }
 

@@ -47,7 +47,6 @@ import javax.annotation.Nullable;
 @CommandInfo(
         command="save",
         staticParams={ "regionName" },
-        usage="/{plugin-command} save <regionName>",
         description="Save the region to disk. The disk file is used to display the region.")
 
 public class SaveCommand extends AbstractCommand {

@@ -43,7 +43,6 @@ import org.bukkit.entity.Player;
 @CommandInfo(
         command="add",
         staticParams={ "regionName" },
-        usage="/{plugin-command} add <regionName>",
         description="Adds a new phantom region using your current region selection.")
 
 public class AddCommand extends AbstractCommand {

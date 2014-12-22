@@ -44,7 +44,6 @@ import java.util.List;
 @CommandInfo(
         command="list",
         staticParams={ "page=1" },
-        usage="/{plugin-command} list [page]",
         description="List all disguise regions.")
 
 public class ListCommand extends AbstractCommand {

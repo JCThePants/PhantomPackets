@@ -43,7 +43,6 @@ import org.bukkit.entity.Player;
 @CommandInfo(
         command="show",
         staticParams={ "regionName", "playerName=$self" },
-        usage="/{plugin-command} show <regionName> [playerName]",
         description="Shows the specified region to the command sender or a specified player.")
 
 public class ShowCommand extends AbstractCommand {

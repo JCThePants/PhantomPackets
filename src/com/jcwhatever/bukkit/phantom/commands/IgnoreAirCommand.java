@@ -40,7 +40,6 @@ import org.bukkit.command.CommandSender;
 @CommandInfo(
         command="ignoreair",
         staticParams={ "regionName", "on|off|info=info" },
-        usage="/{plugin-command} ignoreair <regionName> [on|off]",
         description="View or set a phantom regions 'Ignore Air' setting.")
 
 public class IgnoreAirCommand extends AbstractCommand {

@@ -28,7 +28,7 @@ import com.jcwhatever.bukkit.generic.GenericsLib;
 import com.jcwhatever.bukkit.generic.GenericsPlugin;
 import com.jcwhatever.bukkit.generic.nms.NmsManager;
 import com.jcwhatever.bukkit.generic.utils.text.TextColor;
-import com.jcwhatever.bukkit.phantom.commands.CommandHandler;
+import com.jcwhatever.bukkit.phantom.commands.PhantomCommandDispatcher;
 import com.jcwhatever.bukkit.phantom.entities.PhantomEntitiesManager;
 import com.jcwhatever.bukkit.phantom.nms.INmsHandler;
 import com.jcwhatever.bukkit.phantom.nms.v1_8_R1.NmsHandler_v1_8_R1;
@@ -98,7 +98,7 @@ public class PhantomPackets extends GenericsPlugin {
 
         _regionManager = new PhantomRegionManager(this);
         _entitiesManager = new PhantomEntitiesManager(this);
-        registerCommands(new CommandHandler(this));
+        registerCommands(new PhantomCommandDispatcher(this));
 
         GenericsLib.getScriptApiRepo().registerApiType(this, PhantomScriptApi.class);
     }

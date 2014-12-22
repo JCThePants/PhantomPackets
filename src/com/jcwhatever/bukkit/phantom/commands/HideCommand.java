@@ -43,7 +43,6 @@ import org.bukkit.entity.Player;
 @CommandInfo(
         command="hide",
         staticParams={ "regionName", "playerName=$self" },
-        usage="/{plugin-command} hide <regionName> [playerName]",
         description="Hide the specified region from the command sender or specified player.")
 
 public class HideCommand extends AbstractCommand {

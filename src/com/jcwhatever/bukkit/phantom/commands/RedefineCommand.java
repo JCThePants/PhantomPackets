@@ -43,7 +43,6 @@ import org.bukkit.entity.Player;
 @CommandInfo(
         command="redefine",
         staticParams={ "regionName" },
-        usage="/{plugin-command} redefine <regionName>",
         description="Redefine a phantom regions coordinates using your current region selection.")
 
 public class RedefineCommand extends AbstractCommand {

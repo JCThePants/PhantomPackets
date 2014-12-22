@@ -48,7 +48,6 @@ import javax.annotation.Nullable;
 @CommandInfo(
         command="restore",
         staticParams={ "regionName" },
-        usage="/{plugin-command} restore <regionName>",
         description="Restore the region from disk.")
 
 public class RestoreCommand extends AbstractCommand {
