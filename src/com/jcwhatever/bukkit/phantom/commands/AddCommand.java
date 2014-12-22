@@ -27,9 +27,7 @@ package com.jcwhatever.bukkit.phantom.commands;
 import com.jcwhatever.bukkit.generic.commands.AbstractCommand;
 import com.jcwhatever.bukkit.generic.commands.CommandInfo;
 import com.jcwhatever.bukkit.generic.commands.arguments.CommandArguments;
-import com.jcwhatever.bukkit.generic.commands.exceptions.InvalidCommandSenderException;
-import com.jcwhatever.bukkit.generic.commands.exceptions.InvalidCommandSenderException.CommandSenderType;
-import com.jcwhatever.bukkit.generic.commands.exceptions.InvalidArgumentException;
+import com.jcwhatever.bukkit.generic.commands.exceptions.CommandException;
 import com.jcwhatever.bukkit.generic.internal.Lang;
 import com.jcwhatever.bukkit.generic.language.Localizable;
 import com.jcwhatever.bukkit.generic.regions.selection.IRegionSelection;
@@ -52,10 +50,9 @@ public class AddCommand extends AbstractCommand {
     @Localizable static final String _SUCCESS = "Phantom region named '{0}' was added.";
 
     @Override
-    public void execute(CommandSender sender, CommandArguments args)
-            throws InvalidArgumentException, InvalidCommandSenderException {
+    public void execute(CommandSender sender, CommandArguments args) throws CommandException {
 
-        InvalidCommandSenderException.check(sender, CommandSenderType.PLAYER, "Console cannot select region.");
+        CommandException.assertNotConsole(this, sender);
 
         String regionName = args.getName("regionName", 32);
 

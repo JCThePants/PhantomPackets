@@ -27,15 +27,13 @@ package com.jcwhatever.bukkit.phantom.commands;
 import com.jcwhatever.bukkit.generic.commands.AbstractCommand;
 import com.jcwhatever.bukkit.generic.commands.CommandInfo;
 import com.jcwhatever.bukkit.generic.commands.arguments.CommandArguments;
-import com.jcwhatever.bukkit.generic.commands.exceptions.InvalidCommandSenderException;
-import com.jcwhatever.bukkit.generic.commands.exceptions.InvalidCommandSenderException.CommandSenderType;
-import com.jcwhatever.bukkit.generic.commands.exceptions.InvalidArgumentException;
+import com.jcwhatever.bukkit.generic.commands.exceptions.CommandException;
 import com.jcwhatever.bukkit.generic.internal.Lang;
 import com.jcwhatever.bukkit.generic.language.Localizable;
 import com.jcwhatever.bukkit.generic.utils.PlayerUtils;
+import com.jcwhatever.bukkit.phantom.PhantomPackets;
 import com.jcwhatever.bukkit.phantom.regions.PhantomRegion;
 import com.jcwhatever.bukkit.phantom.regions.PhantomRegionManager;
-import com.jcwhatever.bukkit.phantom.PhantomPackets;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -52,8 +50,7 @@ public class HideCommand extends AbstractCommand {
     @Localizable static final String _SUCCESS = "Phantom region named '{0}' is hidden from you.";
 
     @Override
-    public void execute(CommandSender sender, CommandArguments args)
-            throws InvalidArgumentException, InvalidCommandSenderException {
+    public void execute(CommandSender sender, CommandArguments args) throws CommandException {
 
         String regionName = args.getName("regionName", 32);
 
@@ -69,8 +66,7 @@ public class HideCommand extends AbstractCommand {
 
         if (args.getString("playerName").equals("$self")) {
 
-            InvalidCommandSenderException.check(sender, CommandSenderType.PLAYER,
-                    "Console cannot see disguise.");
+            CommandException.assertNotConsole(this, sender);
 
             player = (Player)sender;
         }
