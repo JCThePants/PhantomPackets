@@ -394,7 +394,7 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
                 if (factory == null)
                     continue;
 
-                PacketContainer packet = factory.createPacket();
+                PacketContainer packet = factory.createPacket(_ignoreAir);
 
                 try {
                     _protocolManager.sendServerPacket(p, packet);

@@ -30,10 +30,12 @@ import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.wrappers.ChunkCoordIntPair;
 import com.jcwhatever.bukkit.generic.regions.data.ChunkBlockInfo;
 import com.jcwhatever.bukkit.generic.regions.data.ChunkInfo;
+import com.jcwhatever.bukkit.generic.utils.ArrayUtils;
 import com.jcwhatever.bukkit.phantom.packets.IMultiBlockChangeFactory;
 
 import net.minecraft.server.v1_8_R1.Block;
 import net.minecraft.server.v1_8_R1.IBlockData;
+import net.minecraft.server.v1_8_R1.Material;
 import net.minecraft.server.v1_8_R1.MultiBlockChangeInfo;
 import net.minecraft.server.v1_8_R1.PacketPlayOutMultiBlockChange;
 
@@ -48,7 +50,6 @@ public class MultiBlockChangeFactory_v1_8_R1 implements IMultiBlockChangeFactory
     private final ChunkInfo _chunkInfo;
     private short[] _blockPositions;
     private IBlockData[] _blockData;
-
 
     public MultiBlockChangeFactory_v1_8_R1(ChunkInfo chunkInfo, List<ChunkBlockInfo> blocks) {
 
@@ -88,7 +89,7 @@ public class MultiBlockChangeFactory_v1_8_R1 implements IMultiBlockChangeFactory
 
 
     @Override
-    public PacketContainer createPacket() {
+    public PacketContainer createPacket(boolean ignoreAir) {
 
         int totalBlocks = _blockData.length;
 
@@ -104,13 +105,16 @@ public class MultiBlockChangeFactory_v1_8_R1 implements IMultiBlockChangeFactory
 
         for(int i=0; i < totalBlocks; i++) {
 
+            if (_blockData[i].getBlock().getMaterial() == Material.AIR && ignoreAir)
+                continue;
+
             MultiBlockChangeInfo info = new MultiBlockChangeInfo(
                     (PacketPlayOutMultiBlockChange)packet.getHandle(), _blockPositions[i], _blockData[i]);
 
             infoArray[i] = info;
         }
 
-        objects.write(1, infoArray);
+        objects.write(1, ArrayUtils.removeNull(infoArray));
 
         return packet;
     }

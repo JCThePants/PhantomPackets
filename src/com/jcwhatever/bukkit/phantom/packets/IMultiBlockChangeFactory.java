@@ -31,5 +31,5 @@ import com.comphenix.protocol.events.PacketContainer;
  */
 public interface IMultiBlockChangeFactory {
 
-    PacketContainer createPacket();
+    PacketContainer createPacket(boolean ignoreAir);
 }
