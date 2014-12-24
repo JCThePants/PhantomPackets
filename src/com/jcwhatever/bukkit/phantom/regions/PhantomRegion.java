@@ -45,12 +45,10 @@ import com.jcwhatever.bukkit.generic.storage.IDataNode;
 import com.jcwhatever.bukkit.generic.utils.MetaKey;
 import com.jcwhatever.bukkit.generic.utils.PreCon;
 import com.jcwhatever.bukkit.phantom.PhantomPackets;
-import com.jcwhatever.bukkit.phantom.Utils;
 import com.jcwhatever.bukkit.phantom.data.Coordinate;
 import com.jcwhatever.bukkit.phantom.packets.IMultiBlockChangeFactory;
 import com.jcwhatever.bukkit.phantom.translators.BlockTypeTranslator;
 
-import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -324,7 +322,7 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
 
         _isLoading = true;
 
-        List<Chunk> chunks = getChunks();
+        List<ChunkInfo> chunks = getChunks();
 
         _blocks = new HashMap<>((int)getVolume());
 
@@ -338,7 +336,7 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
             }
         });
 
-        for (final Chunk chunk : chunks) {
+        for (final ChunkInfo chunk : chunks) {
 
             // create chunk loader
             final RegionChunkFileLoader loader = new RegionChunkFileLoader(this, chunk);
@@ -349,14 +347,13 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
 
                         @Override
                         public void run() {
-                            ChunkInfo chunkInfo = new ChunkInfo(chunk);
 
                             LinkedList<ChunkBlockInfo> blockInfos = loader.getBlockInfo();
 
                              IMultiBlockChangeFactory factory = PhantomPackets.getNms()
-                                     .getMultiBlockChangeFactory(chunkInfo, blockInfos);
+                                     .getMultiBlockChangeFactory(chunk, blockInfos);
 
-                             _chunkBlockFactories.put(chunkInfo, factory);
+                             _chunkBlockFactories.put(chunk, factory);
 
                             while (!blockInfos.isEmpty()) {
                                 ChunkBlockInfo info = blockInfos.remove();
@@ -367,7 +364,7 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
                                 Coordinate coord = new Coordinate(x, info.getY(), z);
 
                                 _blocks.put(coord, info);
-                                _chunkBlocks.put(chunkInfo, info);
+                                _chunkBlocks.put(chunk, info);
                             }
 
                         }
@@ -387,10 +384,11 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
         if (!p.getWorld().equals(getWorld()))
             return;
 
-        for (Chunk chunk : getChunks()) {
+        for (ChunkInfo chunk : getChunks()) {
 
             if (canSee(p)) {
-                IMultiBlockChangeFactory factory = _chunkBlockFactories.get(new ChunkInfo(chunk));
+
+                IMultiBlockChangeFactory factory = _chunkBlockFactories.get(chunk);
                 if (factory == null)
                     continue;
 
@@ -403,7 +401,7 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
                 }
             }
             else {
-                Utils.refreshChunk(p, chunk.getX(), chunk.getZ());
+                PhantomPackets.getNms().refreshChunk(p, chunk.getX(), chunk.getZ());
             }
         }
 

@@ -27,20 +27,11 @@ package com.jcwhatever.bukkit.phantom;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
-import com.comphenix.protocol.injector.BukkitUnwrapper;
-import com.comphenix.protocol.reflect.FuzzyReflection;
 import com.comphenix.protocol.reflect.StructureModifier;
-import com.comphenix.protocol.utility.MinecraftReflection;
 
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.util.List;
 
 /*
  * 
@@ -95,51 +86,5 @@ public class Utils {
         }
 
         return clone;
-    }
-
-    public static void refreshChunk(Player player, int chunkX, int chunkZ) {
-
-        BukkitUnwrapper unwrapper = new BukkitUnwrapper();
-        Object entityPlayer = unwrapper.unwrapItem(player);
-
-        Class<?> chunkCoordClass = MinecraftReflection.getMinecraftClass("ChunkCoordIntPair");
-
-        FuzzyReflection playerReflect = FuzzyReflection.fromObject(entityPlayer);
-
-        Field chunkCoordIntPairQueue = playerReflect.getFieldByName("chunkCoordIntPairQueue");
-
-
-        // Get the ChunkCoordIntPair queue
-        List<Object> chunkQueue;
-        try {
-
-            @SuppressWarnings("unchecked")
-            List<Object> result =(List<Object>)chunkCoordIntPairQueue.get(entityPlayer);
-
-            chunkQueue = result;
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-            return;
-        }
-
-        // Get ChunkCoordIntPair constructor
-        Constructor<?> constructor;
-        try {
-            constructor = chunkCoordClass.getConstructor(int.class, int.class);
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-            return;
-        }
-
-        // Construct new instance of ChunkCoordIntPair
-        Object chunkCoords;
-        try {
-            chunkCoords = constructor.newInstance(chunkX, chunkZ);
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
-            return;
-        }
-
-        chunkQueue.add(chunkCoords);
     }
 }

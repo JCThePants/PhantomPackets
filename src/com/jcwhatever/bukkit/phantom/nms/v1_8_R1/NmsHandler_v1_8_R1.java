@@ -40,10 +40,13 @@ import com.jcwhatever.bukkit.phantom.packets.IMultiBlockChangeFactory;
 import com.jcwhatever.bukkit.phantom.packets.IMultiBlockChangePacket;
 
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_8_R1.entity.CraftPlayer;
+import org.bukkit.entity.Player;
 
 import net.minecraft.server.v1_8_R1.BaseBlockPosition;
 import net.minecraft.server.v1_8_R1.ChunkCoordIntPair;
 import net.minecraft.server.v1_8_R1.ChunkMap;
+import net.minecraft.server.v1_8_R1.EntityPlayer;
 
 import java.util.List;
 
@@ -53,6 +56,17 @@ import java.util.List;
 public class NmsHandler_v1_8_R1 implements com.jcwhatever.bukkit.phantom.nms.INmsHandler, INmsHandler {
 
     public NmsHandler_v1_8_R1() {}
+
+    @Override
+    public void refreshChunk(Player player, int x, int z) {
+        EntityPlayer entityPlayer = ((CraftPlayer) player).getHandle();
+
+        ChunkCoordIntPair chunkCoords = new ChunkCoordIntPair(x, z);
+
+        entityPlayer.chunkCoordIntPairQueue.add(chunkCoords);
+
+        entityPlayer.s_();
+    }
 
     @Override
     public IBlockDigPacket getBlockDigPacket(PacketContainer packet) {

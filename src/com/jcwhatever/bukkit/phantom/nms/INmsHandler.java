@@ -38,6 +38,7 @@ import com.jcwhatever.bukkit.phantom.packets.IMultiBlockChangeFactory;
 import com.jcwhatever.bukkit.phantom.packets.IMultiBlockChangePacket;
 
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 
 import java.util.List;
 
@@ -45,6 +46,8 @@ import java.util.List;
  * 
  */
 public interface INmsHandler {
+
+    void refreshChunk(Player player, int x, int z);
 
     IBlockDigPacket getBlockDigPacket(PacketContainer packet);
 
