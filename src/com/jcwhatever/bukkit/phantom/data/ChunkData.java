@@ -28,7 +28,9 @@ import com.jcwhatever.bukkit.generic.regions.data.ChunkInfo;
 import com.jcwhatever.bukkit.generic.regions.data.WorldInfo;
 import com.jcwhatever.bukkit.phantom.Utils;
 
+import org.bukkit.Chunk;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.World.Environment;
 
 /*
@@ -80,6 +82,15 @@ public class ChunkData implements IChunkData {
     @Override
     public int getZ() {
         return _chunkZ;
+    }
+
+    @Override
+    public Chunk getChunk() {
+        World world = _world.getBukkitWorld();
+        if (world == null)
+            return null;
+
+        return world.getChunkAt(_chunkX, _chunkZ);
     }
 
     @Override
