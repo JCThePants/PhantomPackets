@@ -24,10 +24,10 @@
 
 package com.jcwhatever.bukkit.phantom;
 
-import com.jcwhatever.bukkit.generic.GenericsLib;
-import com.jcwhatever.bukkit.generic.GenericsPlugin;
-import com.jcwhatever.bukkit.generic.nms.NmsManager;
-import com.jcwhatever.bukkit.generic.utils.text.TextColor;
+import com.jcwhatever.generic.GenericsLib;
+import com.jcwhatever.generic.GenericsPlugin;
+import com.jcwhatever.generic.nms.NmsManager;
+import com.jcwhatever.generic.utils.text.TextColor;
 import com.jcwhatever.bukkit.phantom.commands.PhantomCommandDispatcher;
 import com.jcwhatever.bukkit.phantom.entities.PhantomEntitiesManager;
 import com.jcwhatever.bukkit.phantom.nms.INmsHandler;

@@ -24,12 +24,12 @@
 
 package com.jcwhatever.bukkit.phantom.scripts;
 
-import com.jcwhatever.bukkit.generic.utils.PlayerUtils;
-import com.jcwhatever.bukkit.generic.scripting.IEvaluatedScript;
-import com.jcwhatever.bukkit.generic.scripting.ScriptApiInfo;
-import com.jcwhatever.bukkit.generic.scripting.api.GenericsScriptApi;
-import com.jcwhatever.bukkit.generic.scripting.api.IScriptApiObject;
-import com.jcwhatever.bukkit.generic.utils.PreCon;
+import com.jcwhatever.generic.utils.player.PlayerUtils;
+import com.jcwhatever.generic.scripting.IEvaluatedScript;
+import com.jcwhatever.generic.scripting.ScriptApiInfo;
+import com.jcwhatever.generic.scripting.api.GenericsScriptApi;
+import com.jcwhatever.generic.scripting.api.IScriptApiObject;
+import com.jcwhatever.generic.utils.PreCon;
 import com.jcwhatever.bukkit.phantom.entities.PhantomEntity;
 import com.jcwhatever.bukkit.phantom.regions.PhantomRegion;
 import com.jcwhatever.bukkit.phantom.PhantomPackets;

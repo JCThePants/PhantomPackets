@@ -27,10 +27,10 @@ package com.jcwhatever.bukkit.phantom.entities;
 import com.comphenix.protocol.PacketType.Play.Server;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
-import com.jcwhatever.bukkit.generic.mixins.IViewable;
-import com.jcwhatever.bukkit.generic.player.collections.PlayerSet;
-import com.jcwhatever.bukkit.generic.utils.entity.EntityUtils;
-import com.jcwhatever.bukkit.generic.utils.entity.TrackedEntity;
+import com.jcwhatever.generic.mixins.IViewable;
+import com.jcwhatever.generic.collections.players.PlayerSet;
+import com.jcwhatever.generic.utils.entity.EntityUtils;
+import com.jcwhatever.generic.utils.entity.TrackedEntity;
 
 import org.bukkit.World;
 import org.bukkit.entity.Entity;

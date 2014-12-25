@@ -24,7 +24,7 @@
 
 package com.jcwhatever.bukkit.phantom.data;
 
-import com.jcwhatever.bukkit.generic.regions.data.IChunkInfo;
+import com.jcwhatever.generic.regions.data.IChunkInfo;
 
 import org.bukkit.Material;
 

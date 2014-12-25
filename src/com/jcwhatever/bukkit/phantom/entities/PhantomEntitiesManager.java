@@ -30,10 +30,10 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
-import com.jcwhatever.bukkit.generic.utils.PlayerUtils;
-import com.jcwhatever.bukkit.generic.utils.PreCon;
-import com.jcwhatever.bukkit.generic.utils.entity.TrackedEntity;
-import com.jcwhatever.bukkit.generic.utils.entity.TrackedEntity.ITrackedEntityHandler;
+import com.jcwhatever.generic.utils.player.PlayerUtils;
+import com.jcwhatever.generic.utils.PreCon;
+import com.jcwhatever.generic.utils.entity.TrackedEntity;
+import com.jcwhatever.generic.utils.entity.TrackedEntity.ITrackedEntityHandler;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;

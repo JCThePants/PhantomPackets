@@ -24,16 +24,16 @@
 
 package com.jcwhatever.bukkit.phantom.commands;
 
-import com.jcwhatever.bukkit.generic.commands.AbstractCommand;
-import com.jcwhatever.bukkit.generic.commands.CommandInfo;
-import com.jcwhatever.bukkit.generic.commands.arguments.CommandArguments;
-import com.jcwhatever.bukkit.generic.commands.exceptions.CommandException;
-import com.jcwhatever.bukkit.generic.internal.Lang;
-import com.jcwhatever.bukkit.generic.language.Localizable;
-import com.jcwhatever.bukkit.generic.performance.queued.QueueResult.CancelHandler;
-import com.jcwhatever.bukkit.generic.performance.queued.QueueResult.FailHandler;
-import com.jcwhatever.bukkit.generic.performance.queued.QueueResult.Future;
-import com.jcwhatever.bukkit.generic.regions.BuildMethod;
+import com.jcwhatever.generic.commands.AbstractCommand;
+import com.jcwhatever.generic.commands.CommandInfo;
+import com.jcwhatever.generic.commands.arguments.CommandArguments;
+import com.jcwhatever.generic.commands.exceptions.CommandException;
+import com.jcwhatever.generic.internal.Lang;
+import com.jcwhatever.generic.language.Localizable;
+import com.jcwhatever.generic.utils.performance.queued.QueueResult.CancelHandler;
+import com.jcwhatever.generic.utils.performance.queued.QueueResult.FailHandler;
+import com.jcwhatever.generic.utils.performance.queued.QueueResult.Future;
+import com.jcwhatever.generic.regions.BuildMethod;
 import com.jcwhatever.bukkit.phantom.PhantomPackets;
 import com.jcwhatever.bukkit.phantom.regions.PhantomRegion;
 import com.jcwhatever.bukkit.phantom.regions.PhantomRegionManager;

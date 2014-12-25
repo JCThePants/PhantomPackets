@@ -24,7 +24,7 @@
 
 package com.jcwhatever.bukkit.phantom.commands;
 
-import com.jcwhatever.bukkit.generic.commands.CommandDispatcher;
+import com.jcwhatever.generic.commands.CommandDispatcher;
 
 import org.bukkit.plugin.Plugin;
 
