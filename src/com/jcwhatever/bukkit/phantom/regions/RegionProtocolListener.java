@@ -48,7 +48,6 @@ import com.jcwhatever.bukkit.phantom.translators.BlockPacketTranslator;
 
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
@@ -92,15 +91,9 @@ public class RegionProtocolListener extends PacketAdapter {
 
             IBlockDigPacket dig = PhantomPackets.getNms().getBlockDigPacket(packet);
 
-            Block block = event.getPlayer().getWorld().getBlockAt(
-                    dig.getX(), dig.getY(), dig.getZ());
-
             // Packet isn't handled by minecraft if the block material is air,
             // so its handled here
-            if (block.getType() == Material.AIR) {
-                repairPhantomBlock(event.getPlayer(), dig.getX(), dig.getY(), dig.getZ());
-            }
-
+            repairPhantomBlock(event.getPlayer(), dig.getX(), dig.getY(), dig.getZ());
         }
     }
 
