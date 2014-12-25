@@ -31,7 +31,10 @@ import com.comphenix.protocol.wrappers.ChunkCoordIntPair;
 import com.jcwhatever.bukkit.generic.regions.data.ChunkBlockInfo;
 import com.jcwhatever.bukkit.generic.regions.data.ChunkInfo;
 import com.jcwhatever.bukkit.generic.utils.ArrayUtils;
+import com.jcwhatever.bukkit.phantom.Utils;
 import com.jcwhatever.bukkit.phantom.packets.IMultiBlockChangeFactory;
+
+import org.bukkit.ChunkSnapshot;
 
 import net.minecraft.server.v1_8_R1.Block;
 import net.minecraft.server.v1_8_R1.IBlockData;
@@ -49,6 +52,7 @@ public class MultiBlockChangeFactory_v1_8_R1 implements IMultiBlockChangeFactory
 
     private final ChunkInfo _chunkInfo;
     private short[] _blockPositions;
+    private ChunkBlockInfo[] _blockInfo;
     private IBlockData[] _blockData;
 
     public MultiBlockChangeFactory_v1_8_R1(ChunkInfo chunkInfo, List<ChunkBlockInfo> blocks) {
@@ -59,6 +63,7 @@ public class MultiBlockChangeFactory_v1_8_R1 implements IMultiBlockChangeFactory
 
         _blockPositions = new short[blocks.size()];
         _blockData = new IBlockData[blocks.size()];
+        _blockInfo = new ChunkBlockInfo[blocks.size()];
 
         for (int i=0; i < blocks.size(); i++) {
             ChunkBlockInfo block = iterator.next();
@@ -77,6 +82,7 @@ public class MultiBlockChangeFactory_v1_8_R1 implements IMultiBlockChangeFactory
             position = setValue(position, z, 8,  0x00000F00);
 
             _blockPositions[i] = (short)position;
+            _blockInfo[i] = block;
 
             // create block info integer
             int data = 0;
@@ -110,6 +116,39 @@ public class MultiBlockChangeFactory_v1_8_R1 implements IMultiBlockChangeFactory
 
             MultiBlockChangeInfo info = new MultiBlockChangeInfo(
                     (PacketPlayOutMultiBlockChange)packet.getHandle(), _blockPositions[i], _blockData[i]);
+
+            infoArray[i] = info;
+        }
+
+        objects.write(1, ArrayUtils.removeNull(infoArray));
+
+        return packet;
+    }
+
+    @Override
+    public PacketContainer createPacket(ChunkSnapshot snapshot) {
+        int totalBlocks = _blockData.length;
+
+        PacketContainer packet = new PacketContainer(Server.MULTI_BLOCK_CHANGE);
+        packet.getModifier().writeDefaults();
+
+        // chunk coordinates
+        packet.getChunkCoordIntPairs().write(0, new ChunkCoordIntPair(_chunkInfo.getX(), _chunkInfo.getZ()));
+
+        StructureModifier<Object> objects = packet.getModifier();
+
+        MultiBlockChangeInfo[] infoArray = new MultiBlockChangeInfo[totalBlocks];
+
+        for(int i=0; i < totalBlocks; i++) {
+
+            ChunkBlockInfo blockInfo = _blockInfo[i];
+
+            int type = snapshot.getBlockTypeId(blockInfo.getChunkBlockX(), blockInfo.getY(), blockInfo.getChunkBlockZ());
+            int meta = snapshot.getBlockData(blockInfo.getChunkBlockX(), blockInfo.getY(), blockInfo.getChunkBlockZ());
+            int data = Utils.getCombinedId(type, meta);
+
+            MultiBlockChangeInfo info = new MultiBlockChangeInfo(
+                    (PacketPlayOutMultiBlockChange)packet.getHandle(), _blockPositions[i], Block.getByCombinedId(data));
 
             infoArray[i] = info;
         }

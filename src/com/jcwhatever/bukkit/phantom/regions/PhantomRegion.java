@@ -390,22 +390,19 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
 
         for (ChunkInfo chunk : getChunks()) {
 
-            if (canSee(p)) {
+            IMultiBlockChangeFactory factory = _chunkBlockFactories.get(chunk);
+            if (factory == null)
+                continue;
 
-                IMultiBlockChangeFactory factory = _chunkBlockFactories.get(chunk);
-                if (factory == null)
-                    continue;
+            PacketContainer packet;
+            packet = canSee(p)
+                    ? factory.createPacket(_ignoreAir)
+                    : factory.createPacket(chunk.getChunk().getChunkSnapshot());
 
-                PacketContainer packet = factory.createPacket(_ignoreAir);
-
-                try {
-                    _protocolManager.sendServerPacket(p, packet);
-                } catch (InvocationTargetException e) {
-                    e.printStackTrace();
-                }
-            }
-            else {
-                PhantomPackets.getNms().refreshChunk(p, chunk.getX(), chunk.getZ());
+            try {
+                _protocolManager.sendServerPacket(p, packet);
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
             }
         }
 
