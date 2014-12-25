@@ -27,7 +27,8 @@ package com.jcwhatever.bukkit.phantom.regions;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
-import com.jcwhatever.bukkit.generic.collections.ArrayListMap;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.MultimapBuilder;
 import com.jcwhatever.bukkit.generic.internal.Msg;
 import com.jcwhatever.bukkit.generic.mixins.IViewable;
 import com.jcwhatever.bukkit.generic.performance.queued.QueueProject;
@@ -42,6 +43,7 @@ import com.jcwhatever.bukkit.generic.regions.data.ChunkInfo;
 import com.jcwhatever.bukkit.generic.regions.data.IChunkInfo;
 import com.jcwhatever.bukkit.generic.regions.data.WorldInfo;
 import com.jcwhatever.bukkit.generic.storage.IDataNode;
+import com.jcwhatever.bukkit.generic.utils.CollectionUtils;
 import com.jcwhatever.bukkit.generic.utils.MetaKey;
 import com.jcwhatever.bukkit.generic.utils.PreCon;
 import com.jcwhatever.bukkit.phantom.PhantomPackets;
@@ -76,7 +78,9 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
     private final BlockTypeTranslator _blockTranslator;
 
     private Map<Coordinate, ChunkBlockInfo> _blocks;
-    private ArrayListMap<IChunkInfo, ChunkBlockInfo> _chunkBlocks = new ArrayListMap<>(10);
+    private Multimap<IChunkInfo, ChunkBlockInfo> _chunkBlocks =
+            MultimapBuilder.hashKeys(10).hashSetValues().build();
+
     private Map<ChunkInfo, IMultiBlockChangeFactory> _chunkBlockFactories = new HashMap<>(10);
 
     private Set<Player> _viewers;
@@ -128,7 +132,7 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
     }
 
     public List<ChunkBlockInfo> getChunkBlocks(IChunkInfo chunkInfo) {
-        return _chunkBlocks.getAll(chunkInfo);
+        return CollectionUtils.unmodifiableList(_chunkBlocks.get(chunkInfo));
     }
 
     public boolean isLoading() {
