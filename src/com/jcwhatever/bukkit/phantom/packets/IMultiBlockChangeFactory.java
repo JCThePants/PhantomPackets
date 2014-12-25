@@ -26,7 +26,7 @@ package com.jcwhatever.bukkit.phantom.packets;
 
 import com.comphenix.protocol.events.PacketContainer;
 
-import org.bukkit.ChunkSnapshot;
+import org.bukkit.Chunk;
 
 /*
  * 
@@ -35,5 +35,5 @@ public interface IMultiBlockChangeFactory {
 
     PacketContainer createPacket(boolean ignoreAir);
 
-    PacketContainer createPacket(ChunkSnapshot snapshot);
+    PacketContainer createPacket(Chunk chunk);
 }

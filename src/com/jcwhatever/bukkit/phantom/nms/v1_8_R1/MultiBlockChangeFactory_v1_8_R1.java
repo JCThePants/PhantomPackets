@@ -34,7 +34,7 @@ import com.jcwhatever.bukkit.generic.utils.ArrayUtils;
 import com.jcwhatever.bukkit.phantom.Utils;
 import com.jcwhatever.bukkit.phantom.packets.IMultiBlockChangeFactory;
 
-import org.bukkit.ChunkSnapshot;
+import org.bukkit.Chunk;
 
 import net.minecraft.server.v1_8_R1.Block;
 import net.minecraft.server.v1_8_R1.IBlockData;
@@ -126,7 +126,7 @@ public class MultiBlockChangeFactory_v1_8_R1 implements IMultiBlockChangeFactory
     }
 
     @Override
-    public PacketContainer createPacket(ChunkSnapshot snapshot) {
+    public PacketContainer createPacket(Chunk chunk) {
         int totalBlocks = _blockData.length;
 
         PacketContainer packet = new PacketContainer(Server.MULTI_BLOCK_CHANGE);
@@ -143,9 +143,8 @@ public class MultiBlockChangeFactory_v1_8_R1 implements IMultiBlockChangeFactory
 
             ChunkBlockInfo blockInfo = _blockInfo[i];
 
-            int type = snapshot.getBlockTypeId(blockInfo.getChunkBlockX(), blockInfo.getY(), blockInfo.getChunkBlockZ());
-            int meta = snapshot.getBlockData(blockInfo.getChunkBlockX(), blockInfo.getY(), blockInfo.getChunkBlockZ());
-            int data = Utils.getCombinedId(type, meta);
+            org.bukkit.block.Block block = chunk.getBlock(blockInfo.getChunkBlockX(), blockInfo.getY(), blockInfo.getChunkBlockZ());
+            int data = Utils.getCombinedId(block.getType().getId(), block.getData());
 
             MultiBlockChangeInfo info = new MultiBlockChangeInfo(
                     (PacketPlayOutMultiBlockChange)packet.getHandle(), _blockPositions[i], Block.getByCombinedId(data));

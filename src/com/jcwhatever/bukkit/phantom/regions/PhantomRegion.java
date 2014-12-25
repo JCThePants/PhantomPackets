@@ -397,7 +397,7 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
             PacketContainer packet;
             packet = canSee(p)
                     ? factory.createPacket(_ignoreAir)
-                    : factory.createPacket(chunk.getChunk().getChunkSnapshot());
+                    : factory.createPacket(chunk.getChunk());
 
             try {
                 _protocolManager.sendServerPacket(p, packet);
@@ -405,8 +405,6 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
                 e.printStackTrace();
             }
         }
-
-
     }
 
     private boolean initViewers() {

@@ -59,6 +59,10 @@ public class Utils {
         return (material.getId() & 0xFFF) | ((meta & 0xF) << 12);
     }
 
+    public static int getCombinedId(int typeId, int meta) {
+        return (typeId & 0xFFF) | ((meta & 0xF) << 12);
+    }
+
     public static Material getMaterialFromCombinedId(int id) {
         int materialId = id & 0xFFF;
         return Material.getMaterial(materialId);
