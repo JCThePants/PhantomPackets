@@ -24,12 +24,12 @@
 
 package com.jcwhatever.bukkit.phantom.commands;
 
-import com.jcwhatever.generic.commands.AbstractCommand;
-import com.jcwhatever.generic.commands.CommandInfo;
-import com.jcwhatever.generic.commands.arguments.CommandArguments;
-import com.jcwhatever.generic.commands.exceptions.InvalidArgumentException;
-import com.jcwhatever.generic.internal.Lang;
-import com.jcwhatever.generic.language.Localizable;
+import com.jcwhatever.nucleus.commands.AbstractCommand;
+import com.jcwhatever.nucleus.commands.CommandInfo;
+import com.jcwhatever.nucleus.commands.arguments.CommandArguments;
+import com.jcwhatever.nucleus.commands.exceptions.InvalidArgumentException;
+import com.jcwhatever.nucleus.internal.Lang;
+import com.jcwhatever.nucleus.language.Localizable;
 import com.jcwhatever.bukkit.phantom.regions.PhantomRegion;
 import com.jcwhatever.bukkit.phantom.regions.PhantomRegionManager;
 import com.jcwhatever.bukkit.phantom.PhantomPackets;

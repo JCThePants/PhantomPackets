@@ -25,7 +25,7 @@
 package com.jcwhatever.bukkit.phantom.packets;
 
 import com.comphenix.protocol.events.PacketContainer;
-import com.jcwhatever.generic.utils.PreCon;
+import com.jcwhatever.nucleus.utils.PreCon;
 
 /*
  * 

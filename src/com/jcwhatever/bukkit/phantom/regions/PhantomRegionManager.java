@@ -26,10 +26,10 @@ package com.jcwhatever.bukkit.phantom.regions;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketAdapter;
-import com.jcwhatever.generic.collections.EntryCounter;
-import com.jcwhatever.generic.collections.EntryCounter.RemovalPolicy;
-import com.jcwhatever.generic.storage.IDataNode;
-import com.jcwhatever.generic.utils.PreCon;
+import com.jcwhatever.nucleus.collections.EntryCounter;
+import com.jcwhatever.nucleus.collections.EntryCounter.RemovalPolicy;
+import com.jcwhatever.nucleus.storage.IDataNode;
+import com.jcwhatever.nucleus.utils.PreCon;
 import com.jcwhatever.bukkit.phantom.PhantomPackets;
 
 import org.bukkit.Location;

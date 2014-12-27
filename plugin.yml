@@ -2,7 +2,7 @@ name: PhantomPackets
 author: JCThePants
 main: com.jcwhatever.bukkit.phantom.PhantomPackets
 version: 0.0-beta
-depend: [GenericsLib, ProtocolLib]
+depend: [NucleusFramework, ProtocolLib]
 commands:
     phantom:
         description: Base command for PhantomPackets

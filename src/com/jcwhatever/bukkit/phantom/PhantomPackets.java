@@ -24,10 +24,10 @@
 
 package com.jcwhatever.bukkit.phantom;
 
-import com.jcwhatever.generic.GenericsLib;
-import com.jcwhatever.generic.GenericsPlugin;
-import com.jcwhatever.generic.nms.NmsManager;
-import com.jcwhatever.generic.utils.text.TextColor;
+import com.jcwhatever.nucleus.Nucleus;
+import com.jcwhatever.nucleus.NucleusPlugin;
+import com.jcwhatever.nucleus.nms.NmsManager;
+import com.jcwhatever.nucleus.utils.text.TextColor;
 import com.jcwhatever.bukkit.phantom.commands.PhantomCommandDispatcher;
 import com.jcwhatever.bukkit.phantom.entities.PhantomEntitiesManager;
 import com.jcwhatever.bukkit.phantom.nms.INmsHandler;
@@ -37,7 +37,7 @@ import com.jcwhatever.bukkit.phantom.scripts.PhantomScriptApi;
 
 import org.bukkit.Bukkit;
 
-public class PhantomPackets extends GenericsPlugin {
+public class PhantomPackets extends NucleusPlugin {
 
     private static PhantomPackets _plugin;
 
@@ -100,7 +100,7 @@ public class PhantomPackets extends GenericsPlugin {
         _entitiesManager = new PhantomEntitiesManager(this);
         registerCommands(new PhantomCommandDispatcher(this));
 
-        GenericsLib.getScriptApiRepo().registerApiType(this, PhantomScriptApi.class);
+        Nucleus.getScriptApiRepo().registerApiType(this, PhantomScriptApi.class);
     }
 
     @Override

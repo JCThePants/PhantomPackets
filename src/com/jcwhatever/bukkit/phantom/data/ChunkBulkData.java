@@ -24,7 +24,7 @@
 
 package com.jcwhatever.bukkit.phantom.data;
 
-import com.jcwhatever.generic.regions.data.WorldInfo;
+import com.jcwhatever.nucleus.regions.data.WorldInfo;
 
 public class ChunkBulkData {
 

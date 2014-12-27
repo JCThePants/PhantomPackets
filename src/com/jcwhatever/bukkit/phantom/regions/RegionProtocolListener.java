@@ -32,12 +32,12 @@ import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.StructureModifier;
-import com.jcwhatever.generic.GenericsLib;
-import com.jcwhatever.generic.regions.IRegion;
-import com.jcwhatever.generic.regions.data.ChunkBlockInfo;
-import com.jcwhatever.generic.regions.data.WorldInfo;
-import com.jcwhatever.generic.utils.PreCon;
-import com.jcwhatever.generic.utils.Scheduler;
+import com.jcwhatever.nucleus.Nucleus;
+import com.jcwhatever.nucleus.regions.IRegion;
+import com.jcwhatever.nucleus.regions.data.ChunkBlockInfo;
+import com.jcwhatever.nucleus.regions.data.WorldInfo;
+import com.jcwhatever.nucleus.utils.PreCon;
+import com.jcwhatever.nucleus.utils.Scheduler;
 import com.jcwhatever.bukkit.phantom.PhantomPackets;
 import com.jcwhatever.bukkit.phantom.packets.IBlockChangeFactory;
 import com.jcwhatever.bukkit.phantom.packets.IBlockChangePacket;
@@ -115,7 +115,7 @@ public class RegionProtocolListener extends PacketAdapter {
 
             IBlockChangePacket wrapper = PhantomPackets.getNms().getBlockChangePacket(packet);
 
-            List<IRegion> regions = GenericsLib.getRegionManager()
+            List<IRegion> regions = Nucleus.getRegionManager()
                     .getRegions(world, wrapper.getX(), wrapper.getY(), wrapper.getZ());
 
             if (regions.isEmpty())
@@ -154,7 +154,7 @@ public class RegionProtocolListener extends PacketAdapter {
 
             IMultiBlockChangePacket wrapper = PhantomPackets.getNms().getMultiBlockChangePacket(packet);
 
-            Set<IRegion> regions = GenericsLib.getRegionManager()
+            Set<IRegion> regions = Nucleus.getRegionManager()
                     .getRegionsInChunk(world, wrapper.getChunkX(), wrapper.getChunkZ());
 
             if (regions.isEmpty())
@@ -193,7 +193,7 @@ public class RegionProtocolListener extends PacketAdapter {
             int chunkX = integers.read(0);
             int chunkZ = integers.read(1);
 
-            Set<IRegion> regions = GenericsLib.getRegionManager()
+            Set<IRegion> regions = Nucleus.getRegionManager()
                     .getRegionsInChunk(world, chunkX, chunkZ);
 
             if (regions.isEmpty())
@@ -225,7 +225,7 @@ public class RegionProtocolListener extends PacketAdapter {
                 int chunkZ = chunkZArray[i];
 
 
-                Set<IRegion> regions = GenericsLib.getRegionManager()
+                Set<IRegion> regions = Nucleus.getRegionManager()
                         .getRegionsInChunk(world, chunkX, chunkZ);
 
                 if (regions.isEmpty())
@@ -255,7 +255,7 @@ public class RegionProtocolListener extends PacketAdapter {
         if (!PhantomPackets.getPlugin().getRegionManager().hasRegionInWorld(player.getWorld()))
             return;
 
-        List<IRegion> regions = GenericsLib.getRegionManager().getRegions(player.getWorld(), x, y, z);
+        List<IRegion> regions = Nucleus.getRegionManager().getRegions(player.getWorld(), x, y, z);
         if (regions.isEmpty())
             return;
 

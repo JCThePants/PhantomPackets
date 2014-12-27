@@ -25,8 +25,8 @@
 package com.jcwhatever.bukkit.phantom.translators;
 
 import com.comphenix.protocol.events.PacketContainer;
-import com.jcwhatever.generic.regions.data.ChunkBlockInfo;
-import com.jcwhatever.generic.regions.data.WorldInfo;
+import com.jcwhatever.nucleus.regions.data.ChunkBlockInfo;
+import com.jcwhatever.nucleus.regions.data.WorldInfo;
 import com.jcwhatever.bukkit.phantom.PhantomPackets;
 import com.jcwhatever.bukkit.phantom.data.ChunkBulkData;
 import com.jcwhatever.bukkit.phantom.data.ChunkData;

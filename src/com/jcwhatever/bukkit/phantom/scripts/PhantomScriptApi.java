@@ -24,12 +24,12 @@
 
 package com.jcwhatever.bukkit.phantom.scripts;
 
-import com.jcwhatever.generic.utils.player.PlayerUtils;
-import com.jcwhatever.generic.scripting.IEvaluatedScript;
-import com.jcwhatever.generic.scripting.ScriptApiInfo;
-import com.jcwhatever.generic.scripting.api.GenericsScriptApi;
-import com.jcwhatever.generic.scripting.api.IScriptApiObject;
-import com.jcwhatever.generic.utils.PreCon;
+import com.jcwhatever.nucleus.utils.player.PlayerUtils;
+import com.jcwhatever.nucleus.scripting.IEvaluatedScript;
+import com.jcwhatever.nucleus.scripting.ScriptApiInfo;
+import com.jcwhatever.nucleus.scripting.api.NucleusScriptApi;
+import com.jcwhatever.nucleus.scripting.api.IScriptApiObject;
+import com.jcwhatever.nucleus.utils.PreCon;
 import com.jcwhatever.bukkit.phantom.entities.PhantomEntity;
 import com.jcwhatever.bukkit.phantom.regions.PhantomRegion;
 import com.jcwhatever.bukkit.phantom.PhantomPackets;
@@ -47,7 +47,7 @@ import java.util.WeakHashMap;
 @ScriptApiInfo(
         variableName = "phantom",
         description = "Gives script api access to Phantom regions and entities.")
-public class PhantomScriptApi extends GenericsScriptApi {
+public class PhantomScriptApi extends NucleusScriptApi {
 
     private static ApiObject _api = new ApiObject();
 

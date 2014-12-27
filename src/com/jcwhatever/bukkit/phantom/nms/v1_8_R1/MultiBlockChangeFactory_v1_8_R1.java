@@ -28,9 +28,9 @@ import com.comphenix.protocol.PacketType.Play.Server;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.wrappers.ChunkCoordIntPair;
-import com.jcwhatever.generic.regions.data.ChunkBlockInfo;
-import com.jcwhatever.generic.regions.data.ChunkInfo;
-import com.jcwhatever.generic.utils.ArrayUtils;
+import com.jcwhatever.nucleus.regions.data.ChunkBlockInfo;
+import com.jcwhatever.nucleus.regions.data.ChunkInfo;
+import com.jcwhatever.nucleus.utils.ArrayUtils;
 import com.jcwhatever.bukkit.phantom.Utils;
 import com.jcwhatever.bukkit.phantom.packets.IMultiBlockChangeFactory;
 
