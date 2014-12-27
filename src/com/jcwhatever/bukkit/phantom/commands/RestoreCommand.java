@@ -57,7 +57,7 @@ public class RestoreCommand extends AbstractCommand {
     @Override
     public void execute(final CommandSender sender, CommandArguments args) throws CommandException{
 
-        CommandException.assertNotConsole(this, sender);
+        CommandException.checkNotConsole(this, sender);
 
         final String regionName = args.getName("regionName", 32);
 
