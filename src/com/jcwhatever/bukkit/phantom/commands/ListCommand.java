@@ -24,17 +24,17 @@
 
 package com.jcwhatever.bukkit.phantom.commands;
 
+import com.jcwhatever.bukkit.phantom.Lang;
+import com.jcwhatever.bukkit.phantom.PhantomPackets;
+import com.jcwhatever.bukkit.phantom.regions.PhantomRegion;
+import com.jcwhatever.bukkit.phantom.regions.PhantomRegionManager;
 import com.jcwhatever.nucleus.commands.AbstractCommand;
 import com.jcwhatever.nucleus.commands.CommandInfo;
 import com.jcwhatever.nucleus.commands.arguments.CommandArguments;
 import com.jcwhatever.nucleus.commands.exceptions.InvalidArgumentException;
-import com.jcwhatever.nucleus.internal.Lang;
 import com.jcwhatever.nucleus.language.Localizable;
 import com.jcwhatever.nucleus.messaging.ChatPaginator;
 import com.jcwhatever.nucleus.utils.text.TextUtils.FormatTemplate;
-import com.jcwhatever.bukkit.phantom.regions.PhantomRegion;
-import com.jcwhatever.bukkit.phantom.regions.PhantomRegionManager;
-import com.jcwhatever.bukkit.phantom.PhantomPackets;
 
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;

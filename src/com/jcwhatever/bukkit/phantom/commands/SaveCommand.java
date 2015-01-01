@@ -24,18 +24,18 @@
 
 package com.jcwhatever.bukkit.phantom.commands;
 
+import com.jcwhatever.bukkit.phantom.Lang;
+import com.jcwhatever.bukkit.phantom.PhantomPackets;
+import com.jcwhatever.bukkit.phantom.regions.PhantomRegion;
+import com.jcwhatever.bukkit.phantom.regions.PhantomRegionManager;
 import com.jcwhatever.nucleus.commands.AbstractCommand;
 import com.jcwhatever.nucleus.commands.CommandInfo;
 import com.jcwhatever.nucleus.commands.arguments.CommandArguments;
 import com.jcwhatever.nucleus.commands.exceptions.CommandException;
-import com.jcwhatever.nucleus.internal.Lang;
 import com.jcwhatever.nucleus.language.Localizable;
 import com.jcwhatever.nucleus.utils.performance.queued.QueueResult.CancelHandler;
 import com.jcwhatever.nucleus.utils.performance.queued.QueueResult.FailHandler;
 import com.jcwhatever.nucleus.utils.performance.queued.QueueResult.Future;
-import com.jcwhatever.bukkit.phantom.PhantomPackets;
-import com.jcwhatever.bukkit.phantom.regions.PhantomRegion;
-import com.jcwhatever.bukkit.phantom.regions.PhantomRegionManager;
 
 import org.bukkit.command.CommandSender;
 
