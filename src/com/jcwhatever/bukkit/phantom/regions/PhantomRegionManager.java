@@ -138,11 +138,9 @@ public class PhantomRegionManager {
 
     private void loadRegions() {
 
-        Set<String> regionNames = _dataNode.getSubNodeNames();
+        for (IDataNode regionNode : _dataNode) {
 
-        for (String regionName : regionNames) {
-
-            PhantomRegion region = new PhantomRegion(_plugin, regionName, _dataNode.getNode(regionName));
+            PhantomRegion region = new PhantomRegion(_plugin, regionNode.getName(), regionNode);
 
             _regions.put(region.getSearchName(), region);
 
