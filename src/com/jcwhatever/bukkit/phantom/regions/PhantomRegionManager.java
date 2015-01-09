@@ -26,8 +26,8 @@ package com.jcwhatever.bukkit.phantom.regions;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketAdapter;
-import com.jcwhatever.nucleus.collections.EntryCounter;
-import com.jcwhatever.nucleus.collections.EntryCounter.RemovalPolicy;
+import com.jcwhatever.nucleus.collections.ElementCounter;
+import com.jcwhatever.nucleus.collections.ElementCounter.RemovalPolicy;
 import com.jcwhatever.nucleus.storage.IDataNode;
 import com.jcwhatever.nucleus.utils.PreCon;
 import com.jcwhatever.bukkit.phantom.PhantomPackets;
@@ -51,7 +51,7 @@ public class PhantomRegionManager {
     private final PhantomPackets _plugin;
     private final IDataNode _dataNode;
     private final Map<String, PhantomRegion> _regions = new HashMap<>(25);
-    private final EntryCounter<World> _worlds = new EntryCounter<World>(RemovalPolicy.REMOVE);
+    private final ElementCounter<World> _worlds = new ElementCounter<World>(RemovalPolicy.REMOVE);
 
     public PhantomRegionManager(PhantomPackets plugin) {
         _plugin = plugin;
@@ -64,7 +64,7 @@ public class PhantomRegionManager {
     }
 
     public Set<World> getWorlds() {
-        return _worlds.getEntries();
+        return _worlds.getElements();
     }
 
     public boolean hasRegionInWorld(World world) {
