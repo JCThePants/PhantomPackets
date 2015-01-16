@@ -47,9 +47,11 @@ import com.jcwhatever.nucleus.storage.IDataNode;
 import com.jcwhatever.nucleus.utils.CollectionUtils;
 import com.jcwhatever.nucleus.utils.MetaKey;
 import com.jcwhatever.nucleus.utils.PreCon;
+import com.jcwhatever.nucleus.utils.observer.result.FutureResultAgent.Future;
+import com.jcwhatever.nucleus.utils.observer.result.FutureSubscriber;
+import com.jcwhatever.nucleus.utils.observer.result.Result;
 import com.jcwhatever.nucleus.utils.performance.queued.QueueProject;
-import com.jcwhatever.nucleus.utils.performance.queued.QueueResult.FailHandler;
-import com.jcwhatever.nucleus.utils.performance.queued.QueueResult.Future;
+import com.jcwhatever.nucleus.utils.performance.queued.QueueTask;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -64,7 +66,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.annotation.Nullable;
 
 /*
  * Region that saves to disk and uses saved version to
@@ -264,10 +265,10 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
     }
 
     @Override
-    public Future saveData() throws IOException {
-        return super.saveData().onComplete(new Runnable() {
+    public Future<QueueTask> saveData() throws IOException {
+        return super.saveData().onSuccess(new FutureSubscriber<QueueTask>() {
             @Override
-            public void run() {
+            public void on(Result<QueueTask> argument) {
                 try {
                     loadDisguise();
                 } catch (IOException e) {
@@ -333,9 +334,9 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
 
         QueueProject loadProject = new QueueProject(PhantomPackets.getPlugin());
 
-        loadProject.getResult().onEnd(new Runnable() {
+        loadProject.getResult().onResult(new FutureSubscriber<QueueTask>() {
             @Override
-            public void run() {
+            public void on(Result<QueueTask> argument) {
                 _isLoading = false;
             }
         });
@@ -347,17 +348,15 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
 
             // add load task to chunk project
             loader.loadInProject(getChunkFile(chunk, "", false), loadProject, LoadType.ALL_BLOCKS)
-                    .onComplete(new Runnable() {
-
+                    .onSuccess(new FutureSubscriber<QueueTask>() {
                         @Override
-                        public void run() {
-
+                        public void on(Result<QueueTask> argument) {
                             LinkedList<ChunkBlockInfo> blockInfos = loader.getBlockInfo();
 
-                             IMultiBlockChangeFactory factory = PhantomPackets.getNms()
-                                     .getMultiBlockChangeFactory(chunk, blockInfos);
+                            IMultiBlockChangeFactory factory = PhantomPackets.getNms()
+                                    .getMultiBlockChangeFactory(chunk, blockInfos);
 
-                             _chunkBlockFactories.put(chunk, factory);
+                            _chunkBlockFactories.put(chunk, factory);
 
                             while (!blockInfos.isEmpty()) {
                                 ChunkBlockInfo info = blockInfos.remove();
@@ -370,13 +369,13 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
                                 _blocks.put(coord, info);
                                 _chunkBlocks.put(chunk, info);
                             }
-
                         }
                     })
-                    .onFail(new FailHandler() {
+                    .onError(new FutureSubscriber<QueueTask>() {
                         @Override
-                        public void run(@Nullable String reason) {
-                            Msg.warning("Failed to load chunk data for phantom region named '{0}' because:", getName(), reason);
+                        public void on(Result<QueueTask> argument) {
+                            Msg.warning("Failed to load chunk data for phantom region named '{0}' because:",
+                                    getName(), argument.getMessage());
                         }
                     });
         }

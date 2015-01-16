@@ -34,14 +34,14 @@ import com.jcwhatever.nucleus.commands.arguments.CommandArguments;
 import com.jcwhatever.nucleus.commands.exceptions.CommandException;
 import com.jcwhatever.nucleus.language.Localizable;
 import com.jcwhatever.nucleus.regions.BuildMethod;
-import com.jcwhatever.nucleus.utils.performance.queued.QueueResult.CancelHandler;
-import com.jcwhatever.nucleus.utils.performance.queued.QueueResult.FailHandler;
-import com.jcwhatever.nucleus.utils.performance.queued.QueueResult.Future;
+import com.jcwhatever.nucleus.utils.observer.result.FutureResultAgent.Future;
+import com.jcwhatever.nucleus.utils.observer.result.FutureSubscriber;
+import com.jcwhatever.nucleus.utils.observer.result.Result;
+import com.jcwhatever.nucleus.utils.performance.queued.QueueTask;
 
 import org.bukkit.command.CommandSender;
 
 import java.io.IOException;
-import javax.annotation.Nullable;
 
 @CommandInfo(
         command="restore",
@@ -55,7 +55,7 @@ public class RestoreCommand extends AbstractCommand {
     @Localizable static final String _SUCCESS = "Phantom region named '{0}' restored.";
 
     @Override
-    public void execute(final CommandSender sender, CommandArguments args) throws CommandException{
+    public void execute(final CommandSender sender, final CommandArguments args) throws CommandException{
 
         CommandException.checkNotConsole(this, sender);
 
@@ -70,33 +70,30 @@ public class RestoreCommand extends AbstractCommand {
         }
 
         try {
-            Future future = region.restoreData(BuildMethod.BALANCED);
+            Future<QueueTask> future = region.restoreData(BuildMethod.BALANCED);
 
-            future.onFail(new FailHandler() {
+            future.onError(new FutureSubscriber<QueueTask>() {
                 @Override
-                public void run(@Nullable String reason) {
-                    if (reason != null)
-                        tellError(sender, reason);
-
+                public void on(Result<QueueTask> argument) {
+                    if (argument.getMessage() != null)
+                        tellError(sender, argument.getMessage());
                 }
             });
 
-            future.onCancel(new CancelHandler() {
+            future.onCancel(new FutureSubscriber<QueueTask>() {
                 @Override
-                public void run(@Nullable String reason) {
-
-                    if (reason != null)
-                        tellError(sender, reason);
+                public void on(Result<QueueTask> argument) {
+                    if (argument.getMessage() != null)
+                        tellError(sender, argument.getMessage());
                 }
             });
 
-            future.onComplete(new Runnable() {
+            future.onSuccess(new FutureSubscriber<QueueTask>() {
                 @Override
-                public void run() {
+                public void on(Result<QueueTask> argument) {
                     tellSuccess(sender, Lang.get(_SUCCESS, regionName));
                 }
             });
-
 
         } catch (IOException e) {
             e.printStackTrace();
