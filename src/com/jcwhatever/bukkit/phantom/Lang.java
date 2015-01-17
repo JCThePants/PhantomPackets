@@ -1,7 +1,7 @@
 package com.jcwhatever.bukkit.phantom;
 
-import com.jcwhatever.nucleus.language.LanguageManager;
-import com.jcwhatever.nucleus.language.Localized;
+import com.jcwhatever.nucleus.utils.language.LanguageManager;
+import com.jcwhatever.nucleus.utils.language.Localized;
 
 public class Lang {
 
