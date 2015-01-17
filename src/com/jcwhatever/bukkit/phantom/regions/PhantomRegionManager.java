@@ -122,7 +122,7 @@ public class PhantomRegionManager {
         IDataNode dataNode = region.getDataNode();
         if (dataNode != null) {
             dataNode.remove();
-            dataNode.saveAsync(null);
+            dataNode.save();
         }
 
         region.dispose();

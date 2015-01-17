@@ -158,7 +158,7 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
         IDataNode dataNode = getDataNode();
         if (dataNode != null) {
             dataNode.set("ignore-air", ignore);
-            dataNode.saveAsync(null);
+            dataNode.save();
         }
     }
 
