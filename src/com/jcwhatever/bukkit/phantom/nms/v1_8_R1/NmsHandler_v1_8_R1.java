@@ -26,7 +26,7 @@ package com.jcwhatever.bukkit.phantom.nms.v1_8_R1;
 
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.StructureModifier;
-import com.jcwhatever.nucleus.nms.INmsHandler;
+import com.jcwhatever.nucleus.utils.nms.INmsHandler;
 import com.jcwhatever.nucleus.regions.data.ChunkBlockInfo;
 import com.jcwhatever.nucleus.regions.data.ChunkInfo;
 import com.jcwhatever.nucleus.regions.data.WorldInfo;

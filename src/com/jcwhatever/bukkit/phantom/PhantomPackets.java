@@ -26,7 +26,7 @@ package com.jcwhatever.bukkit.phantom;
 
 import com.jcwhatever.nucleus.Nucleus;
 import com.jcwhatever.nucleus.NucleusPlugin;
-import com.jcwhatever.nucleus.nms.NmsManager;
+import com.jcwhatever.nucleus.utils.nms.NmsManager;
 import com.jcwhatever.nucleus.utils.text.TextColor;
 import com.jcwhatever.bukkit.phantom.commands.PhantomCommandDispatcher;
 import com.jcwhatever.bukkit.phantom.entities.PhantomEntitiesManager;
