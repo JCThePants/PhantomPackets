@@ -144,7 +144,7 @@ public class PhantomRegionManager {
 
             _regions.put(region.getSearchName(), region);
 
-            if (region.isDefined()) {
+            if (region.isDefined() && region.getWorld() != null) {
                 _worlds.add(region.getWorld());
             }
         }
