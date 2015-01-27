@@ -32,12 +32,6 @@ import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.StructureModifier;
-import com.jcwhatever.nucleus.Nucleus;
-import com.jcwhatever.nucleus.regions.IRegion;
-import com.jcwhatever.nucleus.regions.data.ChunkBlockInfo;
-import com.jcwhatever.nucleus.regions.data.WorldInfo;
-import com.jcwhatever.nucleus.utils.PreCon;
-import com.jcwhatever.nucleus.utils.Scheduler;
 import com.jcwhatever.bukkit.phantom.PhantomPackets;
 import com.jcwhatever.bukkit.phantom.packets.IBlockChangeFactory;
 import com.jcwhatever.bukkit.phantom.packets.IBlockChangePacket;
@@ -45,6 +39,12 @@ import com.jcwhatever.bukkit.phantom.packets.IBlockDigPacket;
 import com.jcwhatever.bukkit.phantom.packets.IBlockPlacePacket;
 import com.jcwhatever.bukkit.phantom.packets.IMultiBlockChangePacket;
 import com.jcwhatever.bukkit.phantom.translators.BlockPacketTranslator;
+import com.jcwhatever.nucleus.Nucleus;
+import com.jcwhatever.nucleus.regions.IRegion;
+import com.jcwhatever.nucleus.regions.data.ChunkBlockInfo;
+import com.jcwhatever.nucleus.regions.data.WorldInfo;
+import com.jcwhatever.nucleus.utils.PreCon;
+import com.jcwhatever.nucleus.utils.Scheduler;
 
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -53,7 +53,6 @@ import org.bukkit.plugin.Plugin;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-import java.util.Set;
 
 /*
  * 
@@ -154,7 +153,7 @@ public class RegionProtocolListener extends PacketAdapter {
 
             IMultiBlockChangePacket wrapper = PhantomPackets.getNms().getMultiBlockChangePacket(packet);
 
-            Set<IRegion> regions = Nucleus.getRegionManager()
+            List<IRegion> regions = Nucleus.getRegionManager()
                     .getRegionsInChunk(world, wrapper.getChunkX(), wrapper.getChunkZ());
 
             if (regions.isEmpty())
@@ -193,7 +192,7 @@ public class RegionProtocolListener extends PacketAdapter {
             int chunkX = integers.read(0);
             int chunkZ = integers.read(1);
 
-            Set<IRegion> regions = Nucleus.getRegionManager()
+            List<IRegion> regions = Nucleus.getRegionManager()
                     .getRegionsInChunk(world, chunkX, chunkZ);
 
             if (regions.isEmpty())
@@ -225,7 +224,7 @@ public class RegionProtocolListener extends PacketAdapter {
                 int chunkZ = chunkZArray[i];
 
 
-                Set<IRegion> regions = Nucleus.getRegionManager()
+                List<IRegion> regions = Nucleus.getRegionManager()
                         .getRegionsInChunk(world, chunkX, chunkZ);
 
                 if (regions.isEmpty())
