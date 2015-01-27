@@ -40,7 +40,6 @@ import com.jcwhatever.bukkit.phantom.packets.IBlockPlacePacket;
 import com.jcwhatever.bukkit.phantom.packets.IMultiBlockChangePacket;
 import com.jcwhatever.bukkit.phantom.translators.BlockPacketTranslator;
 import com.jcwhatever.nucleus.Nucleus;
-import com.jcwhatever.nucleus.regions.IRegion;
 import com.jcwhatever.nucleus.regions.data.ChunkBlockInfo;
 import com.jcwhatever.nucleus.regions.data.WorldInfo;
 import com.jcwhatever.nucleus.utils.PreCon;
@@ -114,8 +113,8 @@ public class RegionProtocolListener extends PacketAdapter {
 
             IBlockChangePacket wrapper = PhantomPackets.getNms().getBlockChangePacket(packet);
 
-            List<IRegion> regions = Nucleus.getRegionManager()
-                    .getRegions(world, wrapper.getX(), wrapper.getY(), wrapper.getZ());
+            List<PhantomRegion> regions = Nucleus.getRegionManager()
+                    .getRegions(world, wrapper.getX(), wrapper.getY(), wrapper.getZ(), PhantomRegion.class);
 
             if (regions.isEmpty())
                 return;
@@ -123,10 +122,7 @@ public class RegionProtocolListener extends PacketAdapter {
             IBlockChangePacket clone = null;
             boolean isChanged = false;
 
-            for (IRegion region : regions) {
-                PhantomRegion phantom = region.getMeta(PhantomRegion.REGION_KEY);
-                if (phantom == null)
-                    continue;
+            for (PhantomRegion phantom : regions) {
 
                 if (phantom.isLoading() || phantom.isSaving() || phantom.isBuilding())
                     continue;
@@ -153,18 +149,15 @@ public class RegionProtocolListener extends PacketAdapter {
 
             IMultiBlockChangePacket wrapper = PhantomPackets.getNms().getMultiBlockChangePacket(packet);
 
-            List<IRegion> regions = Nucleus.getRegionManager()
-                    .getRegionsInChunk(world, wrapper.getChunkX(), wrapper.getChunkZ());
+            List<PhantomRegion> regions = Nucleus.getRegionManager()
+                    .getRegionsInChunk(world, wrapper.getChunkX(), wrapper.getChunkZ(), PhantomRegion.class);
 
             if (regions.isEmpty())
                 return;
 
             IMultiBlockChangePacket cloned = null;
 
-            for (IRegion region : regions) {
-                PhantomRegion phantom = region.getMeta(PhantomRegion.REGION_KEY);
-                if (phantom == null)
-                    continue;
+            for (PhantomRegion phantom : regions) {
 
                 if (phantom.isLoading() || phantom.isSaving() || phantom.isBuilding())
                     continue;
@@ -192,16 +185,13 @@ public class RegionProtocolListener extends PacketAdapter {
             int chunkX = integers.read(0);
             int chunkZ = integers.read(1);
 
-            List<IRegion> regions = Nucleus.getRegionManager()
-                    .getRegionsInChunk(world, chunkX, chunkZ);
+            List<PhantomRegion> regions = Nucleus.getRegionManager()
+                    .getRegionsInChunk(world, chunkX, chunkZ, PhantomRegion.class);
 
             if (regions.isEmpty())
                 return;
 
-            for (IRegion region : regions) {
-                PhantomRegion phantom = region.getMeta(PhantomRegion.REGION_KEY);
-                if (phantom == null)
-                    continue;
+            for (PhantomRegion phantom : regions) {
 
                 if (phantom.isLoading() || phantom.isSaving() || phantom.isBuilding())
                     continue;
@@ -224,16 +214,13 @@ public class RegionProtocolListener extends PacketAdapter {
                 int chunkZ = chunkZArray[i];
 
 
-                List<IRegion> regions = Nucleus.getRegionManager()
-                        .getRegionsInChunk(world, chunkX, chunkZ);
+                List<PhantomRegion> regions = Nucleus.getRegionManager()
+                        .getRegionsInChunk(world, chunkX, chunkZ, PhantomRegion.class);
 
                 if (regions.isEmpty())
                     return;
 
-                for (IRegion region : regions) {
-                    PhantomRegion phantom = region.getMeta(PhantomRegion.REGION_KEY);
-                    if (phantom == null)
-                        continue;
+                for (PhantomRegion phantom : regions) {
 
                     if (phantom.isLoading() || phantom.isSaving() || phantom.isBuilding())
                         continue;
@@ -242,9 +229,7 @@ public class RegionProtocolListener extends PacketAdapter {
                         continue;
 
                     BlockPacketTranslator.translateMapChunkBulk(packet, phantom);
-
                 }
-
             }
         }
     }
@@ -254,17 +239,16 @@ public class RegionProtocolListener extends PacketAdapter {
         if (!PhantomPackets.getPlugin().getRegionManager().hasRegionInWorld(player.getWorld()))
             return;
 
-        List<IRegion> regions = Nucleus.getRegionManager().getRegions(player.getWorld(), x, y, z);
+        List<PhantomRegion> regions = Nucleus.getRegionManager().getRegions(
+                player.getWorld(), x, y, z, PhantomRegion.class);
+
         if (regions.isEmpty())
             return;
 
         World world = player.getWorld();
         WorldInfo worldInfo = new WorldInfo(world);
 
-        for (IRegion region : regions) {
-            PhantomRegion phantom = region.getMeta(PhantomRegion.REGION_KEY);
-            if (phantom == null)
-                continue;
+        for (PhantomRegion phantom : regions) {
 
             if (phantom.isLoading() || phantom.isSaving() || phantom.isBuilding())
                 continue;
