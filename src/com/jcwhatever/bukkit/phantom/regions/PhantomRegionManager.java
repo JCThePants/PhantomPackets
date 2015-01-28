@@ -115,7 +115,7 @@ public class PhantomRegionManager {
         if (region == null)
             return false;
 
-        if (region.isDefined()) {
+        if (region.isDefined() && region.isWorldLoaded()) {
             _worlds.subtract(region.getWorld());
         }
 
