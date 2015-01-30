@@ -170,4 +170,9 @@ public class NmsHandler_v1_8_R1 implements com.jcwhatever.bukkit.phantom.nms.INm
 
         return chunkData;
     }
+
+    @Override
+    public boolean isAvailable() {
+        return true;
+    }
 }
