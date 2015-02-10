@@ -1,221 +1,72 @@
-def projectName = 'PhantomPackets'
-def majorVersion = '0'
-def minorVersion = '0'
-def buildBy = null
-def mavenRepositories = [
-        'https://github.com/JCThePants/mvn-repo/raw/master',
-        'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+/**
+ * SETTINGS
+ */
+ext.jcBuildSettings = [
+        projectName : 'PhantomPackets',
+        majorVersion : '0',
+        minorVersion : '0',
+        buildBy : null, // auto filled
+        buildNumber : null, // auto filled when using teamcity
+        mainClass : null,
+
+// target Java version
+        javaVersion : 1.7,
+        jdkHome : null,
+
+// Maven repository url's
+        mavenRepositories : [
+                'https://github.com/JCThePants/mvn-repo/raw/master',
+                'https://hub.spigotmc.org/nexus/content/repositories/snapshots/',
+                'https://oss.sonatype.org/content/groups/public/'
+        ],
+
+// provided dependencies (provided by the runtime environment)
+        providedDependsFiles : [
+                'C:/JavaRepo/bukkit/ProtocolLib-3.2.0.jar',
+        ],
+        providedDepends : [
+                'org.spigotmc:unmapped-spigot:1.8-R0.1-SNAPSHOT',
+                'com.google.code.findbugs:jsr305:3.0.0',
+                'com.jcwhatever.bukkit:NucleusFramework:+'
+        ],
+
+// compile dependencies (compiled into output jar)
+        compileDependsFiles : null,
+        compileDepends : null,
+
+// include files in output jar
+        includeFiles : [
+                'plugin.yml',
+                'LICENSE.txt'
+        ],
+
+// include test classes
+        testIncludes : null,
+
+// exclude test classes
+        testExcludes : null,
+
+// test dependencies
+        testDepends : null,
+        testRuntimeDepends : null,
+
+// dependencies that should always be downloaded (cached for 30 seconds)
+        snapshotDepends : [
+                'com.jcwhatever.bukkit:NucleusFramework:+'
+        ],
+
+// source directory
+        sourceDir : 'src',
+
+// resource directory
+        resourceDir : null,
+
+// test source directory
+        testSourceDir : null,
+
+// test resource directory
+        testResourceDir : null
 ]
-def providedDependsFiles = [
-        'C:/JavaRepo/bukkit/ProtocolLib-3.2.0.jar',
-]
-def providedDepends = [
-        'org.spigotmc:unmapped-spigot:1.8-R0.1-SNAPSHOT',
-        'com.google.code.findbugs:jsr305:3.0.0',
-        'com.jcwhatever.bukkit:NucleusFramework:+'
-]
-def compileDependsFiles = null
-def compileDepends = null
-def includeFiles = [
-        'plugin.yml',
-        'LICENSE.txt'
-]
-def javaVersion = 1.7
 
-
-/* Maven Repository Task Stuff */
-def shCmd = 'D:/mvn-repo/bin/sh.exe'
-def mavenCmd = 'D:/apache-maven-3.2.5/bin/mvn'
-def mavenFolder = 'D:/mvn-repo/'
-def mavenGroupId = 'com.jcwhatever.bukkit'
-def mavenArtifactId = projectName
-def mavenVersion = majorVersion + '.' + minorVersion + '-SNAPSHOT'
-
-/* Begin */
-
-def hasTeamCity = hasProperty("teamcity")
-def buildNumber = hasTeamCity ? teamcity["build.number"] : 'unknown'
-// Set version number
-if (hasTeamCity) {
-    version = majorVersion + '.' + minorVersion + '.' + buildNumber + '.git-' + teamcity["build.vcs.number"]
-
-    if (buildBy == null) {
-        buildBy = teamcity["build.triggeredBy.username"]
-
-        if (!buildBy) {
-            buildBy = teamcity["build.triggeredBy"]
-        }
-
-        if (!buildBy) {
-            buildBy = teamcity["agent.name"]
-        }
-    }
-
-}else {
-    version = majorVersion + '.' + minorVersion + '.000.git-unknown'
-}
-
-if (buildBy == null) {
-    buildBy = System.properties['user.name']
-}
-
-defaultTasks 'clean', 'build'
-
-apply plugin: 'java'
-
-// Minimum Java Version
-sourceCompatibility = javaVersion
-targetCompatibility = javaVersion
-
-// Add provided configuration to prevent dependencies
-// from being included in the jar
-configurations {
-    provided
-}
-
-sourceSets {
-
-    main {
-        compileClasspath += configurations.provided
-        runtimeClasspath += configurations.provided
-
-        java {
-            srcDir 'src'
-        }
-    }
-
-    test {
-        compileClasspath += configurations.provided
-        runtimeClasspath += configurations.provided
-    }
-}
-
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies { classpath 'org.ajoberstar:gradle-git:0.2.3' }
-}
-
-repositories {
-    mavenCentral()
-
-    if (mavenRepositories) {
-        for (repo in mavenRepositories) {
-            maven {
-                url repo
-            }
-        }
-    }
-}
-
-// Add dependencies
-dependencies {
-
-    if (compileDependsFiles) {
-        compile files(compileDependsFiles)
-    }
-
-    if (providedDependsFiles) {
-        provided files(providedDependsFiles)
-    }
-
-    if (compileDepends) {
-        compile compileDepends
-    }
-
-    if (providedDepends) {
-        provided providedDepends
-    }
-}
-
-def manifestAttr = manifest {
-    attributes("Built-By": buildBy,
-            "Created-By": System.properties['java.vm.version'] + " (" + System.properties['java.vm.vendor'] + ")",
-            "Implementation-Title": projectName,
-            "Implementation-Version": version)
-}
-
-// Jar file output with version number
-jar {
-
-    archiveName = projectName + '.' + version + '.jar'
-
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-
-    if (includeFiles) {
-        from includeFiles
-    }
-
-    manifest = manifestAttr
-}
-
-// Task to create a Jar file artifact with no version number
-task simpleNamedJar(type: Jar) {
-
-    archiveName = projectName + '.jar'
-
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-
-    if (includeFiles) {
-        from includeFiles
-    }
-
-    manifest = manifestAttr
-
-    with jar
-}
-
-artifacts {
-    archives simpleNamedJar
-}
-
-/* Maven Snapshot Update Tasks */
-import org.ajoberstar.gradle.git.tasks.*
-task cloneMaven(type: GitClone) {
-    def destination = file(mavenFolder)
-    uri = "https://github.com/JCThePants/mvn-repo.git"
-    destinationPath = destination
-    bare = false
-    enabled = !destination.exists()
-}
-
-task updateLocalMavenHolding(type: Copy) {
-    from file('build/libs/' + projectName + '.jar')
-    into file(mavenFolder + 'holding')
-}
-
-task updateLocalMaven(type: Exec) {
-    workingDir mavenFolder
-    executable shCmd
-    args '--login', '-i', '-c', mavenCmd + ' install:install-file -DgroupId=' + mavenGroupId +
-            ' -DartifactId=' + mavenArtifactId + ' -Dversion=' + mavenVersion + ' -Dfile=holding/' + projectName + '.jar -Dpackaging=jar -DgeneratePom=true -DlocalRepositoryPath=';
-}
-
-task addMavenGit(type: Exec) {
-    workingDir mavenFolder
-    executable shCmd
-    args '--login', '-i', '-c', 'git add .';
-}
-
-task commitMavenGit(type: Exec) {
-    workingDir mavenFolder
-    executable shCmd
-
-
-    args '--login', '-i', '-c', "git commit -m 'Snapshot update for " + projectName + " build# " + buildNumber + "'";
-}
-
-task pushMavenGit(type: Exec) {
-    workingDir mavenFolder
-    executable shCmd
-    args '--login', '-i', '-c', "git push GITHUB master";
-}
-
-task updateMaven << {
-    updateLocalMavenHolding.execute()
-    updateLocalMaven.execute()
-    addMavenGit.execute()
-    commitMavenGit.execute()
-    pushMavenGit.execute()
-}
+apply from : 'https://github.com/JCThePants/mvn-repo/raw/master/jcbuild.java.gradle.plugin'
+apply from : 'https://github.com/JCThePants/mvn-repo/raw/master/jcmaven.gradle.plugin'
