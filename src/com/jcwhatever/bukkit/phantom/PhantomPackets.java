@@ -24,16 +24,17 @@
 
 package com.jcwhatever.bukkit.phantom;
 
-import com.jcwhatever.nucleus.Nucleus;
-import com.jcwhatever.nucleus.NucleusPlugin;
-import com.jcwhatever.nucleus.utils.nms.NmsManager;
-import com.jcwhatever.nucleus.utils.text.TextColor;
 import com.jcwhatever.bukkit.phantom.commands.PhantomCommandDispatcher;
 import com.jcwhatever.bukkit.phantom.entities.PhantomEntitiesManager;
 import com.jcwhatever.bukkit.phantom.nms.INmsHandler;
 import com.jcwhatever.bukkit.phantom.nms.v1_8_R1.NmsHandler_v1_8_R1;
+import com.jcwhatever.bukkit.phantom.nms.v1_8_R2.NmsHandler_v1_8_R2;
 import com.jcwhatever.bukkit.phantom.regions.PhantomRegionManager;
 import com.jcwhatever.bukkit.phantom.scripts.PhantomScriptApi;
+import com.jcwhatever.nucleus.Nucleus;
+import com.jcwhatever.nucleus.NucleusPlugin;
+import com.jcwhatever.nucleus.utils.nms.NmsManager;
+import com.jcwhatever.nucleus.utils.text.TextColor;
 
 import org.bukkit.Bukkit;
 
@@ -86,8 +87,9 @@ public class PhantomPackets extends NucleusPlugin {
     @Override
     protected void onEnablePlugin() {
 
-        _reflectionManager = new NmsManager(this, "v1_8_R1");
+        _reflectionManager = new NmsManager(this, "v1_8_R1", "v1_8_R2");
         _reflectionManager.registerNmsHandler("v1_8_R1", "nms", NmsHandler_v1_8_R1.class);
+        _reflectionManager.registerNmsHandler("v1_8_R2", "nms", NmsHandler_v1_8_R2.class);
 
         _reflectionHandler = _reflectionManager.getNmsHandler("nms");
         if (_reflectionHandler == null) {
