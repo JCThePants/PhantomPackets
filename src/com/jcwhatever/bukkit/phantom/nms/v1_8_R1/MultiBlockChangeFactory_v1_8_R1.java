@@ -68,8 +68,8 @@ public class MultiBlockChangeFactory_v1_8_R1 implements IMultiBlockChangeFactory
         for (int i=0; i < blocks.size(); i++) {
             ChunkBlockInfo block = iterator.next();
 
-            int x = block.getChunkBlockX();
-            int z = block.getChunkBlockZ();
+            int x = block.getX();
+            int z = block.getZ();
             int y = block.getY();
 
             int b = block.getMaterial().getId();
@@ -143,7 +143,7 @@ public class MultiBlockChangeFactory_v1_8_R1 implements IMultiBlockChangeFactory
 
             ChunkBlockInfo blockInfo = _blockInfo[i];
 
-            org.bukkit.block.Block block = chunk.getBlock(blockInfo.getChunkBlockX(), blockInfo.getY(), blockInfo.getChunkBlockZ());
+            org.bukkit.block.Block block = chunk.getBlock(blockInfo.getX(), blockInfo.getY(), blockInfo.getZ());
             int data = Utils.getCombinedId(block.getType().getId(), block.getData());
 
             MultiBlockChangeInfo info = new MultiBlockChangeInfo(

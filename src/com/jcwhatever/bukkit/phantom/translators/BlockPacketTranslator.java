@@ -119,7 +119,7 @@ public class BlockPacketTranslator {
             if (info.getMaterial() == Material.AIR && region.ignoresAir())
                 continue;
 
-            chunkData.setBlock(info.getChunkBlockX(), info.getY(), info.getChunkBlockZ(), info.getMaterial(), (byte) info.getData());
+            chunkData.setBlock(info.getX(), info.getY(), info.getZ(), info.getMaterial(), (byte) info.getData());
         }
     }
 }

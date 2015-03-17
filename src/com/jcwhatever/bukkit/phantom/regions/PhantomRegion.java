@@ -361,8 +361,8 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
                             while (!blockInfos.isEmpty()) {
                                 ChunkBlockInfo info = blockInfos.remove();
 
-                                int x = (chunk.getX() * 16) + info.getChunkBlockX();
-                                int z = (chunk.getZ() * 16) + info.getChunkBlockZ();
+                                int x = (chunk.getX() * 16) + info.getX();
+                                int z = (chunk.getZ() * 16) + info.getZ();
 
                                 Coordinate coord = new Coordinate(x, info.getY(), z);
 
