@@ -29,6 +29,7 @@ import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
 import com.jcwhatever.nucleus.mixins.IViewable;
 import com.jcwhatever.nucleus.collections.players.PlayerSet;
+import com.jcwhatever.nucleus.utils.NpcUtils;
 import com.jcwhatever.nucleus.utils.entity.EntityUtils;
 import com.jcwhatever.nucleus.utils.entity.TrackedEntity;
 
@@ -286,7 +287,7 @@ public class PhantomEntity implements IViewable {
 
         for (Player player : world.getPlayers()) {
 
-            if (player.hasMetadata("NPC"))
+            if (NpcUtils.isNpc(player))
                 continue;
 
             if (canSee(player)) {
