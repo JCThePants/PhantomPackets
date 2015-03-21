@@ -35,7 +35,7 @@ import com.jcwhatever.bukkit.phantom.data.Coordinate;
 import com.jcwhatever.bukkit.phantom.packets.IMultiBlockChangeFactory;
 import com.jcwhatever.bukkit.phantom.translators.BlockTypeTranslator;
 import com.jcwhatever.nucleus.collections.players.PlayerSet;
-import com.jcwhatever.nucleus.mixins.IViewable;
+import com.jcwhatever.bukkit.phantom.IViewable;
 import com.jcwhatever.nucleus.regions.RegionChunkFileLoader;
 import com.jcwhatever.nucleus.regions.RegionChunkFileLoader.LoadType;
 import com.jcwhatever.nucleus.regions.RestorableRegion;

@@ -27,7 +27,7 @@ package com.jcwhatever.bukkit.phantom.entities;
 import com.comphenix.protocol.PacketType.Play.Server;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
-import com.jcwhatever.nucleus.mixins.IViewable;
+import com.jcwhatever.bukkit.phantom.IViewable;
 import com.jcwhatever.nucleus.collections.players.PlayerSet;
 import com.jcwhatever.nucleus.utils.NpcUtils;
 import com.jcwhatever.nucleus.utils.entity.EntityUtils;
