@@ -24,8 +24,8 @@
 
 package com.jcwhatever.bukkit.phantom.data;
 
-import com.jcwhatever.nucleus.regions.data.ChunkInfo;
-import com.jcwhatever.nucleus.regions.data.WorldInfo;
+import com.jcwhatever.nucleus.utils.coords.ChunkInfo;
+import com.jcwhatever.nucleus.utils.coords.WorldInfo;
 import com.jcwhatever.bukkit.phantom.Utils;
 
 import org.bukkit.Chunk;

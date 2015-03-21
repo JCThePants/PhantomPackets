@@ -24,8 +24,8 @@
 
 package com.jcwhatever.bukkit.phantom.translators;
 
-import com.jcwhatever.nucleus.regions.data.ChunkBlockInfo;
-import com.jcwhatever.nucleus.regions.data.WorldInfo;
+import com.jcwhatever.nucleus.utils.coords.ChunkBlockInfo;
+import com.jcwhatever.nucleus.utils.coords.WorldInfo;
 
 import org.bukkit.Material;
 

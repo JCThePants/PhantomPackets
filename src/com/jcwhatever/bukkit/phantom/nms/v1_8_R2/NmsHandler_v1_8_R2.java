@@ -34,9 +34,9 @@ import com.jcwhatever.bukkit.phantom.packets.IBlockDigPacket;
 import com.jcwhatever.bukkit.phantom.packets.IBlockPlacePacket;
 import com.jcwhatever.bukkit.phantom.packets.IMultiBlockChangeFactory;
 import com.jcwhatever.bukkit.phantom.packets.IMultiBlockChangePacket;
-import com.jcwhatever.nucleus.regions.data.ChunkBlockInfo;
-import com.jcwhatever.nucleus.regions.data.ChunkInfo;
-import com.jcwhatever.nucleus.regions.data.WorldInfo;
+import com.jcwhatever.nucleus.utils.coords.ChunkBlockInfo;
+import com.jcwhatever.nucleus.utils.coords.ChunkInfo;
+import com.jcwhatever.nucleus.utils.coords.WorldInfo;
 import com.jcwhatever.nucleus.utils.nms.INmsHandler;
 
 import org.bukkit.Material;

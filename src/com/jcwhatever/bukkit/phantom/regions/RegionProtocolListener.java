@@ -40,8 +40,8 @@ import com.jcwhatever.bukkit.phantom.packets.IBlockPlacePacket;
 import com.jcwhatever.bukkit.phantom.packets.IMultiBlockChangePacket;
 import com.jcwhatever.bukkit.phantom.translators.BlockPacketTranslator;
 import com.jcwhatever.nucleus.Nucleus;
-import com.jcwhatever.nucleus.regions.data.ChunkBlockInfo;
-import com.jcwhatever.nucleus.regions.data.WorldInfo;
+import com.jcwhatever.nucleus.utils.coords.ChunkBlockInfo;
+import com.jcwhatever.nucleus.utils.coords.WorldInfo;
 import com.jcwhatever.nucleus.utils.PreCon;
 import com.jcwhatever.nucleus.utils.Scheduler;
 
