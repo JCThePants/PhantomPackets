@@ -100,7 +100,7 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
     public PhantomRegion(Plugin plugin, String name, IDataNode dataNode) {
         super(plugin, name, dataNode);
 
-        setMeta(REGION_KEY, this);
+        getMeta().set(REGION_KEY, this);
 
         if (isDefined()) {
             try {
