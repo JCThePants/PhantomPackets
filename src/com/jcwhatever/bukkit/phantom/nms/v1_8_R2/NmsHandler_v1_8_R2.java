@@ -40,13 +40,13 @@ import com.jcwhatever.nucleus.utils.coords.WorldInfo;
 import com.jcwhatever.nucleus.utils.nms.INmsHandler;
 
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_8_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_8_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
-import net.minecraft.server.v1_8_R1.BaseBlockPosition;
-import net.minecraft.server.v1_8_R1.ChunkCoordIntPair;
-import net.minecraft.server.v1_8_R1.ChunkMap;
-import net.minecraft.server.v1_8_R1.EntityPlayer;
+import net.minecraft.server.v1_8_R2.BaseBlockPosition;
+import net.minecraft.server.v1_8_R2.ChunkCoordIntPair;
+import net.minecraft.server.v1_8_R2.EntityPlayer;
+import net.minecraft.server.v1_8_R2.PacketPlayOutMapChunk.ChunkMap;
 
 import java.util.List;
 
@@ -65,7 +65,7 @@ public class NmsHandler_v1_8_R2 implements com.jcwhatever.bukkit.phantom.nms.INm
 
         entityPlayer.chunkCoordIntPairQueue.add(chunkCoords);
 
-        entityPlayer.s_();
+        entityPlayer.t_();
     }
 
     @Override

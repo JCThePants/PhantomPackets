@@ -38,7 +38,9 @@ public class MultiBlockChangeInfoUtil {
 
     static final ReflectedType _MultiBlockChangeInfo =
             reflection.nmsType("PacketPlayOutMultiBlockChange$MultiBlockChangeInfo")
-                    .constructorAlias("new", MultiBlockChangeInfo.class, short.class, IBlockData.class)
+                    .constructorAlias("new",
+                            PacketPlayOutMultiBlockChange.class,
+                            short.class, IBlockData.class)
                     .fieldAlias("position", "b")
                     .fieldAlias("data", "c");
 
