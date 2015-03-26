@@ -24,19 +24,15 @@
 
 package com.jcwhatever.bukkit.phantom.scripts;
 
-import com.jcwhatever.nucleus.utils.player.PlayerUtils;
-import com.jcwhatever.nucleus.scripting.IEvaluatedScript;
-import com.jcwhatever.nucleus.scripting.ScriptApiInfo;
-import com.jcwhatever.nucleus.scripting.api.NucleusScriptApi;
-import com.jcwhatever.nucleus.scripting.api.IScriptApiObject;
-import com.jcwhatever.nucleus.utils.PreCon;
+import com.jcwhatever.bukkit.phantom.PhantomPackets;
 import com.jcwhatever.bukkit.phantom.entities.PhantomEntity;
 import com.jcwhatever.bukkit.phantom.regions.PhantomRegion;
-import com.jcwhatever.bukkit.phantom.PhantomPackets;
+import com.jcwhatever.nucleus.mixins.IDisposable;
+import com.jcwhatever.nucleus.utils.PreCon;
+import com.jcwhatever.nucleus.utils.player.PlayerUtils;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -44,259 +40,238 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.WeakHashMap;
 
-@ScriptApiInfo(
-        variableName = "phantom",
-        description = "Gives script api access to Phantom regions and entities.")
-public class PhantomScriptApi extends NucleusScriptApi {
+public class PhantomScriptApi implements IDisposable {
 
-    private static ApiObject _api = new ApiObject();
+    Map<Player, Set<PhantomRegion>> _regionMap = new WeakHashMap<>(30);
+    Map<Player, Set<PhantomEntity>> _entityMap = new WeakHashMap<>(30);
+    private boolean _isDisposed;
 
-    /**
-     * Constructor.
-     *
-     * @param plugin The owning plugin
-     */
-    public PhantomScriptApi(Plugin plugin) {
-        super(plugin);
+    @Override
+    public boolean isDisposed() {
+        return _isDisposed;
     }
 
     @Override
-    public IScriptApiObject getApiObject(IEvaluatedScript script) {
-        return _api;
+    public void dispose() {
+        for (Entry<Player, Set<PhantomRegion>> playerSetEntry : _regionMap.entrySet()) {
+
+            Set<PhantomRegion> regionList = playerSetEntry.getValue();
+
+            for (PhantomRegion region : regionList) {
+                region.removeViewer(playerSetEntry.getKey());
+            }
+        }
+        _regionMap.clear();
+
+        for (Entry<Player, Set<PhantomEntity>> playerSetEntry : _entityMap.entrySet()) {
+
+            Set<PhantomEntity> entityList = playerSetEntry.getValue();
+
+            for (PhantomEntity entity : entityList) {
+                entity.removeViewer(playerSetEntry.getKey());
+            }
+        }
+
+        _entityMap.clear();
+
+        _isDisposed = true;
     }
 
-    public static class ApiObject implements IScriptApiObject {
+    public final PhantomRegionsAPI regions = new PhantomRegionsAPI();
+    public final PhantomEntityAPI entity = new PhantomEntityAPI();
 
-        Map<Player, Set<PhantomRegion>> _regionMap = new WeakHashMap<>(30);
-        Map<Player, Set<PhantomEntity>> _entityMap = new WeakHashMap<>(30);
-        private boolean _isDisposed;
+    public class PhantomRegionsAPI {
 
-        @Override
-        public boolean isDisposed() {
-            return _isDisposed;
+        /**
+         * Determine if a region has a viewer.
+         *
+         * @param player      The player to check.
+         * @param regionName  The region to check.
+         */
+        public boolean hasViewer(Object player, String regionName) {
+            PreCon.notNull(player);
+            PreCon.notNull(entity);
+
+            Player p = PlayerUtils.getPlayer(player);
+            PreCon.notNull(p);
+
+            PhantomRegion region = PhantomPackets.getPlugin().getRegionManager().getRegion(regionName);
+            return region != null && region.hasViewer(p);
         }
 
-        @Override
-        public void dispose() {
-            for (Entry<Player, Set<PhantomRegion>> playerSetEntry : _regionMap.entrySet()) {
+        /**
+         * Add a player to a phantom region as a whitelisted viewer.
+         *
+         * @param player      The player to show the region to.
+         * @param regionName  The phantom region name.
+         *
+         * @return  True if the region was found and shown to the player.
+         */
+        public boolean addViewer(Object player, String regionName) {
+            PreCon.notNull(player);
+            PreCon.notNullOrEmpty(regionName);
 
-                Set<PhantomRegion> regionList = playerSetEntry.getValue();
+            Player p = PlayerUtils.getPlayer(player);
+            PreCon.notNull(p);
 
-                for (PhantomRegion region : regionList) {
-                    region.removeViewer(playerSetEntry.getKey());
-                }
+            PhantomRegion region = PhantomPackets.getPlugin().getRegionManager().getRegion(regionName);
+            if (region == null)
+                return false;
+
+            region.addViewer(p);
+
+            Set<PhantomRegion> regionList = _regionMap.get(p);
+            if (regionList == null) {
+                regionList = new HashSet<>(10);
+                _regionMap.put(p, regionList);
             }
-            _regionMap.clear();
 
-            for (Entry<Player, Set<PhantomEntity>> playerSetEntry : _entityMap.entrySet()) {
+            regionList.add(region);
 
-                Set<PhantomEntity> entityList = playerSetEntry.getValue();
-
-                for (PhantomEntity entity : entityList) {
-                    entity.removeViewer(playerSetEntry.getKey());
-                }
-            }
-
-            _entityMap.clear();
-
-            _isDisposed = true;
+            return true;
         }
 
-        public final PhantomRegionsAPI regions = new PhantomRegionsAPI();
-        public final PhantomEntityAPI entity = new PhantomEntityAPI();
+        /**
+         * Remove a player from a phantom region as a whitelisted viewer.
+         *
+         * @param player      The player to hide the region from.
+         * @param regionName  The disguise region name.
+         *
+         * @return  True if the region was found and hidden.
+         */
+        public boolean removeViewer(Object player, String regionName) {
+            PreCon.notNull(player);
+            PreCon.notNullOrEmpty(regionName);
 
-        public class PhantomRegionsAPI {
+            Player p = PlayerUtils.getPlayer(player);
+            PreCon.notNull(p);
 
-            /**
-             * Determine if a region has a viewer.
-             *
-             * @param player      The player to check.
-             * @param regionName  The region to check.
-             */
-            public boolean hasViewer(Object player, String regionName) {
-                PreCon.notNull(player);
-                PreCon.notNull(entity);
+            PhantomRegion region = PhantomPackets.getPlugin().getRegionManager().getRegion(regionName);
+            if (region == null)
+                return false;
 
-                Player p = PlayerUtils.getPlayer(player);
-                PreCon.notNull(p);
+            region.removeViewer(p);
 
-                PhantomRegion region = PhantomPackets.getPlugin().getRegionManager().getRegion(regionName);
-                return region != null && region.hasViewer(p);
+            Set<PhantomRegion> regionList = _regionMap.get(p);
+            if (regionList != null) {
+                regionList.remove(region);
             }
 
-            /**
-             * Add a player to a phantom region as a whitelisted viewer.
-             *
-             * @param player      The player to show the region to.
-             * @param regionName  The phantom region name.
-             *
-             * @return  True if the region was found and shown to the player.
-             */
-            public boolean addViewer(Object player, String regionName) {
-                PreCon.notNull(player);
-                PreCon.notNullOrEmpty(regionName);
+            return true;
+        }
+    }
 
-                Player p = PlayerUtils.getPlayer(player);
-                PreCon.notNull(p);
+    public class PhantomEntityAPI {
 
-                PhantomRegion region = PhantomPackets.getPlugin().getRegionManager().getRegion(regionName);
-                if (region == null)
-                    return false;
+        /**
+         * Make the specified entity a phantom entity.
+         *
+         * @param entity  The entity.
+         */
+        public void addEntity(Entity entity) {
+            PreCon.notNull(entity);
 
-                region.addViewer(p);
+            PhantomPackets.getPlugin().getEntitiesManager().addEntity(entity);
+        }
 
-                Set<PhantomRegion> regionList = _regionMap.get(p);
-                if (regionList == null) {
-                    regionList = new HashSet<>(10);
-                    _regionMap.put(p, regionList);
+        /**
+         * Remove the specified entity as a phantom entity.
+         *
+         * @param entity  The entity to remove.
+         */
+        public void removeEntity(Entity entity) {
+            PreCon.notNull(entity);
+
+            PhantomPackets.getPlugin().getEntitiesManager().removeEntity(entity);
+        }
+
+        /**
+         * Determine if an entity has a viewer.
+         *
+         * <p>If the entity is not a phantom entity then false
+         * is returned.</p>
+         *
+         * @param player  The player to check.
+         * @param entity  The entity to check.
+         */
+        public boolean hasViewer(Object player, Entity entity) {
+            PreCon.notNull(player);
+            PreCon.notNull(entity);
+
+            Player p = PlayerUtils.getPlayer(player);
+            PreCon.notNull(p);
+
+            PhantomEntity phantomEntity = PhantomPackets.getPlugin()
+                    .getEntitiesManager().getEntity(entity);
+
+            return phantomEntity != null && phantomEntity.hasViewer(p);
+        }
+
+        /**
+         * Add a player to a phantom entity as a whitelisted viewer.
+         *
+         * @param player  The player to show the entity to.
+         * @param entity  The entity to show.
+         *
+         * @return  True if the viewer was added.
+         */
+        public boolean addViewer(Object player, Entity entity) {
+            PreCon.notNull(player);
+            PreCon.notNull(entity);
+
+            Player p = PlayerUtils.getPlayer(player);
+            PreCon.notNull(p);
+
+            PhantomEntity phantomEntity = PhantomPackets.getPlugin()
+                    .getEntitiesManager().addEntity(entity);
+
+            if (phantomEntity.addViewer(p)) {
+
+                Set<PhantomEntity> entityList = _entityMap.get(p);
+                if (entityList == null) {
+                    entityList = new HashSet<>(10);
+                    _entityMap.put(p, entityList);
                 }
 
-                regionList.add(region);
+                entityList.add(phantomEntity);
 
                 return true;
             }
 
-            /**
-             * Remove a player from a phantom region as a whitelisted viewer.
-             *
-             * @param player      The player to hide the region from.
-             * @param regionName  The disguise region name.
-             *
-             * @return  True if the region was found and hidden.
-             */
-            public boolean removeViewer(Object player, String regionName) {
-                PreCon.notNull(player);
-                PreCon.notNullOrEmpty(regionName);
+            return false;
+        }
 
-                Player p = PlayerUtils.getPlayer(player);
-                PreCon.notNull(p);
+        /**
+         * Remove a player from a phantom entity as a whitelisted viewer.
+         *
+         * @param player  The player to hide the entity from.
+         * @param entity  The entity to hide.
+         *
+         * @return  True if the viewer was removed.
+         */
+        public boolean removeViewer(Object player, Entity entity) {
+            PreCon.notNull(player);
+            PreCon.notNull(entity);
 
-                PhantomRegion region = PhantomPackets.getPlugin().getRegionManager().getRegion(regionName);
-                if (region == null)
-                    return false;
+            Player p = PlayerUtils.getPlayer(player);
+            PreCon.notNull(p);
 
-                region.removeViewer(p);
+            PhantomEntity phantomEntity = PhantomPackets.getPlugin()
+                    .getEntitiesManager().addEntity(entity);
 
-                Set<PhantomRegion> regionList = _regionMap.get(p);
-                if (regionList != null) {
-                    regionList.remove(region);
+            if (phantomEntity.removeViewer(p)) {
+
+                Set<PhantomEntity> entityList = _entityMap.get(p);
+                if (entityList != null) {
+                    entityList.remove(phantomEntity);
                 }
 
                 return true;
             }
+
+            return false;
         }
-
-        public class PhantomEntityAPI {
-
-            /**
-             * Make the specified entity a phantom entity.
-             *
-             * @param entity  The entity.
-             */
-            public void addEntity(Entity entity) {
-                PreCon.notNull(entity);
-
-                PhantomPackets.getPlugin().getEntitiesManager().addEntity(entity);
-            }
-
-            /**
-             * Remove the specified entity as a phantom entity.
-             *
-             * @param entity  The entity to remove.
-             */
-            public void removeEntity(Entity entity) {
-                PreCon.notNull(entity);
-
-                PhantomPackets.getPlugin().getEntitiesManager().removeEntity(entity);
-            }
-
-            /**
-             * Determine if an entity has a viewer.
-             *
-             * <p>If the entity is not a phantom entity then false
-             * is returned.</p>
-             *
-             * @param player  The player to check.
-             * @param entity  The entity to check.
-             */
-            public boolean hasViewer(Object player, Entity entity) {
-                PreCon.notNull(player);
-                PreCon.notNull(entity);
-
-                Player p = PlayerUtils.getPlayer(player);
-                PreCon.notNull(p);
-
-                PhantomEntity phantomEntity = PhantomPackets.getPlugin()
-                        .getEntitiesManager().getEntity(entity);
-
-                return phantomEntity != null && phantomEntity.hasViewer(p);
-            }
-
-            /**
-             * Add a player to a phantom entity as a whitelisted viewer.
-             *
-             * @param player  The player to show the entity to.
-             * @param entity  The entity to show.
-             *
-             * @return  True if the viewer was added.
-             */
-            public boolean addViewer(Object player, Entity entity) {
-                PreCon.notNull(player);
-                PreCon.notNull(entity);
-
-                Player p = PlayerUtils.getPlayer(player);
-                PreCon.notNull(p);
-
-                PhantomEntity phantomEntity = PhantomPackets.getPlugin()
-                        .getEntitiesManager().addEntity(entity);
-
-                if (phantomEntity.addViewer(p)) {
-
-                    Set<PhantomEntity> entityList = _entityMap.get(p);
-                    if (entityList == null) {
-                        entityList = new HashSet<>(10);
-                        _entityMap.put(p, entityList);
-                    }
-
-                    entityList.add(phantomEntity);
-
-                    return true;
-                }
-
-                return false;
-            }
-
-            /**
-             * Remove a player from a phantom entity as a whitelisted viewer.
-             *
-             * @param player  The player to hide the entity from.
-             * @param entity  The entity to hide.
-             *
-             * @return  True if the viewer was removed.
-             */
-            public boolean removeViewer(Object player, Entity entity) {
-                PreCon.notNull(player);
-                PreCon.notNull(entity);
-
-                Player p = PlayerUtils.getPlayer(player);
-                PreCon.notNull(p);
-
-                PhantomEntity phantomEntity = PhantomPackets.getPlugin()
-                        .getEntitiesManager().addEntity(entity);
-
-                if (phantomEntity.removeViewer(p)) {
-
-                    Set<PhantomEntity> entityList = _entityMap.get(p);
-                    if (entityList != null) {
-                        entityList.remove(phantomEntity);
-                    }
-
-                    return true;
-                }
-
-                return false;
-            }
-        }
-
     }
+
 }
+

@@ -33,10 +33,16 @@ import com.jcwhatever.bukkit.phantom.regions.PhantomRegionManager;
 import com.jcwhatever.bukkit.phantom.scripts.PhantomScriptApi;
 import com.jcwhatever.nucleus.Nucleus;
 import com.jcwhatever.nucleus.NucleusPlugin;
+import com.jcwhatever.nucleus.mixins.IDisposable;
+import com.jcwhatever.nucleus.scripting.IEvaluatedScript;
+import com.jcwhatever.nucleus.scripting.IScriptApi;
+import com.jcwhatever.nucleus.scripting.SimpleScriptApi;
+import com.jcwhatever.nucleus.scripting.SimpleScriptApi.IApiObjectCreator;
 import com.jcwhatever.nucleus.utils.nms.NmsManager;
 import com.jcwhatever.nucleus.utils.text.TextColor;
 
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
 
 public class PhantomPackets extends NucleusPlugin {
 
@@ -48,6 +54,7 @@ public class PhantomPackets extends NucleusPlugin {
 
     private PhantomRegionManager _regionManager;
     private PhantomEntitiesManager _entitiesManager;
+    private IScriptApi _scriptApi;
 
     private NmsManager _reflectionManager;
     private INmsHandler _reflectionHandler;
@@ -102,7 +109,14 @@ public class PhantomPackets extends NucleusPlugin {
         _entitiesManager = new PhantomEntitiesManager(this);
         registerCommands(new PhantomCommandDispatcher(this));
 
-        Nucleus.getScriptApiRepo().registerApiType(this, PhantomScriptApi.class);
+        _scriptApi = new SimpleScriptApi(this, "phantom", new IApiObjectCreator() {
+            @Override
+            public IDisposable create(Plugin plugin, IEvaluatedScript script) {
+                return new PhantomScriptApi();
+            }
+        });
+
+        Nucleus.getScriptApiRepo().registerApi(_scriptApi);
     }
 
     @Override
@@ -110,6 +124,8 @@ public class PhantomPackets extends NucleusPlugin {
 
         if (_regionManager != null)
             _regionManager.dispose();
+
+        Nucleus.getScriptApiRepo().unregisterApi(_scriptApi);
     }
 
 }
