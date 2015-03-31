@@ -98,7 +98,7 @@ public class PhantomPackets extends NucleusPlugin {
         _reflectionManager.registerNmsHandler("v1_8_R1", "nms", NmsHandler_v1_8_R1.class);
         _reflectionManager.registerNmsHandler("v1_8_R2", "nms", NmsHandler_v1_8_R2.class);
 
-        _reflectionHandler = _reflectionManager.getNmsHandler("nms");
+        _reflectionHandler = _reflectionManager.getHandler("nms");
         if (_reflectionHandler == null) {
             Msg.warning("Failed to get an NMS handler. Disabling plugin.");
             Bukkit.getPluginManager().disablePlugin(this);
