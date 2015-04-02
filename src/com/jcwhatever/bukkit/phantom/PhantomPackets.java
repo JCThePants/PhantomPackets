@@ -95,8 +95,8 @@ public class PhantomPackets extends NucleusPlugin {
     protected void onEnablePlugin() {
 
         _reflectionManager = new NmsManager(this, "v1_8_R1", "v1_8_R2");
-        _reflectionManager.registerNmsHandler("v1_8_R1", "nms", NmsHandler_v1_8_R1.class);
-        _reflectionManager.registerNmsHandler("v1_8_R2", "nms", NmsHandler_v1_8_R2.class);
+        _reflectionManager.registerHandler("v1_8_R1", "nms", NmsHandler_v1_8_R1.class);
+        _reflectionManager.registerHandler("v1_8_R2", "nms", NmsHandler_v1_8_R2.class);
 
         _reflectionHandler = _reflectionManager.getHandler("nms");
         if (_reflectionHandler == null) {
