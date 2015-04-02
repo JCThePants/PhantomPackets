@@ -30,9 +30,9 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
-import com.jcwhatever.nucleus.utils.coords.ChunkInfo;
 import com.jcwhatever.nucleus.utils.PreCon;
-import com.jcwhatever.nucleus.utils.entity.TrackedEntity;
+import com.jcwhatever.nucleus.utils.coords.ChunkInfo;
+import com.jcwhatever.nucleus.utils.entity.ITrackedEntity;
 import com.jcwhatever.nucleus.utils.observer.update.UpdateSubscriber;
 import com.jcwhatever.nucleus.utils.player.PlayerUtils;
 
@@ -119,7 +119,7 @@ public class PhantomEntitiesManager {
         if (entity.isDead())
             return phantom;
 
-        final TrackedEntity trackedEntity = phantom.getTrackedEntity();
+        final ITrackedEntity trackedEntity = phantom.getTrackedEntity();
 
         trackedEntity.onUpdate(new UpdateSubscriber<Entity>() {
 

@@ -31,7 +31,7 @@ import com.jcwhatever.bukkit.phantom.IViewable;
 import com.jcwhatever.nucleus.collections.players.PlayerSet;
 import com.jcwhatever.nucleus.utils.NpcUtils;
 import com.jcwhatever.nucleus.utils.entity.EntityUtils;
-import com.jcwhatever.nucleus.utils.entity.TrackedEntity;
+import com.jcwhatever.nucleus.utils.entity.ITrackedEntity;
 
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -50,7 +50,7 @@ import javax.annotation.Nullable;
  */
 public class PhantomEntity implements IViewable {
 
-    private TrackedEntity _trackedEntity;
+    private ITrackedEntity _trackedEntity;
     private PhantomEntitiesManager _manager;
     private PlayerSet _viewers;
     private ViewPolicy _viewPolicy = ViewPolicy.WHITELIST;
@@ -87,7 +87,7 @@ public class PhantomEntity implements IViewable {
     /**
      * Get the tracked entity.
      */
-    public TrackedEntity getTrackedEntity() {
+    public ITrackedEntity getTrackedEntity() {
         return _trackedEntity;
     }
 
