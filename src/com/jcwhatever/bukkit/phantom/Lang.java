@@ -1,7 +1,7 @@
 package com.jcwhatever.bukkit.phantom;
 
-import com.jcwhatever.nucleus.utils.language.LanguageManager;
-import com.jcwhatever.nucleus.utils.language.Localized;
+import com.jcwhatever.nucleus.managed.language.ILanguageContext;
+import com.jcwhatever.nucleus.managed.language.Localized;
 
 public class Lang {
 
@@ -9,9 +9,9 @@ public class Lang {
 
     @Localized
     public static String get(String text, Object... params) {
-        LanguageManager lang = PhantomPackets.getPlugin().getLanguageManager();
+        ILanguageContext context = PhantomPackets.getPlugin().getLanguageContext();
 
-        return lang.get(text, params);
+        return context.get(text, params);
     }
 }
 
