@@ -34,10 +34,10 @@ import com.jcwhatever.bukkit.phantom.scripts.PhantomScriptApi;
 import com.jcwhatever.nucleus.Nucleus;
 import com.jcwhatever.nucleus.NucleusPlugin;
 import com.jcwhatever.nucleus.mixins.IDisposable;
-import com.jcwhatever.nucleus.scripting.IEvaluatedScript;
-import com.jcwhatever.nucleus.scripting.IScriptApi;
-import com.jcwhatever.nucleus.scripting.SimpleScriptApi;
-import com.jcwhatever.nucleus.scripting.SimpleScriptApi.IApiObjectCreator;
+import com.jcwhatever.nucleus.managed.scripting.IEvaluatedScript;
+import com.jcwhatever.nucleus.managed.scripting.IScriptApi;
+import com.jcwhatever.nucleus.managed.scripting.SimpleScriptApi;
+import com.jcwhatever.nucleus.managed.scripting.SimpleScriptApi.IApiObjectCreator;
 import com.jcwhatever.nucleus.utils.nms.NmsManager;
 import com.jcwhatever.nucleus.utils.text.TextColor;
 
