@@ -43,7 +43,7 @@ import com.jcwhatever.nucleus.Nucleus;
 import com.jcwhatever.nucleus.utils.coords.ChunkBlockInfo;
 import com.jcwhatever.nucleus.utils.coords.WorldInfo;
 import com.jcwhatever.nucleus.utils.PreCon;
-import com.jcwhatever.nucleus.utils.Scheduler;
+import com.jcwhatever.nucleus.managed.scheduler.Scheduler;
 
 import org.bukkit.Material;
 import org.bukkit.World;

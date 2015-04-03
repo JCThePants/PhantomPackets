@@ -29,7 +29,7 @@ import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
 import com.jcwhatever.bukkit.phantom.IViewable;
 import com.jcwhatever.nucleus.collections.players.PlayerSet;
-import com.jcwhatever.nucleus.utils.NpcUtils;
+import com.jcwhatever.nucleus.providers.npc.Npcs;
 import com.jcwhatever.nucleus.utils.entity.EntityUtils;
 import com.jcwhatever.nucleus.managed.entity.ITrackedEntity;
 
@@ -287,7 +287,7 @@ public class PhantomEntity implements IViewable {
 
         for (Player player : world.getPlayers()) {
 
-            if (NpcUtils.isNpc(player))
+            if (Npcs.isNpc(player))
                 continue;
 
             if (canSee(player)) {
