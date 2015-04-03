@@ -32,7 +32,7 @@ import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
 import com.jcwhatever.nucleus.utils.PreCon;
 import com.jcwhatever.nucleus.utils.coords.ChunkInfo;
-import com.jcwhatever.nucleus.utils.entity.ITrackedEntity;
+import com.jcwhatever.nucleus.managed.entity.ITrackedEntity;
 import com.jcwhatever.nucleus.utils.observer.update.UpdateSubscriber;
 import com.jcwhatever.nucleus.utils.player.PlayerUtils;
 

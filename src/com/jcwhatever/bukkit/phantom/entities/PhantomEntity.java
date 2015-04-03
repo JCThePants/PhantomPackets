@@ -31,7 +31,7 @@ import com.jcwhatever.bukkit.phantom.IViewable;
 import com.jcwhatever.nucleus.collections.players.PlayerSet;
 import com.jcwhatever.nucleus.utils.NpcUtils;
 import com.jcwhatever.nucleus.utils.entity.EntityUtils;
-import com.jcwhatever.nucleus.utils.entity.ITrackedEntity;
+import com.jcwhatever.nucleus.managed.entity.ITrackedEntity;
 
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
