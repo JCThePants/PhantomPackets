@@ -35,7 +35,7 @@ import com.jcwhatever.bukkit.phantom.packets.IBlockPlacePacket;
 import com.jcwhatever.bukkit.phantom.packets.IMultiBlockChangeFactory;
 import com.jcwhatever.bukkit.phantom.packets.IMultiBlockChangePacket;
 import com.jcwhatever.nucleus.utils.coords.ChunkBlockInfo;
-import com.jcwhatever.nucleus.utils.coords.ChunkInfo;
+import com.jcwhatever.nucleus.utils.coords.IChunkCoords;
 import com.jcwhatever.nucleus.utils.coords.WorldInfo;
 import com.jcwhatever.nucleus.utils.nms.INmsHandler;
 
@@ -98,7 +98,7 @@ public class NmsHandler_v1_8_R2 implements com.jcwhatever.bukkit.phantom.nms.INm
     }
 
     @Override
-    public IMultiBlockChangeFactory getMultiBlockChangeFactory(ChunkInfo chunkInfo, List<ChunkBlockInfo> blocks) {
+    public IMultiBlockChangeFactory getMultiBlockChangeFactory(IChunkCoords chunkInfo, List<ChunkBlockInfo> blocks) {
         return new MultiBlockChangeFactory_v1_8_R2(chunkInfo, blocks);
     }
 

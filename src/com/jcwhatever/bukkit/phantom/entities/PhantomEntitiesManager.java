@@ -31,7 +31,7 @@ import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
 import com.jcwhatever.nucleus.utils.PreCon;
-import com.jcwhatever.nucleus.utils.coords.ChunkInfo;
+import com.jcwhatever.nucleus.utils.coords.ChunkCoords;
 import com.jcwhatever.nucleus.managed.entity.ITrackedEntity;
 import com.jcwhatever.nucleus.utils.observer.update.UpdateSubscriber;
 import com.jcwhatever.nucleus.utils.player.PlayerUtils;
@@ -132,10 +132,10 @@ public class PhantomEntitiesManager {
                 }
             }
 
-        }).onUnload(new UpdateSubscriber<ChunkInfo>() {
+        }).onUnload(new UpdateSubscriber<ChunkCoords>() {
 
             @Override
-            public void on(ChunkInfo event) {
+            public void on(ChunkCoords event) {
                 _loadedEntities.remove(trackedEntity.getEntity().getEntityId());
             }
 

@@ -24,14 +24,14 @@
 
 package com.jcwhatever.bukkit.phantom.data;
 
-import com.jcwhatever.nucleus.utils.coords.IChunkInfo;
+import com.jcwhatever.nucleus.utils.coords.IChunkCoords;
 
 import org.bukkit.Material;
 
 /**
  * Represents a chunk data array and pre-calculated values.
  */
-public interface IChunkData extends IChunkInfo {
+public interface IChunkData extends IChunkCoords {
 
     /**
      * Get the bit mask that contains information about which chunk

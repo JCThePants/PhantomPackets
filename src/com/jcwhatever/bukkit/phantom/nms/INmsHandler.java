@@ -25,9 +25,6 @@
 package com.jcwhatever.bukkit.phantom.nms;
 
 import com.comphenix.protocol.events.PacketContainer;
-import com.jcwhatever.nucleus.utils.coords.ChunkBlockInfo;
-import com.jcwhatever.nucleus.utils.coords.ChunkInfo;
-import com.jcwhatever.nucleus.utils.coords.WorldInfo;
 import com.jcwhatever.bukkit.phantom.data.ChunkBulkData;
 import com.jcwhatever.bukkit.phantom.data.ChunkData;
 import com.jcwhatever.bukkit.phantom.packets.IBlockChangeFactory;
@@ -36,6 +33,9 @@ import com.jcwhatever.bukkit.phantom.packets.IBlockDigPacket;
 import com.jcwhatever.bukkit.phantom.packets.IBlockPlacePacket;
 import com.jcwhatever.bukkit.phantom.packets.IMultiBlockChangeFactory;
 import com.jcwhatever.bukkit.phantom.packets.IMultiBlockChangePacket;
+import com.jcwhatever.nucleus.utils.coords.ChunkBlockInfo;
+import com.jcwhatever.nucleus.utils.coords.IChunkCoords;
+import com.jcwhatever.nucleus.utils.coords.WorldInfo;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -57,7 +57,7 @@ public interface INmsHandler {
 
     IBlockChangePacket getBlockChangePacket(PacketContainer packet);
 
-    IMultiBlockChangeFactory getMultiBlockChangeFactory(ChunkInfo chunkInfo, List<ChunkBlockInfo> blocks);
+    IMultiBlockChangeFactory getMultiBlockChangeFactory(IChunkCoords chunkInfo, List<ChunkBlockInfo> blocks);
 
     IMultiBlockChangePacket getMultiBlockChangePacket(PacketContainer packet);
 

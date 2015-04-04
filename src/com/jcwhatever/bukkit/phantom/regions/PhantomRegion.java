@@ -29,24 +29,23 @@ import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
+import com.jcwhatever.bukkit.phantom.IViewable;
 import com.jcwhatever.bukkit.phantom.Msg;
 import com.jcwhatever.bukkit.phantom.PhantomPackets;
 import com.jcwhatever.bukkit.phantom.data.Coordinate;
 import com.jcwhatever.bukkit.phantom.packets.IMultiBlockChangeFactory;
 import com.jcwhatever.bukkit.phantom.translators.BlockTypeTranslator;
 import com.jcwhatever.nucleus.collections.players.PlayerSet;
-import com.jcwhatever.bukkit.phantom.IViewable;
 import com.jcwhatever.nucleus.regions.RegionChunkFileLoader;
 import com.jcwhatever.nucleus.regions.RegionChunkFileLoader.LoadType;
 import com.jcwhatever.nucleus.regions.RestorableRegion;
-import com.jcwhatever.nucleus.utils.coords.ChunkBlockInfo;
-import com.jcwhatever.nucleus.utils.coords.ChunkInfo;
-import com.jcwhatever.nucleus.utils.coords.IChunkInfo;
-import com.jcwhatever.nucleus.utils.coords.WorldInfo;
 import com.jcwhatever.nucleus.storage.IDataNode;
 import com.jcwhatever.nucleus.utils.CollectionUtils;
 import com.jcwhatever.nucleus.utils.MetaKey;
 import com.jcwhatever.nucleus.utils.PreCon;
+import com.jcwhatever.nucleus.utils.coords.ChunkBlockInfo;
+import com.jcwhatever.nucleus.utils.coords.IChunkCoords;
+import com.jcwhatever.nucleus.utils.coords.WorldInfo;
 import com.jcwhatever.nucleus.utils.observer.result.FutureResultAgent.Future;
 import com.jcwhatever.nucleus.utils.observer.result.FutureSubscriber;
 import com.jcwhatever.nucleus.utils.observer.result.Result;
@@ -58,9 +57,11 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -79,10 +80,10 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
     private final BlockTypeTranslator _blockTranslator;
 
     private Map<Coordinate, ChunkBlockInfo> _blocks;
-    private Multimap<IChunkInfo, ChunkBlockInfo> _chunkBlocks =
+    private Multimap<IChunkCoords, ChunkBlockInfo> _chunkBlocks =
             MultimapBuilder.hashKeys(10).hashSetValues().build();
 
-    private Map<ChunkInfo, IMultiBlockChangeFactory> _chunkBlockFactories = new HashMap<>(10);
+    private Map<IChunkCoords, IMultiBlockChangeFactory> _chunkBlockFactories = new HashMap<>(10);
 
     private Set<Player> _viewers;
     private ViewPolicy _viewPolicy = ViewPolicy.WHITELIST;
@@ -132,7 +133,7 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
         return _blockTranslator;
     }
 
-    public List<ChunkBlockInfo> getChunkBlocks(IChunkInfo chunkInfo) {
+    public List<ChunkBlockInfo> getChunkBlocks(IChunkCoords chunkInfo) {
         return CollectionUtils.unmodifiableList(_chunkBlocks.get(chunkInfo));
     }
 
@@ -326,11 +327,7 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
             return;
 
         _isLoading = true;
-
-        List<ChunkInfo> chunks = getChunks();
-
         _blocks = new HashMap<>((int)getVolume());
-
 
         QueueProject loadProject = new QueueProject(PhantomPackets.getPlugin());
 
@@ -341,16 +338,20 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
             }
         });
 
-        for (final ChunkInfo chunk : chunks) {
+        Collection<IChunkCoords> chunks = getChunkCoords();
+        for (final IChunkCoords chunk : chunks) {
 
             // create chunk loader
             final RegionChunkFileLoader loader = new RegionChunkFileLoader(this, chunk);
 
+            File file = getChunkFile(chunk.getX(), chunk.getZ(), "", false);
+
             // add load task to chunk project
-            loader.loadInProject(getChunkFile(chunk, "", false), loadProject, LoadType.ALL_BLOCKS)
+            loader.loadInProject(file, loadProject, LoadType.ALL_BLOCKS)
                     .onSuccess(new FutureSubscriber<QueueTask>() {
                         @Override
                         public void on(Result<QueueTask> argument) {
+
                             LinkedList<ChunkBlockInfo> blockInfos = loader.getBlockInfo();
 
                             IMultiBlockChangeFactory factory = PhantomPackets.getNms()
@@ -387,16 +388,16 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
         if (!p.getWorld().equals(getWorld()))
             return;
 
-        for (ChunkInfo chunk : getChunks()) {
+        for (IChunkCoords coord : getChunkCoords()) {
 
-            IMultiBlockChangeFactory factory = _chunkBlockFactories.get(chunk);
+            IMultiBlockChangeFactory factory = _chunkBlockFactories.get(coord);
             if (factory == null)
                 continue;
 
             PacketContainer packet;
             packet = canSee(p)
                     ? factory.createPacket(_ignoreAir)
-                    : factory.createPacket(chunk.getChunk());
+                    : factory.createPacket(coord.getChunk());
 
             try {
                 _protocolManager.sendServerPacket(p, packet);

@@ -28,11 +28,11 @@ import com.comphenix.protocol.PacketType.Play.Server;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.wrappers.ChunkCoordIntPair;
-import com.jcwhatever.nucleus.utils.coords.ChunkBlockInfo;
-import com.jcwhatever.nucleus.utils.coords.ChunkInfo;
-import com.jcwhatever.nucleus.utils.ArrayUtils;
 import com.jcwhatever.bukkit.phantom.Utils;
 import com.jcwhatever.bukkit.phantom.packets.IMultiBlockChangeFactory;
+import com.jcwhatever.nucleus.utils.ArrayUtils;
+import com.jcwhatever.nucleus.utils.coords.ChunkBlockInfo;
+import com.jcwhatever.nucleus.utils.coords.IChunkCoords;
 
 import org.bukkit.Chunk;
 
@@ -50,12 +50,12 @@ import java.util.List;
  */
 public class MultiBlockChangeFactory_v1_8_R1 implements IMultiBlockChangeFactory {
 
-    private final ChunkInfo _chunkInfo;
+    private final IChunkCoords _chunkInfo;
     private short[] _blockPositions;
     private ChunkBlockInfo[] _blockInfo;
     private IBlockData[] _blockData;
 
-    public MultiBlockChangeFactory_v1_8_R1(ChunkInfo chunkInfo, List<ChunkBlockInfo> blocks) {
+    public MultiBlockChangeFactory_v1_8_R1(IChunkCoords chunkInfo, List<ChunkBlockInfo> blocks) {
 
         _chunkInfo = chunkInfo;
 

@@ -24,7 +24,7 @@
 
 package com.jcwhatever.bukkit.phantom.data;
 
-import com.jcwhatever.nucleus.utils.coords.ChunkInfo;
+import com.jcwhatever.nucleus.utils.coords.ChunkCoords;
 import com.jcwhatever.nucleus.utils.coords.WorldInfo;
 import com.jcwhatever.bukkit.phantom.Utils;
 
@@ -69,7 +69,6 @@ public class ChunkData implements IChunkData {
         _world = world;
     }
 
-    @Override
     public WorldInfo getWorld() {
         return _world;
     }
@@ -82,6 +81,11 @@ public class ChunkData implements IChunkData {
     @Override
     public int getZ() {
         return _chunkZ;
+    }
+
+    @Override
+    public String getWorldName() {
+        return _world.getName();
     }
 
     @Override
@@ -197,10 +201,10 @@ public class ChunkData implements IChunkData {
     @Override
     public boolean equals(Object obj) {
 
-        if (obj instanceof ChunkInfo) {
-            ChunkInfo other = (ChunkInfo)obj;
+        if (obj instanceof ChunkCoords) {
+            ChunkCoords other = (ChunkCoords)obj;
 
-            return other.getWorld().getName().equals(_world.getName()) &&
+            return other.getWorldName().equals(_world.getName()) &&
                     other.getX() == getX() && other.getZ() == getZ();
         }
 

@@ -26,10 +26,6 @@ package com.jcwhatever.bukkit.phantom.nms.v1_8_R1;
 
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.StructureModifier;
-import com.jcwhatever.nucleus.utils.nms.INmsHandler;
-import com.jcwhatever.nucleus.utils.coords.ChunkBlockInfo;
-import com.jcwhatever.nucleus.utils.coords.ChunkInfo;
-import com.jcwhatever.nucleus.utils.coords.WorldInfo;
 import com.jcwhatever.bukkit.phantom.data.ChunkBulkData;
 import com.jcwhatever.bukkit.phantom.data.ChunkData;
 import com.jcwhatever.bukkit.phantom.data.IChunkData;
@@ -38,6 +34,10 @@ import com.jcwhatever.bukkit.phantom.packets.IBlockDigPacket;
 import com.jcwhatever.bukkit.phantom.packets.IBlockPlacePacket;
 import com.jcwhatever.bukkit.phantom.packets.IMultiBlockChangeFactory;
 import com.jcwhatever.bukkit.phantom.packets.IMultiBlockChangePacket;
+import com.jcwhatever.nucleus.utils.coords.ChunkBlockInfo;
+import com.jcwhatever.nucleus.utils.coords.IChunkCoords;
+import com.jcwhatever.nucleus.utils.coords.WorldInfo;
+import com.jcwhatever.nucleus.utils.nms.INmsHandler;
 
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_8_R1.entity.CraftPlayer;
@@ -98,7 +98,7 @@ public class NmsHandler_v1_8_R1 implements com.jcwhatever.bukkit.phantom.nms.INm
     }
 
     @Override
-    public IMultiBlockChangeFactory getMultiBlockChangeFactory(ChunkInfo chunkInfo, List<ChunkBlockInfo> blocks) {
+    public IMultiBlockChangeFactory getMultiBlockChangeFactory(IChunkCoords chunkInfo, List<ChunkBlockInfo> blocks) {
         return new MultiBlockChangeFactory_v1_8_R1(chunkInfo, blocks);
     }
 
