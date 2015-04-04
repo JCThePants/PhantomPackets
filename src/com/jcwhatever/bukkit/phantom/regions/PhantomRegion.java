@@ -205,7 +205,7 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
             return false;
         }
 
-        synchronized (_sync) {
+        synchronized (getSync()) {
             _viewers.add(player);
         }
 
@@ -221,7 +221,7 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
         if (_viewers == null)
             return false;
 
-        synchronized (_sync) {
+        synchronized (getSync()) {
             if (!_viewers.remove(player)) {
                 return false;
             }
