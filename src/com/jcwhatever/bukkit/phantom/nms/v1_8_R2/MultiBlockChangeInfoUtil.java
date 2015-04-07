@@ -24,9 +24,10 @@
 
 package com.jcwhatever.bukkit.phantom.nms.v1_8_R2;
 
-import com.jcwhatever.nucleus.utils.reflection.ReflectedInstance;
-import com.jcwhatever.nucleus.utils.reflection.ReflectedType;
-import com.jcwhatever.nucleus.utils.reflection.Reflection;
+import com.jcwhatever.nucleus.managed.reflection.IReflectedInstance;
+import com.jcwhatever.nucleus.managed.reflection.IReflectedType;
+import com.jcwhatever.nucleus.managed.reflection.IReflection;
+import com.jcwhatever.nucleus.managed.reflection.Reflection;
 
 import net.minecraft.server.v1_8_R2.IBlockData;
 import net.minecraft.server.v1_8_R2.PacketPlayOutMultiBlockChange;
@@ -34,9 +35,9 @@ import net.minecraft.server.v1_8_R2.PacketPlayOutMultiBlockChange.MultiBlockChan
 
 public class MultiBlockChangeInfoUtil {
 
-    static final Reflection reflection = new Reflection("v1_8_R2");
+    static final IReflection reflection = Reflection.newContext();
 
-    static final ReflectedType _MultiBlockChangeInfo =
+    static final IReflectedType _MultiBlockChangeInfo =
             reflection.nmsType("PacketPlayOutMultiBlockChange$MultiBlockChangeInfo")
                     .constructorAlias("new",
                             PacketPlayOutMultiBlockChange.class,
@@ -47,7 +48,7 @@ public class MultiBlockChangeInfoUtil {
 
     static void modify(MultiBlockChangeInfo info, short position, IBlockData data) {
 
-        ReflectedInstance instance = _MultiBlockChangeInfo.reflect(info);
+        IReflectedInstance instance = _MultiBlockChangeInfo.reflect(info);
 
         instance.set("position", position);
         instance.set("data", data);
