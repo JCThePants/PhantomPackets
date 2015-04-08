@@ -30,8 +30,7 @@ import com.jcwhatever.bukkit.phantom.regions.PhantomRegion;
 import com.jcwhatever.bukkit.phantom.regions.PhantomRegionManager;
 import com.jcwhatever.nucleus.managed.commands.CommandInfo;
 import com.jcwhatever.nucleus.managed.commands.arguments.ICommandArguments;
-import com.jcwhatever.nucleus.managed.commands.exceptions.InvalidArgumentException;
-import com.jcwhatever.nucleus.managed.commands.exceptions.InvalidCommandSenderException;
+import com.jcwhatever.nucleus.managed.commands.exceptions.CommandException;
 import com.jcwhatever.nucleus.managed.commands.mixins.IExecutableCommand;
 import com.jcwhatever.nucleus.managed.commands.utils.AbstractCommand;
 import com.jcwhatever.nucleus.managed.language.Localizable;
@@ -53,17 +52,15 @@ public class IgnoreAirCommand extends AbstractCommand implements IExecutableComm
 
     @Override
     public void execute(CommandSender sender, ICommandArguments args)
-            throws InvalidArgumentException, InvalidCommandSenderException {
+            throws CommandException {
 
         String regionName = args.getName("regionName", 32);
 
         PhantomRegionManager manager = PhantomPackets.getPlugin().getRegionManager();
 
         PhantomRegion region = manager.getRegion(regionName);
-        if (region == null) {
-            tellError(sender, Lang.get(_REGION_NOT_FOUND, regionName));
-            return; // finish
-        }
+        if (region == null)
+            throw new CommandException(Lang.get(_REGION_NOT_FOUND, regionName));
 
         if (args.getString("on|off|info").equals("info")) {
 

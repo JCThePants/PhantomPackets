@@ -65,10 +65,8 @@ public class RestoreCommand extends AbstractCommand implements IExecutableComman
         PhantomRegionManager manager = PhantomPackets.getPlugin().getRegionManager();
 
         PhantomRegion region = manager.getRegion(regionName);
-        if (region == null) {
-            tellError(sender, Lang.get(_REGION_NOT_FOUND, regionName));
-            return; // finish
-        }
+        if (region == null)
+            throw new CommandException(Lang.get(_REGION_NOT_FOUND, regionName));
 
         try {
             Future<QueueTask> future = region.restoreData(BuildMethod.BALANCED);

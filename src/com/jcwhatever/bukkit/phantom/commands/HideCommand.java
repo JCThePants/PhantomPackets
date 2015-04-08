@@ -58,10 +58,8 @@ public class HideCommand extends AbstractCommand implements IExecutableCommand {
         PhantomRegionManager manager = PhantomPackets.getPlugin().getRegionManager();
 
         PhantomRegion region = manager.getRegion(regionName);
-        if (region == null) {
-            tellError(sender, Lang.get(_REGION_NOT_FOUND, regionName));
-            return; // finish
-        }
+        if (region == null)
+            throw new CommandException(Lang.get(_REGION_NOT_FOUND, regionName));
 
         Player player;
 
@@ -77,10 +75,8 @@ public class HideCommand extends AbstractCommand implements IExecutableCommand {
 
             player = PlayerUtils.getPlayer(playerName);
 
-            if (player == null) {
-                tellError(sender, Lang.get(_PLAYER_NOT_FOUND, playerName));
-                return; // finished
-            }
+            if (player == null)
+                throw new CommandException(Lang.get(_PLAYER_NOT_FOUND, playerName));
         }
 
         switch (region.getViewPolicy()) {

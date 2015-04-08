@@ -60,22 +60,16 @@ public class AddCommand extends AbstractCommand implements IExecutableCommand {
         Player p = (Player)sender;
 
         IRegionSelection sel = getRegionSelection(p);
-        if (sel == null)
-            return; // finish
 
         PhantomRegionManager manager = PhantomPackets.getPlugin().getRegionManager();
 
         PhantomRegion region = manager.getRegion(regionName);
-        if (region != null) {
-            tellError(sender, Lang.get(_REGION_ALREADY_EXISTS, regionName));
-            return; // finish
-        }
+        if (region != null)
+            throw new CommandException(Lang.get(_REGION_ALREADY_EXISTS, regionName));
 
         region = manager.addRegion(regionName, sel.getP1(), sel.getP2());
-        if (region == null) {
-            tellError(sender, Lang.get(_FAILED));
-            return; // finish
-        }
+        if (region == null)
+            throw new CommandException(Lang.get(_FAILED));
 
         tellSuccess(sender, Lang.get(_SUCCESS, regionName));
     }

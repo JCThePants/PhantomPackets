@@ -59,16 +59,12 @@ public class RedefineCommand extends AbstractCommand implements IExecutableComma
         Player p = (Player)sender;
 
         IRegionSelection sel = getRegionSelection(p);
-        if (sel == null)
-            return; // finish
 
         PhantomRegionManager manager = PhantomPackets.getPlugin().getRegionManager();
 
         PhantomRegion region = manager.getRegion(regionName);
-        if (region == null) {
-            tellError(sender, Lang.get(_REGION_NOT_FOUND, regionName));
-            return; // finish
-        }
+        if (region == null)
+            throw new CommandException(Lang.get(_REGION_NOT_FOUND, regionName));
 
         region.setCoords(sel.getP1(), sel.getP2());
 
