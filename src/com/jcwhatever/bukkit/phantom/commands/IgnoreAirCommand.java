@@ -28,11 +28,12 @@ import com.jcwhatever.bukkit.phantom.Lang;
 import com.jcwhatever.bukkit.phantom.PhantomPackets;
 import com.jcwhatever.bukkit.phantom.regions.PhantomRegion;
 import com.jcwhatever.bukkit.phantom.regions.PhantomRegionManager;
-import com.jcwhatever.nucleus.commands.AbstractCommand;
-import com.jcwhatever.nucleus.commands.CommandInfo;
-import com.jcwhatever.nucleus.commands.arguments.CommandArguments;
-import com.jcwhatever.nucleus.commands.exceptions.InvalidArgumentException;
-import com.jcwhatever.nucleus.commands.exceptions.InvalidCommandSenderException;
+import com.jcwhatever.nucleus.managed.commands.CommandInfo;
+import com.jcwhatever.nucleus.managed.commands.arguments.ICommandArguments;
+import com.jcwhatever.nucleus.managed.commands.exceptions.InvalidArgumentException;
+import com.jcwhatever.nucleus.managed.commands.exceptions.InvalidCommandSenderException;
+import com.jcwhatever.nucleus.managed.commands.mixins.IExecutableCommand;
+import com.jcwhatever.nucleus.managed.commands.utils.AbstractCommand;
 import com.jcwhatever.nucleus.managed.language.Localizable;
 
 import org.bukkit.command.CommandSender;
@@ -42,7 +43,7 @@ import org.bukkit.command.CommandSender;
         staticParams={ "regionName", "on|off|info=info" },
         description="View or set a phantom regions 'Ignore Air' setting.")
 
-public class IgnoreAirCommand extends AbstractCommand {
+public class IgnoreAirCommand extends AbstractCommand implements IExecutableCommand {
 
     @Localizable static final String _REGION_NOT_FOUND = "A phantom region named '{0}' was not found.";
     @Localizable static final String _INFO_IGNORES = "Phantom region '{0}' ignores air blocks.";
@@ -51,7 +52,7 @@ public class IgnoreAirCommand extends AbstractCommand {
     @Localizable static final String _SET_NOT_IGNORES = "Phantom region '{0}' set to use air blocks.";
 
     @Override
-    public void execute(CommandSender sender, CommandArguments args)
+    public void execute(CommandSender sender, ICommandArguments args)
             throws InvalidArgumentException, InvalidCommandSenderException {
 
         String regionName = args.getName("regionName", 32);

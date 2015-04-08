@@ -28,10 +28,11 @@ import com.jcwhatever.bukkit.phantom.Lang;
 import com.jcwhatever.bukkit.phantom.PhantomPackets;
 import com.jcwhatever.bukkit.phantom.regions.PhantomRegion;
 import com.jcwhatever.bukkit.phantom.regions.PhantomRegionManager;
-import com.jcwhatever.nucleus.commands.AbstractCommand;
-import com.jcwhatever.nucleus.commands.CommandInfo;
-import com.jcwhatever.nucleus.commands.arguments.CommandArguments;
-import com.jcwhatever.nucleus.commands.exceptions.CommandException;
+import com.jcwhatever.nucleus.managed.commands.CommandInfo;
+import com.jcwhatever.nucleus.managed.commands.arguments.ICommandArguments;
+import com.jcwhatever.nucleus.managed.commands.exceptions.CommandException;
+import com.jcwhatever.nucleus.managed.commands.mixins.IExecutableCommand;
+import com.jcwhatever.nucleus.managed.commands.utils.AbstractCommand;
 import com.jcwhatever.nucleus.managed.language.Localizable;
 import com.jcwhatever.nucleus.regions.BuildMethod;
 import com.jcwhatever.nucleus.utils.observer.result.FutureResultAgent.Future;
@@ -48,16 +49,16 @@ import java.io.IOException;
         staticParams={ "regionName" },
         description="Restore the region from disk.")
 
-public class RestoreCommand extends AbstractCommand {
+public class RestoreCommand extends AbstractCommand implements IExecutableCommand {
 
     @Localizable static final String _REGION_NOT_FOUND = "A phantom region named '{0}' was not found.";
     @Localizable static final String _SAVING = "Phantom disguise region '{0}'...";
     @Localizable static final String _SUCCESS = "Phantom region named '{0}' restored.";
 
     @Override
-    public void execute(final CommandSender sender, final CommandArguments args) throws CommandException{
+    public void execute(final CommandSender sender, final ICommandArguments args) throws CommandException{
 
-        CommandException.checkNotConsole(this, sender);
+        CommandException.checkNotConsole(getPlugin(), this, sender);
 
         final String regionName = args.getName("regionName", 32);
 

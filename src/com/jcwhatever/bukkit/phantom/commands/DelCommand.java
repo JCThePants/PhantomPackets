@@ -28,10 +28,11 @@ import com.jcwhatever.bukkit.phantom.Lang;
 import com.jcwhatever.bukkit.phantom.PhantomPackets;
 import com.jcwhatever.bukkit.phantom.regions.PhantomRegion;
 import com.jcwhatever.bukkit.phantom.regions.PhantomRegionManager;
-import com.jcwhatever.nucleus.commands.AbstractCommand;
-import com.jcwhatever.nucleus.commands.CommandInfo;
-import com.jcwhatever.nucleus.commands.arguments.CommandArguments;
-import com.jcwhatever.nucleus.commands.exceptions.InvalidArgumentException;
+import com.jcwhatever.nucleus.managed.commands.CommandInfo;
+import com.jcwhatever.nucleus.managed.commands.arguments.ICommandArguments;
+import com.jcwhatever.nucleus.managed.commands.exceptions.InvalidArgumentException;
+import com.jcwhatever.nucleus.managed.commands.mixins.IExecutableCommand;
+import com.jcwhatever.nucleus.managed.commands.utils.AbstractCommand;
 import com.jcwhatever.nucleus.managed.language.Localizable;
 
 import org.bukkit.command.CommandSender;
@@ -41,14 +42,14 @@ import org.bukkit.command.CommandSender;
         staticParams={ "regionName" },
         description="Removes a phantom region.")
 
-public class DelCommand extends AbstractCommand {
+public class DelCommand extends AbstractCommand implements IExecutableCommand {
 
     @Localizable static final String _REGION_NOT_FOUND = "A phantom region named '{0}' was not found.";
     @Localizable static final String _FAILED = "Failed to remove phantom region.";
     @Localizable static final String _SUCCESS = "Phantom region named '{0}' was removed.";
 
     @Override
-    public void execute(CommandSender sender, CommandArguments args) throws InvalidArgumentException {
+    public void execute(CommandSender sender, ICommandArguments args) throws InvalidArgumentException {
 
         String regionName = args.getName("regionName", 32);
 

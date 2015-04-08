@@ -24,7 +24,15 @@
 
 package com.jcwhatever.bukkit.phantom;
 
-import com.jcwhatever.bukkit.phantom.commands.PhantomCommandDispatcher;
+import com.jcwhatever.bukkit.phantom.commands.AddCommand;
+import com.jcwhatever.bukkit.phantom.commands.DelCommand;
+import com.jcwhatever.bukkit.phantom.commands.HideCommand;
+import com.jcwhatever.bukkit.phantom.commands.IgnoreAirCommand;
+import com.jcwhatever.bukkit.phantom.commands.ListCommand;
+import com.jcwhatever.bukkit.phantom.commands.RedefineCommand;
+import com.jcwhatever.bukkit.phantom.commands.RestoreCommand;
+import com.jcwhatever.bukkit.phantom.commands.SaveCommand;
+import com.jcwhatever.bukkit.phantom.commands.ShowCommand;
 import com.jcwhatever.bukkit.phantom.entities.PhantomEntitiesManager;
 import com.jcwhatever.bukkit.phantom.nms.INmsHandler;
 import com.jcwhatever.bukkit.phantom.nms.v1_8_R1.NmsHandler_v1_8_R1;
@@ -33,11 +41,11 @@ import com.jcwhatever.bukkit.phantom.regions.PhantomRegionManager;
 import com.jcwhatever.bukkit.phantom.scripts.PhantomScriptApi;
 import com.jcwhatever.nucleus.Nucleus;
 import com.jcwhatever.nucleus.NucleusPlugin;
-import com.jcwhatever.nucleus.mixins.IDisposable;
 import com.jcwhatever.nucleus.managed.scripting.IEvaluatedScript;
 import com.jcwhatever.nucleus.managed.scripting.IScriptApi;
 import com.jcwhatever.nucleus.managed.scripting.SimpleScriptApi;
 import com.jcwhatever.nucleus.managed.scripting.SimpleScriptApi.IApiObjectCreator;
+import com.jcwhatever.nucleus.mixins.IDisposable;
 import com.jcwhatever.nucleus.utils.nms.NmsManager;
 import com.jcwhatever.nucleus.utils.text.TextColor;
 
@@ -107,7 +115,16 @@ public class PhantomPackets extends NucleusPlugin {
 
         _regionManager = new PhantomRegionManager(this);
         _entitiesManager = new PhantomEntitiesManager(this);
-        registerCommands(new PhantomCommandDispatcher(this));
+
+        registerCommand(AddCommand.class);
+        registerCommand(DelCommand.class);
+        registerCommand(HideCommand.class);
+        registerCommand(IgnoreAirCommand.class);
+        registerCommand(ListCommand.class);
+        registerCommand(RedefineCommand.class);
+        registerCommand(RestoreCommand.class);
+        registerCommand(SaveCommand.class);
+        registerCommand(ShowCommand.class);
 
         _scriptApi = new SimpleScriptApi(this, "phantom", new IApiObjectCreator() {
             @Override

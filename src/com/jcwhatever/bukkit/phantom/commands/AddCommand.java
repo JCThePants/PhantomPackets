@@ -28,10 +28,11 @@ import com.jcwhatever.bukkit.phantom.Lang;
 import com.jcwhatever.bukkit.phantom.PhantomPackets;
 import com.jcwhatever.bukkit.phantom.regions.PhantomRegion;
 import com.jcwhatever.bukkit.phantom.regions.PhantomRegionManager;
-import com.jcwhatever.nucleus.commands.AbstractCommand;
-import com.jcwhatever.nucleus.commands.CommandInfo;
-import com.jcwhatever.nucleus.commands.arguments.CommandArguments;
-import com.jcwhatever.nucleus.commands.exceptions.CommandException;
+import com.jcwhatever.nucleus.managed.commands.CommandInfo;
+import com.jcwhatever.nucleus.managed.commands.arguments.ICommandArguments;
+import com.jcwhatever.nucleus.managed.commands.exceptions.CommandException;
+import com.jcwhatever.nucleus.managed.commands.mixins.IExecutableCommand;
+import com.jcwhatever.nucleus.managed.commands.utils.AbstractCommand;
 import com.jcwhatever.nucleus.managed.language.Localizable;
 import com.jcwhatever.nucleus.providers.regionselect.IRegionSelection;
 
@@ -43,16 +44,16 @@ import org.bukkit.entity.Player;
         staticParams={ "regionName" },
         description="Adds a new phantom region using your current region selection.")
 
-public class AddCommand extends AbstractCommand {
+public class AddCommand extends AbstractCommand implements IExecutableCommand {
 
     @Localizable static final String _REGION_ALREADY_EXISTS = "A phantom region named '{0}' already exists.";
     @Localizable static final String _FAILED = "Failed to add phantom region.";
     @Localizable static final String _SUCCESS = "Phantom region named '{0}' was added.";
 
     @Override
-    public void execute(CommandSender sender, CommandArguments args) throws CommandException {
+    public void execute(CommandSender sender, ICommandArguments args) throws CommandException {
 
-        CommandException.checkNotConsole(this, sender);
+        CommandException.checkNotConsole(getPlugin(), this, sender);
 
         String regionName = args.getName("regionName", 32);
 

@@ -28,10 +28,11 @@ import com.jcwhatever.bukkit.phantom.Lang;
 import com.jcwhatever.bukkit.phantom.PhantomPackets;
 import com.jcwhatever.bukkit.phantom.regions.PhantomRegion;
 import com.jcwhatever.bukkit.phantom.regions.PhantomRegionManager;
-import com.jcwhatever.nucleus.commands.AbstractCommand;
-import com.jcwhatever.nucleus.commands.CommandInfo;
-import com.jcwhatever.nucleus.commands.arguments.CommandArguments;
-import com.jcwhatever.nucleus.commands.exceptions.CommandException;
+import com.jcwhatever.nucleus.managed.commands.CommandInfo;
+import com.jcwhatever.nucleus.managed.commands.arguments.ICommandArguments;
+import com.jcwhatever.nucleus.managed.commands.exceptions.CommandException;
+import com.jcwhatever.nucleus.managed.commands.mixins.IExecutableCommand;
+import com.jcwhatever.nucleus.managed.commands.utils.AbstractCommand;
 import com.jcwhatever.nucleus.managed.language.Localizable;
 import com.jcwhatever.nucleus.utils.player.PlayerUtils;
 
@@ -43,14 +44,14 @@ import org.bukkit.entity.Player;
         staticParams={ "regionName", "playerName=$self" },
         description="Hide the specified region from the command sender or specified player.")
 
-public class HideCommand extends AbstractCommand {
+public class HideCommand extends AbstractCommand implements IExecutableCommand {
 
     @Localizable static final String _REGION_NOT_FOUND = "A phantom region named '{0}' was not found.";
     @Localizable static final String _PLAYER_NOT_FOUND = "Player '{0}' not found.";
     @Localizable static final String _SUCCESS = "Phantom region named '{0}' is hidden from you.";
 
     @Override
-    public void execute(CommandSender sender, CommandArguments args) throws CommandException {
+    public void execute(CommandSender sender, ICommandArguments args) throws CommandException {
 
         String regionName = args.getName("regionName", 32);
 
@@ -66,7 +67,7 @@ public class HideCommand extends AbstractCommand {
 
         if (args.getString("playerName").equals("$self")) {
 
-            CommandException.checkNotConsole(this, sender);
+            CommandException.checkNotConsole(getPlugin(), this, sender);
 
             player = (Player)sender;
         }
