@@ -289,6 +289,11 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
     }
 
     @Override
+    public IDataNode getDataNode() {
+        return super.getDataNode();
+    }
+
+    @Override
     protected void onCoordsChanged(Location p1, Location p2) {
 
         if (isDefined()) {
