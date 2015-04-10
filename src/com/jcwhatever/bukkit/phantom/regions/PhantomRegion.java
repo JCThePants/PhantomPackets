@@ -36,9 +36,9 @@ import com.jcwhatever.bukkit.phantom.data.Coordinate;
 import com.jcwhatever.bukkit.phantom.packets.IMultiBlockChangeFactory;
 import com.jcwhatever.bukkit.phantom.translators.BlockTypeTranslator;
 import com.jcwhatever.nucleus.collections.players.PlayerSet;
+import com.jcwhatever.nucleus.regions.RestorableRegion;
 import com.jcwhatever.nucleus.regions.file.RegionChunkFileLoader;
 import com.jcwhatever.nucleus.regions.file.RegionChunkFileLoader.LoadType;
-import com.jcwhatever.nucleus.regions.RestorableRegion;
 import com.jcwhatever.nucleus.storage.IDataNode;
 import com.jcwhatever.nucleus.utils.CollectionUtils;
 import com.jcwhatever.nucleus.utils.MetaKey;
@@ -46,11 +46,10 @@ import com.jcwhatever.nucleus.utils.PreCon;
 import com.jcwhatever.nucleus.utils.coords.ChunkBlockInfo;
 import com.jcwhatever.nucleus.utils.coords.IChunkCoords;
 import com.jcwhatever.nucleus.utils.coords.WorldInfo;
-import com.jcwhatever.nucleus.utils.observer.result.FutureResultAgent.Future;
-import com.jcwhatever.nucleus.utils.observer.result.FutureSubscriber;
-import com.jcwhatever.nucleus.utils.observer.result.Result;
+import com.jcwhatever.nucleus.utils.observer.future.FutureSubscriber;
+import com.jcwhatever.nucleus.utils.observer.future.IFuture;
+import com.jcwhatever.nucleus.utils.observer.future.IFuture.FutureStatus;
 import com.jcwhatever.nucleus.utils.performance.queued.QueueProject;
-import com.jcwhatever.nucleus.utils.performance.queued.QueueTask;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -67,6 +66,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nullable;
 
 /*
  * Region that saves to disk and uses saved version to
@@ -266,10 +266,10 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
     }
 
     @Override
-    public Future<QueueTask> saveData() throws IOException {
-        return super.saveData().onSuccess(new FutureSubscriber<QueueTask>() {
+    public IFuture saveData() throws IOException {
+        return super.saveData().onSuccess(new FutureSubscriber() {
             @Override
-            public void on(Result<QueueTask> argument) {
+            public void on(FutureStatus status, @Nullable String message) {
                 try {
                     loadDisguise();
                 } catch (IOException e) {
@@ -331,9 +331,9 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
 
         QueueProject loadProject = new QueueProject(PhantomPackets.getPlugin());
 
-        loadProject.getResult().onResult(new FutureSubscriber<QueueTask>() {
+        loadProject.getResult().onStatus(new FutureSubscriber() {
             @Override
-            public void on(Result<QueueTask> argument) {
+            public void on(FutureStatus status, @Nullable String message) {
                 _isLoading = false;
             }
         });
@@ -348,9 +348,9 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
 
             // add load task to chunk project
             loader.loadInProject(file, loadProject, LoadType.ALL_BLOCKS)
-                    .onSuccess(new FutureSubscriber<QueueTask>() {
+                    .onSuccess(new FutureSubscriber() {
                         @Override
-                        public void on(Result<QueueTask> argument) {
+                        public void on(FutureStatus status, @Nullable String message) {
 
                             LinkedList<ChunkBlockInfo> blockInfos = loader.getBlockInfo();
 
@@ -372,11 +372,11 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
                             }
                         }
                     })
-                    .onError(new FutureSubscriber<QueueTask>() {
+                    .onError(new FutureSubscriber() {
                         @Override
-                        public void on(Result<QueueTask> argument) {
+                        public void on(FutureStatus status, @Nullable String message) {
                             Msg.warning("Failed to load chunk data for phantom region named '{0}' because:",
-                                    getName(), argument.getMessage());
+                                    getName(), message);
                         }
                     });
         }

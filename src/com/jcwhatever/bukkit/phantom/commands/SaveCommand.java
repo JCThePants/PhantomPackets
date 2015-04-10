@@ -34,14 +34,14 @@ import com.jcwhatever.nucleus.managed.commands.exceptions.CommandException;
 import com.jcwhatever.nucleus.managed.commands.mixins.IExecutableCommand;
 import com.jcwhatever.nucleus.managed.commands.utils.AbstractCommand;
 import com.jcwhatever.nucleus.managed.language.Localizable;
-import com.jcwhatever.nucleus.utils.observer.result.FutureResultAgent.Future;
-import com.jcwhatever.nucleus.utils.observer.result.FutureSubscriber;
-import com.jcwhatever.nucleus.utils.observer.result.Result;
-import com.jcwhatever.nucleus.utils.performance.queued.QueueTask;
+import com.jcwhatever.nucleus.utils.observer.future.FutureSubscriber;
+import com.jcwhatever.nucleus.utils.observer.future.IFuture;
+import com.jcwhatever.nucleus.utils.observer.future.IFuture.FutureStatus;
 
 import org.bukkit.command.CommandSender;
 
 import java.io.IOException;
+import javax.annotation.Nullable;
 
 @CommandInfo(
         command="save",
@@ -68,27 +68,27 @@ public class SaveCommand extends AbstractCommand implements IExecutableCommand {
             throw new CommandException(Lang.get(_REGION_NOT_FOUND, regionName));
 
         try {
-            Future<QueueTask> future = region.saveData();
+            IFuture future = region.saveData();
 
-            future.onError(new FutureSubscriber<QueueTask>() {
+            future.onError(new FutureSubscriber() {
                 @Override
-                public void on(Result<QueueTask> result) {
-                    if (result.getMessage() != null)
-                        tellError(sender, result.getMessage());
+                public void on(FutureStatus status, @Nullable String message) {
+                    if (message != null)
+                        tellError(sender, message);
                 }
             });
 
-            future.onCancel(new FutureSubscriber<QueueTask>() {
+            future.onCancel(new FutureSubscriber() {
                 @Override
-                public void on(Result<QueueTask> argument) {
-                    if (argument.getMessage() != null)
-                        tellError(sender, argument.getMessage());
+                public void on(FutureStatus status, @Nullable String message) {
+                    if (message != null)
+                        tellError(sender, message);
                 }
             });
 
-            future.onSuccess(new FutureSubscriber<QueueTask>() {
+            future.onSuccess(new FutureSubscriber() {
                 @Override
-                public void on(Result<QueueTask> result) {
+                public void on(FutureStatus status, @Nullable String message) {
                     tellSuccess(sender, Lang.get(_SUCCESS, regionName));
                 }
             });
