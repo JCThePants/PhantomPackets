@@ -37,30 +37,33 @@ import com.jcwhatever.bukkit.phantom.packets.IMultiBlockChangeFactory;
 import com.jcwhatever.bukkit.phantom.translators.BlockTypeTranslator;
 import com.jcwhatever.nucleus.collections.players.PlayerSet;
 import com.jcwhatever.nucleus.regions.RestorableRegion;
-import com.jcwhatever.nucleus.regions.file.RegionChunkFileLoader;
-import com.jcwhatever.nucleus.regions.file.RegionChunkFileLoader.LoadType;
+import com.jcwhatever.nucleus.regions.file.IRegionFileData;
+import com.jcwhatever.nucleus.regions.file.IRegionFileFactory;
+import com.jcwhatever.nucleus.regions.file.IRegionFileLoader.LoadSpeed;
+import com.jcwhatever.nucleus.regions.file.IRegionFileLoader.LoadType;
+import com.jcwhatever.nucleus.regions.file.basic.BasicFileFactory;
 import com.jcwhatever.nucleus.storage.IDataNode;
 import com.jcwhatever.nucleus.utils.CollectionUtils;
 import com.jcwhatever.nucleus.utils.MetaKey;
 import com.jcwhatever.nucleus.utils.PreCon;
 import com.jcwhatever.nucleus.utils.coords.ChunkBlockInfo;
+import com.jcwhatever.nucleus.utils.coords.ChunkCoords;
 import com.jcwhatever.nucleus.utils.coords.IChunkCoords;
 import com.jcwhatever.nucleus.utils.coords.WorldInfo;
+import com.jcwhatever.nucleus.utils.file.IAppliedSerializable;
 import com.jcwhatever.nucleus.utils.observer.future.FutureSubscriber;
 import com.jcwhatever.nucleus.utils.observer.future.IFuture;
 import com.jcwhatever.nucleus.utils.observer.future.IFuture.FutureStatus;
-import com.jcwhatever.nucleus.utils.performance.queued.QueueProject;
+import com.jcwhatever.nucleus.utils.performance.queued.QueueTask;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -78,6 +81,7 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
     private final ProtocolManager _protocolManager = ProtocolLibrary.getProtocolManager();
 
     private final BlockTypeTranslator _blockTranslator;
+    private final BasicFileFactory _fileFactory = new BasicFileFactory("disguise");
 
     private Map<Coordinate, ChunkBlockInfo> _blocks;
     private Multimap<IChunkCoords, ChunkBlockInfo> _chunkBlocks =
@@ -280,8 +284,8 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
     }
 
     @Override
-    protected String getFilePrefix() {
-        return "disguise." + getName();
+    public IRegionFileFactory getFileFactory() {
+        return _fileFactory;
     }
 
     @Override
@@ -329,59 +333,21 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
         _isLoading = true;
         _blocks = new HashMap<>((int)getVolume());
 
-        QueueProject loadProject = new QueueProject(PhantomPackets.getPlugin());
+        getFileFormat().getLoader(this, getFileFactory()).load(
+                LoadType.ALL_BLOCKS, LoadSpeed.FAST, new RegionData())
+                .onSuccess(new FutureSubscriber() {
+                    @Override
+                    public void on(FutureStatus status, @Nullable String message) {
 
-        loadProject.getResult().onStatus(new FutureSubscriber() {
-            @Override
-            public void on(FutureStatus status, @Nullable String message) {
-                _isLoading = false;
-            }
-        });
-
-        Collection<IChunkCoords> chunks = getChunkCoords();
-        for (final IChunkCoords chunk : chunks) {
-
-            // create chunk loader
-            final RegionChunkFileLoader loader = new RegionChunkFileLoader(this, chunk);
-
-            File file = getChunkFile(chunk.getX(), chunk.getZ(), "", false);
-
-            // add load task to chunk project
-            loader.loadInProject(file, loadProject, LoadType.ALL_BLOCKS)
-                    .onSuccess(new FutureSubscriber() {
-                        @Override
-                        public void on(FutureStatus status, @Nullable String message) {
-
-                            LinkedList<ChunkBlockInfo> blockInfos = loader.getBlockInfo();
-
-                            IMultiBlockChangeFactory factory = PhantomPackets.getNms()
-                                    .getMultiBlockChangeFactory(chunk, blockInfos);
-
-                            _chunkBlockFactories.put(chunk, factory);
-
-                            while (!blockInfos.isEmpty()) {
-                                ChunkBlockInfo info = blockInfos.remove();
-
-                                int x = (chunk.getX() * 16) + info.getX();
-                                int z = (chunk.getZ() * 16) + info.getZ();
-
-                                Coordinate coord = new Coordinate(x, info.getY(), z);
-
-                                _blocks.put(coord, info);
-                                _chunkBlocks.put(chunk, info);
-                            }
-                        }
-                    })
-                    .onError(new FutureSubscriber() {
-                        @Override
-                        public void on(FutureStatus status, @Nullable String message) {
-                            Msg.warning("Failed to load chunk data for phantom region named '{0}' because:",
-                                    getName(), message);
-                        }
-                    });
-        }
-
-        loadProject.run();
+                    }
+                })
+                .onError(new FutureSubscriber() {
+                    @Override
+                    public void on(FutureStatus status, @Nullable String message) {
+                        Msg.warning("Failed to load chunk data for phantom region named '{0}' because:",
+                                getName(), message);
+                    }
+                });
     }
 
     private void resendChunks(Player p) {
@@ -425,5 +391,58 @@ public class PhantomRegion extends RestorableRegion implements IViewable {
 
         _viewers = new PlayerSet(getPlugin());
         return true;
+    }
+
+    private class RegionData implements IRegionFileData {
+
+        private ChunkCoords currentChunk;
+        private LinkedList<ChunkBlockInfo> blocks = new LinkedList<>();
+
+        @Override
+        public void addBlock(int x, int y, int z, Material material, int data, int light, int skylight) {
+
+            if (currentChunk == null) {
+
+                int chunkX = (int) Math.floor(x / 16.0D);
+                int chunkZ = (int) Math.floor(z / 16.0D);
+                currentChunk = new ChunkCoords(getWorld(), chunkX, chunkZ);
+            }
+
+            ChunkBlockInfo info = new ChunkBlockInfo(
+                    x - (currentChunk.getX() * 16), y, z - (currentChunk.getZ() * 16), material, data, light, skylight);
+
+            blocks.add(info);
+        }
+
+        @Override
+        public void addSerializable(IAppliedSerializable blockEntity) {
+            // do nothing
+        }
+
+        @Override
+        @Nullable
+        public QueueTask commit() {
+
+            IMultiBlockChangeFactory factory = PhantomPackets.getNms()
+                    .getMultiBlockChangeFactory(currentChunk, blocks);
+
+            _chunkBlockFactories.put(currentChunk, factory);
+
+            int cwX = currentChunk.getX() * 16;
+            int cWZ = currentChunk.getZ() * 16;
+
+            while (!blocks.isEmpty()) {
+                ChunkBlockInfo info = blocks.remove();
+
+                Coordinate coord = new Coordinate(cwX + info.getX(), info.getY(), cWZ + info.getZ());
+
+                _blocks.put(coord, info);
+                _chunkBlocks.put(currentChunk, info);
+            }
+
+            currentChunk = null;
+
+            return null;
+        }
     }
 }

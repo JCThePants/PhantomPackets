@@ -34,7 +34,7 @@ import com.jcwhatever.nucleus.managed.commands.exceptions.CommandException;
 import com.jcwhatever.nucleus.managed.commands.mixins.IExecutableCommand;
 import com.jcwhatever.nucleus.managed.commands.utils.AbstractCommand;
 import com.jcwhatever.nucleus.managed.language.Localizable;
-import com.jcwhatever.nucleus.regions.BuildMethod;
+import com.jcwhatever.nucleus.regions.file.IRegionFileLoader.LoadSpeed;
 import com.jcwhatever.nucleus.utils.observer.future.FutureSubscriber;
 import com.jcwhatever.nucleus.utils.observer.future.IFuture;
 import com.jcwhatever.nucleus.utils.observer.future.IFuture.FutureStatus;
@@ -69,7 +69,7 @@ public class RestoreCommand extends AbstractCommand implements IExecutableComman
             throw new CommandException(Lang.get(_REGION_NOT_FOUND, regionName));
 
         try {
-            IFuture future = region.restoreData(BuildMethod.BALANCED);
+            IFuture future = region.restoreData(LoadSpeed.BALANCED);
 
             future.onError(new FutureSubscriber() {
                 @Override
