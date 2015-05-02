@@ -1,6 +1,6 @@
 name: PhantomPackets
 author: JCThePants
-main: com.jcwhatever.bukkit.phantom.PhantomPackets
+main: PhantomPackets
 version: 0.0-beta
 depend: [NucleusFramework, ProtocolLib]
 commands:
