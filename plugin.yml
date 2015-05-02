@@ -1,6 +1,6 @@
 name: PhantomPackets
 author: JCThePants
-main: PhantomPackets
+main: com.jcwhatever.phantom.PhantomPackets
 version: 0.0-beta
 depend: [NucleusFramework, ProtocolLib]
 commands:
