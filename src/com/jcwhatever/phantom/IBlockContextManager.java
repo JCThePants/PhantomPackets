@@ -24,30 +24,44 @@
 
 package com.jcwhatever.phantom;
 
-import com.jcwhatever.nucleus.utils.coords.ChunkBlockInfo;
-import com.jcwhatever.nucleus.utils.coords.WorldInfo;
+import com.jcwhatever.nucleus.utils.managers.INamedManager;
 
-import org.bukkit.Material;
+import org.bukkit.World;
 
+import java.util.Collection;
 import javax.annotation.Nullable;
 
 /**
- * Interface for a delegate to get alternative block info from.
+ * Manager for block contexts.
  */
-public interface IBlockTypeTranslator {
+public interface IBlockContextManager extends INamedManager<IPhantomBlockContext> {
 
     /**
-     * Translate block info.
+     * Determine if a world contains phantom block contexts.
      *
-     * @param world       The world the block is in.
-     * @param x           The world X coordinates.
-     * @param y           The world Y coordinates.
-     * @param z           The world Z coordinates.
-     * @param material    The material of the current block.
-     * @param meta        The current block meta
+     * @param world  The world to check.
+     */
+    boolean hasPhantomBlocksInWorld(World world);
+
+    /**
+     * Get phantom block at a location.
      *
-     * @return  Null to leave block as is.
+     * @param world  The world to check in.
+     * @param x      The X coordinates of the block.
+     * @param y      The Y coordinates of the block.
+     * @param z      The Z coordinates of the block.
+     *
+     * @return  The phantom block or null if there is no phantom block.
      */
     @Nullable
-    ChunkBlockInfo translate(WorldInfo world, int x, int y, int z, Material material, byte meta);
+    IPhantomBlock getBlockAt(World world, int x, int y, int z);
+
+    /**
+     * Get all phantom block contexts that have blocks inside the specified chunk.
+     *
+     * @param world   The world.
+     * @param chunkX  The chunk X coordinates.
+     * @param chunkZ  The chunk Z coordinates.
+     */
+    Collection<IPhantomBlockContext> getChunkContexts(World world, int chunkX, int chunkZ);
 }

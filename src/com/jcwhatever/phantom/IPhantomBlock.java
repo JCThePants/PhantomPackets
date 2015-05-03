@@ -22,30 +22,67 @@
  * THE SOFTWARE.
  */
 
-package com.jcwhatever.phantom.data;
+package com.jcwhatever.phantom;
 
-import org.bukkit.World;
+import org.bukkit.Material;
 
-public class ChunkBulkData {
+/**
+ * Interface for a phantom block.
+ */
+public interface IPhantomBlock extends IViewable {
 
-    private final World _world;
+    /**
+     * Get the blocks owning context.
+     */
+    IPhantomBlockContext getContext();
 
-    private IChunkData[] _chunkData;
+    /**
+     * Get the blocks owning phantom chunk.
+     */
+    IPhantomChunk getChunk();
 
-    public ChunkBulkData (World world, IChunkData[] chunkData) {
-        _world = world;
-        _chunkData = chunkData;
-    }
+    /**
+     * Get the blocks world X coordinates.
+     */
+    int getX();
 
-    public World getWorld() {
-        return _world;
-    }
+    /**
+     * Get the blocks world Y coordinates.
+     */
+    int getY();
 
-    public int getTotalChunks() {
-        return _chunkData.length;
-    }
+    /**
+     * Get the blocks world Z coordinates.
+     */
+    int getZ();
 
-    public IChunkData[] getChunkData() {
-        return _chunkData;
-    }
+    /**
+     * Get the blocks X coordinates relative to the chunk it is in.
+     */
+    int getRelativeX();
+
+    /**
+     * Get the blocks Z coordinates relative to the chunk it is in.
+     */
+    int getRelativeZ();
+
+    /**
+     * Get the block material.
+     */
+    Material getMaterial();
+
+    /**
+     * Get the block data.
+     */
+    byte getData();
+
+    /**
+     * Set the block material and data.
+     *
+     * @param material  The block material.
+     * @param data      The block data.
+     *
+     * @return  True if set, otherwise false.
+     */
+    boolean set(Material material, int data);
 }

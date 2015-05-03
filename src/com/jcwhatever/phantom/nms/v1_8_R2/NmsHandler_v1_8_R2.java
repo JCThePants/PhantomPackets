@@ -26,18 +26,17 @@ package com.jcwhatever.phantom.nms.v1_8_R2;
 
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.StructureModifier;
+import com.jcwhatever.nucleus.utils.coords.ICoords2Di;
+import com.jcwhatever.nucleus.utils.nms.INmsHandler;
+import com.jcwhatever.phantom.IPhantomChunk;
 import com.jcwhatever.phantom.data.ChunkBulkData;
 import com.jcwhatever.phantom.data.ChunkData;
 import com.jcwhatever.phantom.data.IChunkData;
 import com.jcwhatever.phantom.nms.factory.IBlockChangeFactory;
+import com.jcwhatever.phantom.nms.factory.IMultiBlockChangeFactory;
 import com.jcwhatever.phantom.nms.packets.IBlockDigPacket;
 import com.jcwhatever.phantom.nms.packets.IBlockPlacePacket;
-import com.jcwhatever.phantom.nms.factory.IMultiBlockChangeFactory;
 import com.jcwhatever.phantom.nms.packets.IMultiBlockChangePacket;
-import com.jcwhatever.nucleus.utils.coords.ChunkBlockInfo;
-import com.jcwhatever.nucleus.utils.coords.IChunkCoords;
-import com.jcwhatever.nucleus.utils.coords.WorldInfo;
-import com.jcwhatever.nucleus.utils.nms.INmsHandler;
 import com.jcwhatever.phantom.nms.v1_8_R2.factory.BlockChangeFactory_v1_8_R2;
 import com.jcwhatever.phantom.nms.v1_8_R2.factory.MultiBlockChangeFactory_v1_8_R2;
 import com.jcwhatever.phantom.nms.v1_8_R2.packets.BlockChangePacket_v1_8_R2;
@@ -46,15 +45,11 @@ import com.jcwhatever.phantom.nms.v1_8_R2.packets.BlockPlacePacket_v1_8_R2;
 import com.jcwhatever.phantom.nms.v1_8_R2.packets.MultiBlockChangePacket_v1_8_R2;
 
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_8_R2.entity.CraftPlayer;
-import org.bukkit.entity.Player;
+import org.bukkit.World;
 
 import net.minecraft.server.v1_8_R2.BaseBlockPosition;
 import net.minecraft.server.v1_8_R2.ChunkCoordIntPair;
-import net.minecraft.server.v1_8_R2.EntityPlayer;
 import net.minecraft.server.v1_8_R2.PacketPlayOutMapChunk.ChunkMap;
-
-import java.util.List;
 
 /*
  * 
@@ -62,17 +57,6 @@ import java.util.List;
 public class NmsHandler_v1_8_R2 implements com.jcwhatever.phantom.nms.INmsHandler, INmsHandler {
 
     public NmsHandler_v1_8_R2() {}
-
-    @Override
-    public void refreshChunk(Player player, int x, int z) {
-        EntityPlayer entityPlayer = ((CraftPlayer) player).getHandle();
-
-        ChunkCoordIntPair chunkCoords = new ChunkCoordIntPair(x, z);
-
-        entityPlayer.chunkCoordIntPairQueue.add(chunkCoords);
-
-        entityPlayer.t_();
-    }
 
     @Override
     public IBlockDigPacket getBlockDigPacket(PacketContainer packet) {
@@ -104,8 +88,8 @@ public class NmsHandler_v1_8_R2 implements com.jcwhatever.phantom.nms.INmsHandle
     }
 
     @Override
-    public IMultiBlockChangeFactory getMultiBlockChangeFactory(IChunkCoords chunkInfo, List<ChunkBlockInfo> blocks) {
-        return new MultiBlockChangeFactory_v1_8_R2(chunkInfo, blocks);
+    public IMultiBlockChangeFactory getMultiBlockChangeFactory(World world, ICoords2Di coords, IPhantomChunk chunk) {
+        return new MultiBlockChangeFactory_v1_8_R2(world, coords, chunk);
     }
 
     @Override
@@ -124,7 +108,7 @@ public class NmsHandler_v1_8_R2 implements com.jcwhatever.phantom.nms.INmsHandle
     }
 
     @Override
-    public ChunkBulkData getChunkBulkData(PacketContainer packet, WorldInfo world) {
+    public ChunkBulkData getChunkBulkData(PacketContainer packet, World world) {
 
         StructureModifier<Object> objects = packet.getModifier();
 
@@ -155,7 +139,7 @@ public class NmsHandler_v1_8_R2 implements com.jcwhatever.phantom.nms.INmsHandle
     }
 
     @Override
-    public ChunkData getChunkData(PacketContainer packet, WorldInfo world) {
+    public ChunkData getChunkData(PacketContainer packet, World world) {
 
         ChunkData chunkData = new ChunkData(world);
 

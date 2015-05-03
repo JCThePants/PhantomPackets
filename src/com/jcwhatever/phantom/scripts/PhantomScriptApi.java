@@ -24,17 +24,21 @@
 
 package com.jcwhatever.phantom.scripts;
 
-import com.jcwhatever.phantom.PhantomPackets;
-import com.jcwhatever.phantom.entities.PhantomEntity;
-import com.jcwhatever.phantom.regions.PhantomRegion;
 import com.jcwhatever.nucleus.mixins.IDisposable;
 import com.jcwhatever.nucleus.utils.PreCon;
 import com.jcwhatever.nucleus.utils.player.PlayerUtils;
+import com.jcwhatever.phantom.IPhantomBlockContext;
+import com.jcwhatever.phantom.PhantomPackets;
+import com.jcwhatever.phantom.entities.PhantomEntity;
+import com.jcwhatever.phantom.blocks.regions.PhantomRegion;
 
+import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -42,12 +46,32 @@ import java.util.WeakHashMap;
 
 public class PhantomScriptApi implements IDisposable {
 
+    private List<IPhantomBlockContext> _contexts = new ArrayList<>(5);
+
     Map<Player, Set<PhantomRegion>> _regionMap = new WeakHashMap<>(30);
     Map<Player, Set<PhantomEntity>> _entityMap = new WeakHashMap<>(30);
     private boolean _isDisposed;
 
     public final PhantomRegionsAPI regions = new PhantomRegionsAPI();
     public final PhantomEntityAPI entity = new PhantomEntityAPI();
+
+    /**
+     * Create a new phantom block context.
+     *
+     * @param world  The world the context is for.
+     * @param name   The unique name of the context.
+     */
+    public IPhantomBlockContext createContext(World world, String name) {
+        PreCon.notNull(world);
+        PreCon.notNullOrEmpty(name);
+
+        if (PhantomPackets.getBlockContexts().contains(name))
+            throw new IllegalArgumentException("A context named '" + name + "' already exists.");
+
+        IPhantomBlockContext context = PhantomPackets.getBlockContexts().addBlocksContext(world, name);
+        _contexts.add(context);
+        return context;
+    }
 
     @Override
     public boolean isDisposed() {
@@ -74,8 +98,12 @@ public class PhantomScriptApi implements IDisposable {
                 entity.removeViewer(playerSetEntry.getKey());
             }
         }
-
         _entityMap.clear();
+
+        for (IPhantomBlockContext context : _contexts) {
+            context.dispose();
+        }
+        _contexts.clear();
 
         _isDisposed = true;
     }

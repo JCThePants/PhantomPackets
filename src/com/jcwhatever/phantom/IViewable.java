@@ -68,6 +68,11 @@ public interface IViewable {
     List<Player> getViewers();
 
     /**
+     * Resend view to viewers.
+     */
+    void refreshView();
+
+    /**
      * Define how the viewer collection is treated.
      */
     enum ViewPolicy {

@@ -28,13 +28,16 @@ import com.comphenix.protocol.PacketType.Play.Server;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.wrappers.ChunkCoordIntPair;
+import com.jcwhatever.nucleus.utils.ArrayUtils;
+import com.jcwhatever.nucleus.utils.PreCon;
+import com.jcwhatever.nucleus.utils.coords.ICoords2Di;
+import com.jcwhatever.phantom.IPhantomBlock;
+import com.jcwhatever.phantom.IPhantomChunk;
 import com.jcwhatever.phantom.Utils;
 import com.jcwhatever.phantom.nms.factory.IMultiBlockChangeFactory;
-import com.jcwhatever.nucleus.utils.ArrayUtils;
-import com.jcwhatever.nucleus.utils.coords.ChunkBlockInfo;
-import com.jcwhatever.nucleus.utils.coords.IChunkCoords;
 
 import org.bukkit.Chunk;
+import org.bukkit.World;
 
 import net.minecraft.server.v1_8_R1.Block;
 import net.minecraft.server.v1_8_R1.IBlockData;
@@ -43,30 +46,35 @@ import net.minecraft.server.v1_8_R1.MultiBlockChangeInfo;
 import net.minecraft.server.v1_8_R1.PacketPlayOutMultiBlockChange;
 
 import java.util.Iterator;
-import java.util.List;
 
 /*
  * 
  */
 public class MultiBlockChangeFactory_v1_8_R1 implements IMultiBlockChangeFactory {
 
-    private final IChunkCoords _chunkInfo;
+    private final World _world;
+    private final ICoords2Di _coords;
     private short[] _blockPositions;
-    private ChunkBlockInfo[] _blockInfo;
+    private IPhantomBlock[] _blockInfo;
     private IBlockData[] _blockData;
 
-    public MultiBlockChangeFactory_v1_8_R1(IChunkCoords chunkInfo, List<ChunkBlockInfo> blocks) {
+    public MultiBlockChangeFactory_v1_8_R1(World world, ICoords2Di coords, IPhantomChunk chunkData) {
+        PreCon.notNull(world);
+        PreCon.notNull(coords);
+        PreCon.notNull(chunkData);
 
-        _chunkInfo = chunkInfo;
+        _world = world;
+        _coords = coords;
 
-        Iterator<ChunkBlockInfo> iterator = blocks.iterator();
+        Iterator<IPhantomBlock> iterator = chunkData.iterator();
 
-        _blockPositions = new short[blocks.size()];
-        _blockData = new IBlockData[blocks.size()];
-        _blockInfo = new ChunkBlockInfo[blocks.size()];
+        _blockPositions = new short[chunkData.totalBlocks()];
+        _blockData = new IBlockData[chunkData.totalBlocks()];
+        _blockInfo = new IPhantomBlock[chunkData.totalBlocks()];
 
-        for (int i=0; i < blocks.size(); i++) {
-            ChunkBlockInfo block = iterator.next();
+        for (int i=0; i < chunkData.totalBlocks(); i++) {
+
+            IPhantomBlock block = iterator.next();
 
             int x = block.getX();
             int z = block.getZ();
@@ -103,7 +111,7 @@ public class MultiBlockChangeFactory_v1_8_R1 implements IMultiBlockChangeFactory
         packet.getModifier().writeDefaults();
 
         // chunk coordinates
-        packet.getChunkCoordIntPairs().write(0, new ChunkCoordIntPair(_chunkInfo.getX(), _chunkInfo.getZ()));
+        packet.getChunkCoordIntPairs().write(0, new ChunkCoordIntPair(_coords.getX(), _coords.getZ()));
 
         StructureModifier<Object> objects = packet.getModifier();
 
@@ -133,7 +141,7 @@ public class MultiBlockChangeFactory_v1_8_R1 implements IMultiBlockChangeFactory
         packet.getModifier().writeDefaults();
 
         // chunk coordinates
-        packet.getChunkCoordIntPairs().write(0, new ChunkCoordIntPair(_chunkInfo.getX(), _chunkInfo.getZ()));
+        packet.getChunkCoordIntPairs().write(0, new ChunkCoordIntPair(_coords.getX(), _coords.getZ()));
 
         StructureModifier<Object> objects = packet.getModifier();
 
@@ -141,7 +149,7 @@ public class MultiBlockChangeFactory_v1_8_R1 implements IMultiBlockChangeFactory
 
         for(int i=0; i < totalBlocks; i++) {
 
-            ChunkBlockInfo blockInfo = _blockInfo[i];
+            IPhantomBlock blockInfo = _blockInfo[i];
 
             org.bukkit.block.Block block = chunk.getBlock(blockInfo.getX(), blockInfo.getY(), blockInfo.getZ());
             int data = Utils.getCombinedId(block.getType().getId(), block.getData());

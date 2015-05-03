@@ -22,10 +22,8 @@
  * THE SOFTWARE.
  */
 
-package com.jcwhatever.phantom.regions;
+package com.jcwhatever.phantom.blocks.regions;
 
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.events.PacketAdapter;
 import com.jcwhatever.nucleus.collections.ElementCounter;
 import com.jcwhatever.nucleus.collections.ElementCounter.RemovalPolicy;
 import com.jcwhatever.nucleus.storage.IDataNode;
@@ -43,8 +41,8 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
 
-/*
- * 
+/**
+ * Manager for phantom regions.
  */
 public class PhantomRegionManager {
 
@@ -59,9 +57,6 @@ public class PhantomRegionManager {
         _dataNode = PhantomPackets.getPlugin().getDataNode().getNode("regions");
 
         loadRegions();
-
-        PacketAdapter packetListener = new RegionProtocolListener(this);
-        ProtocolLibrary.getProtocolManager().addPacketListener(packetListener);
     }
 
     /**
@@ -114,11 +109,14 @@ public class PhantomRegionManager {
         PreCon.notNull(p1);
         PreCon.notNull(p2);
 
+        if (PhantomPackets.getBlockContexts().contains(name))
+            return null;
+
         PhantomRegion region = get(name);
         if (region != null)
             return null;
 
-        region = new PhantomRegion(name, _dataNode.getNode(name));
+        region = new PhantomRegion(PhantomPackets.getBlockContexts(), name, _dataNode.getNode(name));
         region.setCoords(p1, p2);
 
         _worlds.add(region.getWorld());
@@ -130,6 +128,7 @@ public class PhantomRegionManager {
         }
 
         _regions.put(region.getSearchName(), region);
+        PhantomPackets.getBlockContexts().add(region);
 
         return region;
     }
@@ -176,13 +175,16 @@ public class PhantomRegionManager {
 
         for (IDataNode regionNode : _dataNode) {
 
-            PhantomRegion region = new PhantomRegion(regionNode.getName(), regionNode);
+            PhantomRegion region = new PhantomRegion(
+                    PhantomPackets.getBlockContexts(), regionNode.getName(), regionNode);
 
             _regions.put(region.getSearchName(), region);
 
             if (region.isDefined() && region.getWorld() != null) {
                 _worlds.add(region.getWorld());
             }
+
+            PhantomPackets.getBlockContexts().add(region);
         }
     }
 }

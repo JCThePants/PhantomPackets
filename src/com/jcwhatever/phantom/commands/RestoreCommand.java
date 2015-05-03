@@ -26,8 +26,8 @@ package com.jcwhatever.phantom.commands;
 
 import com.jcwhatever.phantom.Lang;
 import com.jcwhatever.phantom.PhantomPackets;
-import com.jcwhatever.phantom.regions.PhantomRegion;
-import com.jcwhatever.phantom.regions.PhantomRegionManager;
+import com.jcwhatever.phantom.blocks.regions.PhantomRegion;
+import com.jcwhatever.phantom.blocks.regions.PhantomRegionManager;
 import com.jcwhatever.nucleus.managed.commands.CommandInfo;
 import com.jcwhatever.nucleus.managed.commands.arguments.ICommandArguments;
 import com.jcwhatever.nucleus.managed.commands.exceptions.CommandException;

@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-package com.jcwhatever.phantom.regions;
+package com.jcwhatever.phantom.blocks;
 
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.PacketType.Play.Client;
@@ -32,34 +32,32 @@ import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.StructureModifier;
+import com.jcwhatever.nucleus.managed.scheduler.Scheduler;
+import com.jcwhatever.nucleus.utils.PreCon;
+import com.jcwhatever.phantom.IPhantomBlock;
+import com.jcwhatever.phantom.IPhantomBlockContext;
+import com.jcwhatever.phantom.IBlockContextManager;
 import com.jcwhatever.phantom.PhantomPackets;
-import com.jcwhatever.phantom.Utils;
 import com.jcwhatever.phantom.nms.factory.IBlockChangeFactory;
 import com.jcwhatever.phantom.nms.packets.IBlockChangePacket;
 import com.jcwhatever.phantom.nms.packets.IBlockDigPacket;
 import com.jcwhatever.phantom.nms.packets.IBlockPlacePacket;
 import com.jcwhatever.phantom.nms.packets.IMultiBlockChangePacket;
-import com.jcwhatever.nucleus.Nucleus;
-import com.jcwhatever.nucleus.managed.scheduler.Scheduler;
-import com.jcwhatever.nucleus.utils.PreCon;
-import com.jcwhatever.nucleus.utils.coords.ChunkBlockInfo;
-import com.jcwhatever.nucleus.utils.coords.WorldInfo;
 
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.List;
+import java.util.Collection;
 
-/*
- * 
+/**
+ * Protocol listener for block contexts.
  */
-public class RegionProtocolListener extends PacketAdapter {
+public class BlocksProtocolListener extends PacketAdapter {
 
-    private final PhantomRegionManager _manager;
+    private final IBlockContextManager _manager;
 
-    public RegionProtocolListener(PhantomRegionManager manager) {
+    public BlocksProtocolListener(IBlockContextManager manager) {
         super(PhantomPackets.getPlugin(), Server.MAP_CHUNK,
                 Server.MAP_CHUNK_BULK,
                 Server.BLOCK_CHANGE,
@@ -102,13 +100,10 @@ public class RegionProtocolListener extends PacketAdapter {
 
         World world = event.getPlayer().getWorld();
 
-        if (!_manager.hasRegionInWorld(world))
+        if (!_manager.hasPhantomBlocksInWorld(world))
             return;
 
         PacketType type = event.getPacketType();
-
-        WorldInfo worldInfo = new WorldInfo(world);
-
         PacketContainer packet = event.getPacket();
 
         /* Block Change */
@@ -116,69 +111,38 @@ public class RegionProtocolListener extends PacketAdapter {
 
             IBlockChangePacket wrapper = PhantomPackets.getNms().getBlockChangePacket(packet);
 
-            List<PhantomRegion> regions = Nucleus.getRegionManager()
-                    .getRegions(world, wrapper.getX(), wrapper.getY(), wrapper.getZ(), PhantomRegion.class);
-
-            if (regions.isEmpty())
+            IPhantomBlock block = _manager.getBlockAt(
+                    world, wrapper.getX(), wrapper.getY(), wrapper.getZ());
+            if (block == null)
                 return;
 
-            IBlockChangePacket clone = null;
-            boolean isChanged = false;
+            if (!block.canSee(event.getPlayer()))
+                return;
 
-            for (PhantomRegion phantom : regions) {
+            IBlockChangePacket clone = wrapper.clonePacket();
 
-                if (phantom.isLoading() || phantom.isSaving() || phantom.isBuilding())
-                    continue;
-
-                if (!phantom.canSee(event.getPlayer()))
-                    continue;
-
-                if (clone == null) {
-                    clone = wrapper.clonePacket();
-                }
-
-                if (Utils.translateBlockChange(
-                        clone, worldInfo, phantom.getBlockPacketTranslator())) {
-                    isChanged = true;
-                }
-            }
-
-            if (isChanged) {
-                clone.saveChanges();
-                event.setPacket(clone.getPacket());
-            }
+            clone.setBlock(block.getMaterial(), block.getData());
+            clone.saveChanges();
+            event.setPacket(clone.getPacket());
         }
         /* Multi Block Change */
         else if (type == Server.MULTI_BLOCK_CHANGE) {
 
             IMultiBlockChangePacket wrapper = PhantomPackets.getNms().getMultiBlockChangePacket(packet);
 
-            List<PhantomRegion> regions = Nucleus.getRegionManager()
-                    .getRegionsInChunk(world, wrapper.getChunkX(), wrapper.getChunkZ(), PhantomRegion.class);
-
-            if (regions.isEmpty())
+            Collection<IPhantomBlockContext> contexts = _manager.getChunkContexts(
+                    world, wrapper.getChunkX(), wrapper.getChunkZ());
+            if (contexts.isEmpty())
                 return;
 
-            IMultiBlockChangePacket cloned = null;
+            for (IPhantomBlockContext context : contexts) {
 
-            for (PhantomRegion phantom : regions) {
-
-                if (phantom.isLoading() || phantom.isSaving() || phantom.isBuilding())
+                if (!context.canSee(event.getPlayer()))
                     continue;
 
-                if (!phantom.canSee(event.getPlayer()))
-                    continue;
+                IMultiBlockChangePacket cloned = wrapper.clonePacket();
 
-                if (cloned == null) {
-                    cloned = wrapper.clonePacket();
-                }
-
-                Utils.translateMultiBlockChange(
-                        cloned, worldInfo, phantom.getBlockPacketTranslator());
-
-            }
-
-            if (cloned != null) {
+                context.translateMultiBlock(cloned);
                 cloned.saveChanges();
                 event.setPacket(cloned.getPacket());
             }
@@ -190,21 +154,16 @@ public class RegionProtocolListener extends PacketAdapter {
             int chunkX = integers.read(0);
             int chunkZ = integers.read(1);
 
-            List<PhantomRegion> regions = Nucleus.getRegionManager()
-                    .getRegionsInChunk(world, chunkX, chunkZ, PhantomRegion.class);
-
-            if (regions.isEmpty())
+            Collection<IPhantomBlockContext> contexts = _manager.getChunkContexts(
+                    world, chunkX, chunkZ);
+            if (contexts.isEmpty())
                 return;
 
-            for (PhantomRegion phantom : regions) {
-
-                if (phantom.isLoading() || phantom.isSaving() || phantom.isBuilding())
+            for (IPhantomBlockContext context : contexts) {
+                if (!context.canSee(event.getPlayer()))
                     continue;
 
-                if (!phantom.canSee(event.getPlayer()))
-                    continue;
-
-                Utils.translateMapChunk(packet, phantom);
+                context.translateMapChunk(packet);
             }
         }
         /* Map Chunk Bulk */
@@ -219,22 +178,16 @@ public class RegionProtocolListener extends PacketAdapter {
                 int chunkX = chunkXArray[i];
                 int chunkZ = chunkZArray[i];
 
-
-                List<PhantomRegion> regions = Nucleus.getRegionManager()
-                        .getRegionsInChunk(world, chunkX, chunkZ, PhantomRegion.class);
-
-                if (regions.isEmpty())
+                Collection<IPhantomBlockContext> contexts = _manager.getChunkContexts(
+                        world, chunkX, chunkZ);
+                if (contexts.isEmpty())
                     return;
 
-                for (PhantomRegion phantom : regions) {
-
-                    if (phantom.isLoading() || phantom.isSaving() || phantom.isBuilding())
+                for (IPhantomBlockContext context : contexts) {
+                    if (!context.canSee(event.getPlayer()))
                         continue;
 
-                    if (!phantom.canSee(event.getPlayer()))
-                        continue;
-
-                    Utils.translateMapChunkBulk(packet, phantom);
+                    context.translateMapChunkBulk(packet);
                 }
             }
         }
@@ -242,50 +195,29 @@ public class RegionProtocolListener extends PacketAdapter {
 
     private void repairPhantomBlock(final Player player, int x, int y, int z) {
 
-        if (!PhantomPackets.getRegionManager().hasRegionInWorld(player.getWorld()))
-            return;
-
-        List<PhantomRegion> regions = Nucleus.getRegionManager().getRegions(
-                player.getWorld(), x, y, z, PhantomRegion.class);
-
-        if (regions.isEmpty())
-            return;
-
         World world = player.getWorld();
-        WorldInfo worldInfo = new WorldInfo(world);
 
-        for (PhantomRegion phantom : regions) {
+        IPhantomBlock block = PhantomPackets.getBlockContexts().getBlockAt(world, x, y, z);
+        if (block == null)
+            return;
 
-            if (phantom.isLoading() || phantom.isSaving() || phantom.isBuilding())
-                continue;
+        if (!block.canSee(player))
+            return;
 
-            if (!phantom.canSee(player))
-                continue;
+        IBlockChangeFactory factory = PhantomPackets.getNms().getBlockChangeFactory(
+                x, y, z, block.getMaterial(), block.getData());
 
-            ChunkBlockInfo blockInfo = phantom.getBlockPacketTranslator()
-                    .translate(worldInfo, x, y, z, null, (byte)0);
+        final PacketContainer packet = factory.createPacket();
 
-            if (blockInfo == null ||
-                    (blockInfo.getMaterial() == Material.AIR && phantom.ignoresAir())) {
-                continue;
-            }
-
-            IBlockChangeFactory factory = PhantomPackets.getNms().getBlockChangeFactory(
-                    x, y, z, blockInfo.getMaterial(), (byte)blockInfo.getData());
-
-            final PacketContainer packet = factory.createPacket();
-
-            Scheduler.runTaskLater(PhantomPackets.getPlugin(), 1, new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        ProtocolLibrary.getProtocolManager().sendServerPacket(player, packet);
-                    } catch (InvocationTargetException e) {
-                        e.printStackTrace();
-                    }
+        Scheduler.runTaskLater(PhantomPackets.getPlugin(), new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    ProtocolLibrary.getProtocolManager().sendServerPacket(player, packet);
+                } catch (InvocationTargetException e) {
+                    e.printStackTrace();
                 }
-            });
-
-        }
+            }
+        });
     }
 }

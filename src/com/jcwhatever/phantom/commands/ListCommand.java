@@ -34,8 +34,8 @@ import com.jcwhatever.nucleus.managed.messaging.ChatPaginator;
 import com.jcwhatever.nucleus.utils.text.TextUtils.FormatTemplate;
 import com.jcwhatever.phantom.Lang;
 import com.jcwhatever.phantom.PhantomPackets;
-import com.jcwhatever.phantom.regions.PhantomRegion;
-import com.jcwhatever.phantom.regions.PhantomRegionManager;
+import com.jcwhatever.phantom.blocks.regions.PhantomRegion;
+import com.jcwhatever.phantom.blocks.regions.PhantomRegionManager;
 
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;

@@ -25,29 +25,24 @@
 package com.jcwhatever.phantom.nms;
 
 import com.comphenix.protocol.events.PacketContainer;
+import com.jcwhatever.nucleus.utils.coords.ICoords2Di;
+import com.jcwhatever.phantom.IPhantomChunk;
 import com.jcwhatever.phantom.data.ChunkBulkData;
 import com.jcwhatever.phantom.data.ChunkData;
 import com.jcwhatever.phantom.nms.factory.IBlockChangeFactory;
+import com.jcwhatever.phantom.nms.factory.IMultiBlockChangeFactory;
 import com.jcwhatever.phantom.nms.packets.IBlockChangePacket;
 import com.jcwhatever.phantom.nms.packets.IBlockDigPacket;
 import com.jcwhatever.phantom.nms.packets.IBlockPlacePacket;
-import com.jcwhatever.phantom.nms.factory.IMultiBlockChangeFactory;
 import com.jcwhatever.phantom.nms.packets.IMultiBlockChangePacket;
-import com.jcwhatever.nucleus.utils.coords.ChunkBlockInfo;
-import com.jcwhatever.nucleus.utils.coords.IChunkCoords;
-import com.jcwhatever.nucleus.utils.coords.WorldInfo;
 
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
-
-import java.util.List;
+import org.bukkit.World;
 
 /*
  * 
  */
 public interface INmsHandler {
-
-    void refreshChunk(Player player, int x, int z);
 
     IBlockDigPacket getBlockDigPacket(PacketContainer packet);
 
@@ -57,11 +52,11 @@ public interface INmsHandler {
 
     IBlockChangePacket getBlockChangePacket(PacketContainer packet);
 
-    IMultiBlockChangeFactory getMultiBlockChangeFactory(IChunkCoords chunkInfo, List<ChunkBlockInfo> blocks);
+    IMultiBlockChangeFactory getMultiBlockChangeFactory(World world, ICoords2Di coords, IPhantomChunk chunkData);
 
     IMultiBlockChangePacket getMultiBlockChangePacket(PacketContainer packet);
 
-    ChunkBulkData getChunkBulkData(PacketContainer packet, WorldInfo world);
+    ChunkBulkData getChunkBulkData(PacketContainer packet, World world);
 
-    ChunkData getChunkData(PacketContainer packet, WorldInfo world);
+    ChunkData getChunkData(PacketContainer packet, World world);
 }

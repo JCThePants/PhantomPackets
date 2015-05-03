@@ -25,7 +25,6 @@
 package com.jcwhatever.phantom.data;
 
 import com.jcwhatever.nucleus.utils.coords.ChunkCoords;
-import com.jcwhatever.nucleus.utils.coords.WorldInfo;
 import com.jcwhatever.phantom.Utils;
 
 import org.bukkit.Chunk;
@@ -44,7 +43,7 @@ public class ChunkData implements IChunkData {
     public static final int SKYLIGHT_DATA_SIZE = 2048;
     public static final int BIOME_DATA_SIZE = 256;
 
-    private final WorldInfo _world;
+    private final World _world;
 
     private int _chunkX;
     private int _chunkZ;
@@ -65,11 +64,11 @@ public class ChunkData implements IChunkData {
     private int[] _sectionChunkIndexes = new int[16];
     private int[] _sectionDataIndexes = new int[16];
 
-    public ChunkData(WorldInfo world) {
+    public ChunkData(World world) {
         _world = world;
     }
 
-    public WorldInfo getWorld() {
+    public World getWorld() {
         return _world;
     }
 
@@ -90,11 +89,7 @@ public class ChunkData implements IChunkData {
 
     @Override
     public Chunk getChunk() {
-        World world = _world.getBukkitWorld();
-        if (world == null)
-            return null;
-
-        return world.getChunkAt(_chunkX, _chunkZ);
+        return _world.getChunkAt(_chunkX, _chunkZ);
     }
 
     @Override
@@ -257,5 +252,4 @@ public class ChunkData implements IChunkData {
         _skylightStart = hasSkylight() ? -1 : _startIndex + _blockSize +
                         (_sectionDataCount * EMITTED_LIGHT_DATA_SIZE);
     }
-
 }

@@ -24,6 +24,9 @@
 
 package com.jcwhatever.phantom;
 
+import com.comphenix.protocol.ProtocolLibrary;
+import com.jcwhatever.phantom.blocks.BlockContextManager;
+import com.jcwhatever.phantom.blocks.BlocksProtocolListener;
 import com.jcwhatever.phantom.commands.AddCommand;
 import com.jcwhatever.phantom.commands.DelCommand;
 import com.jcwhatever.phantom.commands.HideCommand;
@@ -37,7 +40,7 @@ import com.jcwhatever.phantom.entities.PhantomEntitiesManager;
 import com.jcwhatever.phantom.nms.INmsHandler;
 import com.jcwhatever.phantom.nms.v1_8_R1.NmsHandler_v1_8_R1;
 import com.jcwhatever.phantom.nms.v1_8_R2.NmsHandler_v1_8_R2;
-import com.jcwhatever.phantom.regions.PhantomRegionManager;
+import com.jcwhatever.phantom.blocks.regions.PhantomRegionManager;
 import com.jcwhatever.phantom.scripts.PhantomScriptApi;
 import com.jcwhatever.nucleus.Nucleus;
 import com.jcwhatever.nucleus.NucleusPlugin;
@@ -62,10 +65,15 @@ public class PhantomPackets extends NucleusPlugin {
 
     private PhantomRegionManager _regionManager;
     private PhantomEntitiesManager _entitiesManager;
+    private BlockContextManager _contextManager;
     private IScriptApi _scriptApi;
 
     private NmsManager _reflectionManager;
     private INmsHandler _reflectionHandler;
+
+    public static BlockContextManager getBlockContexts() {
+        return _instance._contextManager;
+    }
 
     public static PhantomRegionManager getRegionManager() {
         return _instance._regionManager;
@@ -113,8 +121,12 @@ public class PhantomPackets extends NucleusPlugin {
             return;
         }
 
+        _contextManager = new BlockContextManager();
         _regionManager = new PhantomRegionManager();
         _entitiesManager = new PhantomEntitiesManager();
+
+        ProtocolLibrary.getProtocolManager()
+                .addPacketListener(new BlocksProtocolListener(_contextManager));
 
         registerCommand(AddCommand.class);
         registerCommand(DelCommand.class);
@@ -144,5 +156,4 @@ public class PhantomPackets extends NucleusPlugin {
 
         Nucleus.getScriptApiRepo().unregisterApi(_scriptApi);
     }
-
 }

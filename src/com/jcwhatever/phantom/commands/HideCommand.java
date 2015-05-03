@@ -33,8 +33,8 @@ import com.jcwhatever.nucleus.managed.language.Localizable;
 import com.jcwhatever.nucleus.utils.player.PlayerUtils;
 import com.jcwhatever.phantom.Lang;
 import com.jcwhatever.phantom.PhantomPackets;
-import com.jcwhatever.phantom.regions.PhantomRegion;
-import com.jcwhatever.phantom.regions.PhantomRegionManager;
+import com.jcwhatever.phantom.blocks.regions.PhantomRegion;
+import com.jcwhatever.phantom.blocks.regions.PhantomRegionManager;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;

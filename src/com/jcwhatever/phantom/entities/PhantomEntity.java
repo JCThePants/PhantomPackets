@@ -194,6 +194,27 @@ public class PhantomEntity implements IViewable {
 
         _viewers.clear();
 
+        refreshView(viewers);
+    }
+
+    @Override
+    public List<Player> getViewers() {
+        if (_viewers == null)
+            return new ArrayList<>(0);
+
+        return new ArrayList<>(_viewers);
+    }
+
+    @Override
+    public void refreshView() {
+        refreshView(new ArrayList<Player>(_viewers));
+    }
+
+    public void refreshView(List<Player> viewers) {
+
+        if (_viewers == null)
+            return;
+
         switch (_viewPolicy) {
             case WHITELIST:
                 hideFromViewers(viewers);
@@ -204,14 +225,6 @@ public class PhantomEntity implements IViewable {
             default:
                 throw new AssertionError();
         }
-    }
-
-    @Override
-    public List<Player> getViewers() {
-        if (_viewers == null)
-            return new ArrayList<>(0);
-
-        return new ArrayList<>(_viewers);
     }
 
     private void initViewers() {

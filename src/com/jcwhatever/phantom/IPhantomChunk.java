@@ -22,52 +22,52 @@
  * THE SOFTWARE.
  */
 
-package com.jcwhatever.phantom.data;
+package com.jcwhatever.phantom;
 
-/* 
- * 
+import org.bukkit.World;
+
+import javax.annotation.Nullable;
+
+/**
+ * Interface for a phantom chunk.
  */
-public class Coordinate {
+public interface IPhantomChunk extends Iterable<IPhantomBlock> {
 
-    private final int _x;
-    private final int _y;
-    private final int _z;
-    private final int _hash;
+    /**
+     * Get the owning block context.
+     */
+    IPhantomBlockContext getContext();
 
-    public Coordinate(int x, int y, int z) {
-        _x = x;
-        _y = y;
-        _z = z;
-        _hash = x ^ y ^ z;
-    }
+    /**
+     * Get the world the chunk is in.
+     */
+    World getWorld();
 
-    public int getX() {
-        return _x;
-    }
+    /**
+     * Get the chunk X coordinates.
+     */
+    int getX();
 
-    public int getY() {
-        return _y;
-    }
+    /**
+     * Get the chunk Z coordinates.
+     */
+    int getZ();
 
-    public int getZ() {
-        return _z;
-    }
+    /**
+     * Get the total number of phantom blocks within the chunk that have
+     * been set.
+     */
+    int totalBlocks();
 
-    @Override
-    public int hashCode() {
-        return _hash;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-
-        if (obj instanceof Coordinate) {
-            Coordinate other = (Coordinate)obj;
-            return other._x == _x &&
-                    other._y == _y &&
-                    other._z == _z;
-        }
-
-        return false;
-    }
+    /**
+     * Get a phantom block from within the chunk.
+     *
+     * @param relativeX  The X coordinates relative to the chunk.
+     * @param y          The Y coordinates.
+     * @param relativeZ  The Z coordinates relative to the chunk.
+     *
+     * @return  The phantom block or null if it has not been set.
+     */
+    @Nullable
+    IPhantomBlock getRelativeBlock(int relativeX, int y, int relativeZ);
 }
