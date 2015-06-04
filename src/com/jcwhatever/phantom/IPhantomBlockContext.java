@@ -28,8 +28,8 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.jcwhatever.nucleus.mixins.IDisposable;
 import com.jcwhatever.nucleus.mixins.INamedInsensitive;
 import com.jcwhatever.phantom.nms.packets.IMultiBlockChangePacket;
-
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
 
@@ -63,23 +63,26 @@ public interface IPhantomBlockContext extends IViewable, INamedInsensitive, IDis
     /**
      * Translate phantom block data into a multi block packet.
      *
+     * @param player  The player the packet is being sent to.
      * @param packet  The packet.
      */
-    void translateMultiBlock(IMultiBlockChangePacket packet);
+    void translateMultiBlock(Player player, IMultiBlockChangePacket packet);
 
     /**
      * Translate phantom block data into a chunk packet.
      *
+     * @param player  The player the packet is being sent to.
      * @param packet  The packet.
      */
-    void translateMapChunk(PacketContainer packet);
+    void translateMapChunk(Player player, PacketContainer packet);
 
     /**
      * Translate phantom block data into a bulk chunk packet.
      *
+     * @param player  The player the packet is being sent to.
      * @param packet  The packet.
      */
-    void translateMapChunkBulk(PacketContainer packet);
+    void translateMapChunkBulk(Player player, PacketContainer packet);
 
     /**
      * Get a phantom block from the specified coordinates.

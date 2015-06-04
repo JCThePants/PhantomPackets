@@ -27,57 +27,62 @@ package com.jcwhatever.phantom.blocks;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.PacketContainer;
 import com.jcwhatever.nucleus.collections.players.PlayerSet;
+import com.jcwhatever.nucleus.managed.scheduler.Scheduler;
 import com.jcwhatever.nucleus.utils.PreCon;
+import com.jcwhatever.nucleus.utils.ThreadSingletons;
 import com.jcwhatever.nucleus.utils.coords.Coords2Di;
 import com.jcwhatever.nucleus.utils.coords.ICoords2Di;
 import com.jcwhatever.nucleus.utils.coords.MutableCoords2Di;
-import com.jcwhatever.phantom.IPhantomBlock;
-import com.jcwhatever.phantom.IPhantomBlockContext;
-import com.jcwhatever.phantom.IPhantomChunk;
-import com.jcwhatever.phantom.IBlockContextManager;
-import com.jcwhatever.phantom.PhantomPackets;
-import com.jcwhatever.phantom.Utils;
+import com.jcwhatever.nucleus.utils.performance.pool.IPoolElementFactory;
+import com.jcwhatever.nucleus.utils.performance.pool.SimplePool;
+import com.jcwhatever.phantom.*;
 import com.jcwhatever.phantom.data.ChunkBulkData;
 import com.jcwhatever.phantom.data.ChunkData;
 import com.jcwhatever.phantom.data.IChunkData;
 import com.jcwhatever.phantom.nms.factory.IMultiBlockChangeFactory;
 import com.jcwhatever.phantom.nms.packets.IMultiBlockChangePacket;
 import com.jcwhatever.phantom.nms.packets.PacketBlock;
-
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
 import javax.annotation.Nullable;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
 
 /**
  * Simple phantom block context.
  */
 public class PhantomBlocks implements IPhantomBlockContext {
 
+    private static final ThreadSingletons<Location> PLAYER_LOCATIONS = new ThreadSingletons<>(
+            new ThreadSingletons.ISingletonFactory<Location>() {
+                @Override
+                public Location create(Thread thread) {
+                    return new Location(null, 0, 0, 0);
+                }
+            });
+
+    private static final ThreadSingletons<MutableCoords2Di> COORDS = new ThreadSingletons<>(
+            new ThreadSingletons.ISingletonFactory<MutableCoords2Di>() {
+                @Override
+                public MutableCoords2Di create(Thread thread) {
+                    return new MutableCoords2Di();
+                }
+            });
+
     private final IBlockContextManager _manager;
     private final World _world;
     private final String _name;
     private final String _searchName;
     private final Map<ICoords2Di, PhantomChunk> _chunks = new HashMap<>(25);
-    private final MutableCoords2Di _chunkMatcher = new MutableCoords2Di();
 
     private Set<Player> _viewers;
     private boolean _ignoresAir;
     private ViewPolicy _viewPolicy = ViewPolicy.WHITELIST;
     private boolean _isDisposed;
-
-    private final Location PLAYER_LOCATION = new Location(null, 0, 0, 0);
 
     /**
      * Constructor.
@@ -133,15 +138,12 @@ public class PhantomBlocks implements IPhantomBlockContext {
     }
 
     @Override
-    public void translateMultiBlock(IMultiBlockChangePacket packet) {
+    public void translateMultiBlock(Player player, IMultiBlockChangePacket packet) {
 
         if (_chunks.isEmpty())
             return;
 
-        _chunkMatcher.setX(packet.getChunkX());
-        _chunkMatcher.setZ(packet.getChunkZ());
-
-        PhantomChunk chunk = _chunks.get(_chunkMatcher);
+        PhantomChunk chunk = _chunks.get(matcher(packet.getChunkX(), packet.getChunkZ()));
 
         for (PacketBlock block : packet) {
             int x = block.getX();
@@ -160,7 +162,7 @@ public class PhantomBlocks implements IPhantomBlockContext {
     }
 
     @Override
-    public void translateMapChunk(PacketContainer packet) {
+    public void translateMapChunk(Player player, PacketContainer packet) {
         if (_chunks.isEmpty())
             return;
 
@@ -173,21 +175,85 @@ public class PhantomBlocks implements IPhantomBlockContext {
         if (data.getBlockSize() > data.getData().length)
             return;
 
-        translateChunkData(data);
+        if (data.getSectionMask() == 0) {
+
+            PhantomChunk chunk = _chunks.get(matcher(data.getX(), data.getZ()));
+            if (chunk != null) {
+
+                ChunkResender resender = CHUNK_SENDER_POOL.retrieve();
+                assert resender != null;
+
+                resender.init(this, player);
+                resender.toResend.add(chunk);
+
+                Scheduler.runTaskLater(PhantomPackets.getPlugin(), 5, resender);
+            }
+        }
+        else {
+            translateChunkData(data);
+        }
     }
 
     @Override
-    public void translateMapChunkBulk(PacketContainer packet) {
+    public void translateMapChunkBulk(Player player, PacketContainer packet) {
         if (_chunks.isEmpty())
             return;
 
-        ChunkBulkData data = PhantomPackets.getNms()
+        ChunkBulkData bulkData = PhantomPackets.getNms()
                 .getChunkBulkData(packet, _world);
 
-        IChunkData[] dataArray = data.getChunkData();
+        IChunkData[] dataArray = bulkData.getChunkData();
 
-        for (IChunkData chunkData : dataArray) {
-            translateChunkData(chunkData);
+        for (IChunkData data : dataArray) {
+
+            if (data.getSectionMask() == 0) {
+
+                PhantomChunk chunk = _chunks.get(matcher(data.getX(), data.getZ()));
+                if (chunk != null) {
+
+                    ChunkResender resender = CHUNK_SENDER_POOL.retrieve();
+                    assert resender != null;
+
+                    resender.init(this, player);
+                    resender.toResend.add(chunk);
+
+                    Scheduler.runTaskLater(PhantomPackets.getPlugin(), 5, resender);
+                }
+            }
+            else {
+                translateChunkData(data);
+            }
+        }
+    }
+
+    private static final SimplePool<ChunkResender> CHUNK_SENDER_POOL = new SimplePool<ChunkResender>(30,
+            new IPoolElementFactory<ChunkResender>() {
+                @Override
+                public ChunkResender create() {
+                    return new ChunkResender();
+                }
+            });
+
+    private static class ChunkResender implements Runnable {
+
+        PhantomBlocks blocks;
+        Player player;
+        List<PhantomChunk> toResend = new ArrayList<>(10);
+
+        void init(PhantomBlocks blocks, Player player) {
+            this.blocks = blocks;
+            this.player = player;
+        }
+
+        @Override
+        public void run() {
+            for (PhantomChunk chunk : toResend) {
+                blocks.resendChunk(player, chunk);
+            }
+            toResend.clear();
+            player = null;
+            blocks = null;
+            CHUNK_SENDER_POOL.recycle(this);
         }
     }
 
@@ -197,7 +263,7 @@ public class PhantomBlocks implements IPhantomBlockContext {
         int chunkX = getChunkCoord(x);
         int chunkZ = getChunkCoord(z);
 
-        PhantomChunk chunkContext = _chunks.get(chunkMatcher(chunkX, chunkZ));
+        PhantomChunk chunkContext = _chunks.get(matcher(chunkX, chunkZ));
         if (chunkContext == null)
             return getBlockFromWorld(x, y, z);
 
@@ -215,9 +281,7 @@ public class PhantomBlocks implements IPhantomBlockContext {
     @Override
     public IPhantomBlock getPhantomBlock(int x, int y, int z) {
 
-        ICoords2Di matcher = chunkMatcher(getChunkCoord(x), getChunkCoord(z));
-
-        PhantomChunk chunk = _chunks.get(matcher);
+        PhantomChunk chunk = _chunks.get(matcher(getChunkCoord(x), getChunkCoord(z)));
         if (chunk == null)
             return null;
 
@@ -230,7 +294,7 @@ public class PhantomBlocks implements IPhantomBlockContext {
     @Nullable
     @Override
     public IPhantomChunk getPhantomChunk(int x, int z) {
-        return _chunks.get(chunkMatcher(x, z));
+        return _chunks.get(matcher(x, z));
     }
 
     @Override
@@ -386,11 +450,11 @@ public class PhantomBlocks implements IPhantomBlockContext {
     /*
      * Set and get the chunk matcher instance.
      */
-    private ICoords2Di chunkMatcher(int x, int z) {
-        _chunkMatcher.setX(x);
-        _chunkMatcher.setZ(z);
-
-        return _chunkMatcher;
+    private ICoords2Di matcher(int x, int z) {
+        MutableCoords2Di coords = COORDS.get();
+        coords.setX(x);
+        coords.setZ(z);
+        return coords;
     }
 
     /*
@@ -398,10 +462,7 @@ public class PhantomBlocks implements IPhantomBlockContext {
      */
     private void translateChunkData(IChunkData chunkData) {
 
-        _chunkMatcher.setX(chunkData.getX());
-        _chunkMatcher.setZ(chunkData.getZ());
-
-        PhantomChunk chunk = _chunks.get(_chunkMatcher);
+        PhantomChunk chunk = _chunks.get(matcher(chunkData.getX(), chunkData.getZ()));
         if (chunk == null || chunk.totalBlocks == 0)
             return;
 
@@ -429,11 +490,7 @@ public class PhantomBlocks implements IPhantomBlockContext {
     private IPhantomBlock getBlockFromWorld(int x, int y, int z) {
 
         Block block = _world.getBlockAt(x, y, z);
-
-        int chunkX = getChunkCoord(x);
-        int chunkZ = getChunkCoord(z);
-
-        return new PhantomBlock(chunkX, chunkZ, x, y, z, block.getType(), block.getData());
+        return new PhantomBlock(x, y, z, block.getType(), block.getData());
     }
 
     /*
@@ -444,26 +501,31 @@ public class PhantomBlocks implements IPhantomBlockContext {
         if (!player.getWorld().equals(getWorld()))
             return;
 
-        Location location = player.getLocation(PLAYER_LOCATION);
-
         for (PhantomChunk chunk : _chunks.values()) {
 
-            if (!Utils.isChunkNearby(chunk.getX(), chunk.getZ(), location))
-                continue;
+            resendChunk(player, chunk);
+        }
+    }
 
-            IMultiBlockChangeFactory factory = chunk.getMultiBlockPacketFactory();
+    private void resendChunk(Player player, PhantomChunk chunk) {
 
-            PacketContainer packet = canSee(player)
-                    ? factory.createPacket(ignoresAir())
-                    : factory.createPacket(chunk.coords.getChunk(_world));
+        Location location = player.getLocation(PLAYER_LOCATIONS.get());
 
-            try {
-                ProtocolLibrary.getProtocolManager()
-                        .sendServerPacket(player, packet);
+        if (!Utils.isChunkNearby(chunk.getX(), chunk.getZ(), location))
+            return;
 
-            } catch (InvocationTargetException e) {
-                e.printStackTrace();
-            }
+        IMultiBlockChangeFactory factory = chunk.getMultiBlockPacketFactory();
+
+        PacketContainer packet = canSee(player)
+                ? factory.createPacket(ignoresAir())
+                : factory.createPacket(chunk.coords.getChunk(_world));
+
+        try {
+            ProtocolLibrary.getProtocolManager()
+                    .sendServerPacket(player, packet);
+
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
         }
     }
 
@@ -538,6 +600,9 @@ public class PhantomBlocks implements IPhantomBlockContext {
             PhantomBlock block = (PhantomBlock)section[index];
             if (block != null && ignoresAir() && block.getMaterial() == Material.AIR)
                 return null;
+
+            if (block != null && (block.relativeX != relativeX || block.y != y || block.relativeZ != relativeZ))
+                throw new IllegalStateException("Retrieved block mismatch.");
 
             return block;
         }
@@ -638,9 +703,9 @@ public class PhantomBlocks implements IPhantomBlockContext {
         Material material;
         byte data;
 
-        PhantomBlock(int chunkX, int chunkZ, int x, int y, int z, Material material, int data) {
-            this.chunkX = chunkX;
-            this.chunkZ = chunkZ;
+        PhantomBlock(int x, int y, int z, Material material, int data) {
+            this.chunkX = getChunkCoord(x);
+            this.chunkZ = getChunkCoord(z);
             this.x = x;
             this.y = y;
             this.z = z;
@@ -657,7 +722,7 @@ public class PhantomBlocks implements IPhantomBlockContext {
 
         @Override
         public IPhantomChunk getChunk() {
-            return _chunks.get(chunkMatcher(chunkX, chunkZ));
+            return _chunks.get(matcher(chunkX, chunkZ));
         }
 
         @Override
@@ -753,7 +818,7 @@ public class PhantomBlocks implements IPhantomBlockContext {
         }
 
         private PhantomChunk chunk() {
-            PhantomChunk chunk = _chunks.get(chunkMatcher(chunkX, chunkZ));
+            PhantomChunk chunk = _chunks.get(matcher(chunkX, chunkZ));
             if (chunk == null) {
                 chunk = new PhantomChunk(chunkX, chunkZ);
                 _chunks.put(chunk.coords, chunk);

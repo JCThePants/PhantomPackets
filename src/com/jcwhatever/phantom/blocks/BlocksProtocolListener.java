@@ -142,7 +142,7 @@ public class BlocksProtocolListener extends PacketAdapter {
 
                 IMultiBlockChangePacket cloned = wrapper.clonePacket();
 
-                context.translateMultiBlock(cloned);
+                context.translateMultiBlock(event.getPlayer(), cloned);
                 cloned.saveChanges();
                 event.setPacket(cloned.getPacket());
             }
@@ -163,7 +163,7 @@ public class BlocksProtocolListener extends PacketAdapter {
                 if (!context.canSee(event.getPlayer()))
                     continue;
 
-                context.translateMapChunk(packet);
+                context.translateMapChunk(event.getPlayer(), packet);
             }
         }
         /* Map Chunk Bulk */
@@ -187,7 +187,7 @@ public class BlocksProtocolListener extends PacketAdapter {
                     if (!context.canSee(event.getPlayer()))
                         continue;
 
-                    context.translateMapChunkBulk(packet);
+                    context.translateMapChunkBulk(event.getPlayer(), packet);
                 }
             }
         }

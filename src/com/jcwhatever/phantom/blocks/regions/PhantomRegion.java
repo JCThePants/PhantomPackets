@@ -40,23 +40,17 @@ import com.jcwhatever.nucleus.utils.observer.future.FutureSubscriber;
 import com.jcwhatever.nucleus.utils.observer.future.IFuture;
 import com.jcwhatever.nucleus.utils.observer.future.IFuture.FutureStatus;
 import com.jcwhatever.nucleus.utils.performance.queued.QueueTask;
-import com.jcwhatever.phantom.IPhantomBlock;
-import com.jcwhatever.phantom.IPhantomChunk;
-import com.jcwhatever.phantom.IPhantomBlockContext;
-import com.jcwhatever.phantom.IBlockContextManager;
-import com.jcwhatever.phantom.Msg;
-import com.jcwhatever.phantom.PhantomPackets;
+import com.jcwhatever.phantom.*;
 import com.jcwhatever.phantom.blocks.PhantomBlocks;
 import com.jcwhatever.phantom.nms.packets.IMultiBlockChangePacket;
-
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
-import javax.annotation.Nullable;
 
 /*
  * Region that saves to disk and uses saved version to
@@ -100,18 +94,18 @@ public class PhantomRegion extends RestorableRegion implements IPhantomBlockCont
     }
 
     @Override
-    public void translateMultiBlock(IMultiBlockChangePacket packet) {
-        _blocks.translateMultiBlock(packet);
+    public void translateMultiBlock(Player player, IMultiBlockChangePacket packet) {
+        _blocks.translateMultiBlock(player, packet);
     }
 
     @Override
-    public void translateMapChunk(PacketContainer packet) {
-        _blocks.translateMapChunk(packet);
+    public void translateMapChunk(Player player, PacketContainer packet) {
+        _blocks.translateMapChunk(player, packet);
     }
 
     @Override
-    public void translateMapChunkBulk(PacketContainer packet) {
-        _blocks.translateMapChunkBulk(packet);
+    public void translateMapChunkBulk(Player player, PacketContainer packet) {
+        _blocks.translateMapChunkBulk(player, packet);
     }
 
     @Override

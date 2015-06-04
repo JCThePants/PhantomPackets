@@ -178,7 +178,7 @@ public class ChunkData implements IChunkData {
 
         y = y % 16;
 
-        int index = 512 * y + 32 * relativeZ + 2 * relativeX;// ((y * 16/*x*/ * 16/*y*/) + (relativeZ * 16) + relativeX) * 2;
+        int index = 512 * y + 32 * relativeZ + 2 * relativeX;
 
         index += getBlockStart(sectionDataIndex);
 
