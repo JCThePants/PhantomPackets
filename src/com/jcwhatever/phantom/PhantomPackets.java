@@ -154,6 +154,7 @@ public class PhantomPackets extends NucleusPlugin {
         if (_regionManager != null)
             _regionManager.dispose();
 
-        Nucleus.getScriptApiRepo().unregisterApi(_scriptApi);
+        if (_scriptApi != null)
+            Nucleus.getScriptApiRepo().unregisterApi(_scriptApi);
     }
 }
