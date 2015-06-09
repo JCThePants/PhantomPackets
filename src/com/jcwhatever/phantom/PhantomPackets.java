@@ -41,6 +41,7 @@ import com.jcwhatever.phantom.nms.INmsHandler;
 import com.jcwhatever.phantom.nms.v1_8_R1.NmsHandler_v1_8_R1;
 import com.jcwhatever.phantom.nms.v1_8_R2.NmsHandler_v1_8_R2;
 import com.jcwhatever.phantom.blocks.regions.PhantomRegionManager;
+import com.jcwhatever.phantom.nms.v1_8_R3.NmsHandler_v1_8_R3;
 import com.jcwhatever.phantom.scripts.PhantomScriptApi;
 import com.jcwhatever.nucleus.Nucleus;
 import com.jcwhatever.nucleus.NucleusPlugin;
@@ -110,9 +111,10 @@ public class PhantomPackets extends NucleusPlugin {
     @Override
     protected void onEnablePlugin() {
 
-        _reflectionManager = new NmsManager(this, "v1_8_R1", "v1_8_R2");
+        _reflectionManager = new NmsManager(this, "v1_8_R1", "v1_8_R2", "v1_8_R3");
         _reflectionManager.registerHandler("v1_8_R1", "nms", NmsHandler_v1_8_R1.class);
         _reflectionManager.registerHandler("v1_8_R2", "nms", NmsHandler_v1_8_R2.class);
+        _reflectionManager.registerHandler("v1_8_R3", "nms", NmsHandler_v1_8_R3.class);
 
         _reflectionHandler = _reflectionManager.getHandler("nms");
         if (_reflectionHandler == null) {

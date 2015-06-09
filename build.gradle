@@ -4,7 +4,7 @@
 ext.jcBuildSettings = [
         projectName : 'PhantomPackets',
         majorVersion : '0',
-        minorVersion : '2',
+        minorVersion : '3',
         buildBy : null, // auto filled
         buildNumber : null, // auto filled when using teamcity
         mainClass : null,
