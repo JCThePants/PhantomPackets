@@ -29,14 +29,14 @@ import com.jcwhatever.nucleus.utils.PreCon;
 import com.jcwhatever.nucleus.utils.player.PlayerUtils;
 import com.jcwhatever.phantom.IPhantomBlockContext;
 import com.jcwhatever.phantom.PhantomPackets;
-import com.jcwhatever.phantom.entities.PhantomEntity;
 import com.jcwhatever.phantom.blocks.regions.PhantomRegion;
-
+import com.jcwhatever.phantom.entities.PhantomEntity;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -187,6 +187,22 @@ public class PhantomScriptApi implements IDisposable {
 
             return true;
         }
+
+        /**
+         * Get all players that are viewers of the specified region.
+         *
+         * @param regionName  The name of the phantom region.
+         *
+         * @return  A collection of the player viewers.
+         */
+        public Collection<Player> getViewers(String regionName) {
+            PreCon.notNullOrEmpty(regionName);
+
+            PhantomRegion region = PhantomPackets.getRegionManager().get(regionName);
+            PreCon.isValid(region != null, "Phantom region not found: " + regionName);
+
+            return region.getViewers();
+        }
     }
 
     public class PhantomEntityAPI {
@@ -298,6 +314,25 @@ public class PhantomScriptApi implements IDisposable {
             }
 
             return false;
+        }
+
+        /**
+         * Get all players that are viewers of the specified entity.
+         *
+         * @param entity  The entity.
+         *
+         * @return  A collection of the player viewers. The collection is empty if
+         * the entity is not currently being managed by PhantomPackets.
+         */
+        public Collection<Player> getViewers(Entity entity) {
+            PreCon.notNull(entity);
+
+            PhantomEntity phantomEntity = PhantomPackets
+                    .getEntitiesManager().getEntity(entity);
+            if (phantomEntity == null)
+                return new ArrayList<>(0);
+
+            return phantomEntity.getViewers();
         }
     }
 }
