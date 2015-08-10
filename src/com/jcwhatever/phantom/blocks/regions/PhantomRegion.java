@@ -77,7 +77,7 @@ public class PhantomRegion extends RestorableRegion implements IPhantomBlockCont
 
         _manager = manager;
 
-        getMeta().set(REGION_KEY, this);
+        getMeta().setKey(REGION_KEY, this);
 
         if (isDefined()) {
             try {
