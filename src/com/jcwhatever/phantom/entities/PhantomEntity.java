@@ -33,17 +33,16 @@ import com.jcwhatever.nucleus.providers.npc.Npcs;
 import com.jcwhatever.nucleus.utils.entity.EntityUtils;
 import com.jcwhatever.phantom.IViewable;
 import com.jcwhatever.phantom.PhantomPackets;
-
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
+import javax.annotation.Nullable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import javax.annotation.Nullable;
 
 /**
  * Represents a single entity whose visibility is
@@ -237,7 +236,10 @@ public class PhantomEntity implements IViewable {
     private void showTo(Player player) {
         Entity entity = getEntity();
 
-        if (entity == null || entity.isDead())
+        if (entity == null || !entity.isValid())
+            return;
+
+        if (!player.getWorld().equals(entity.getWorld()))
             return;
 
         ProtocolLibrary.getProtocolManager()
@@ -248,15 +250,23 @@ public class PhantomEntity implements IViewable {
 
         Entity entity = getEntity();
 
-        if (entity == null || entity.isDead())
+        if (entity == null || !entity.isValid())
             return;
 
         if (viewers == null || viewers.isEmpty())
             return;
 
-        List<Player> players = viewers instanceof List
-                ? (List<Player>) viewers
-                : new ArrayList<>(viewers);
+        List<Player> players = new ArrayList<>(viewers.size());
+        for (Player player : viewers) {
+
+            if (!player.getWorld().equals(entity.getWorld()))
+                continue;
+
+            players.add(player);
+        }
+
+        if (players.isEmpty())
+            return;
 
         ProtocolLibrary.getProtocolManager()
                 .updateEntity(entity, players);
