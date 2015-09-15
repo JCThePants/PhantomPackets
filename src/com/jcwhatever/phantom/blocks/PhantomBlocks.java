@@ -35,6 +35,7 @@ import com.jcwhatever.nucleus.utils.coords.ICoords2Di;
 import com.jcwhatever.nucleus.utils.coords.MutableCoords2Di;
 import com.jcwhatever.nucleus.utils.performance.pool.IPoolElementFactory;
 import com.jcwhatever.nucleus.utils.performance.pool.SimplePool;
+import com.jcwhatever.nucleus.utils.player.PlayerUtils;
 import com.jcwhatever.phantom.*;
 import com.jcwhatever.phantom.data.ChunkBulkData;
 import com.jcwhatever.phantom.data.ChunkData;
@@ -507,9 +508,9 @@ public class PhantomBlocks implements IPhantomBlockContext {
         }
     }
 
-    private void resendChunk(Player player, PhantomChunk chunk) {
+    private void resendChunk(final Player player, final PhantomChunk chunk) {
 
-        Location location = player.getLocation(PLAYER_LOCATIONS.get());
+        final Location location = player.getLocation(PLAYER_LOCATIONS.get());
 
         if (!Utils.isChunkNearby(chunk.getX(), chunk.getZ(), location))
             return;
@@ -520,6 +521,24 @@ public class PhantomBlocks implements IPhantomBlockContext {
                 ? factory.createPacket(ignoresAir())
                 : factory.createPacket(chunk.coords.getChunk(_world));
 
+        if (PlayerUtils.getWorldSessionTime(player) < 1500 ||
+                !location.getWorld().isChunkLoaded(chunk.getX(), chunk.getZ())) {
+
+            Scheduler.runTaskLater(PhantomPackets.getPlugin(), 31, new Runnable() {
+                @Override
+                public void run() {
+                    if (location.getWorld().isChunkLoaded(chunk.getX(), chunk.getZ())) {
+                        resendChunk(player, chunk);
+                    }
+                }
+            });
+        }
+        else {
+            sendPacket(player, packet);
+        }
+    }
+
+    private void sendPacket(Player player, PacketContainer packet) {
         try {
             ProtocolLibrary.getProtocolManager()
                     .sendServerPacket(player, packet);
