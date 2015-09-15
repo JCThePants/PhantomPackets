@@ -37,9 +37,8 @@ import com.jcwhatever.phantom.commands.RestoreCommand;
 import com.jcwhatever.phantom.commands.SaveCommand;
 import com.jcwhatever.phantom.commands.ShowCommand;
 import com.jcwhatever.phantom.entities.PhantomEntitiesManager;
+import com.jcwhatever.phantom.light.LightManager;
 import com.jcwhatever.phantom.nms.INmsHandler;
-import com.jcwhatever.phantom.nms.v1_8_R1.NmsHandler_v1_8_R1;
-import com.jcwhatever.phantom.nms.v1_8_R2.NmsHandler_v1_8_R2;
 import com.jcwhatever.phantom.blocks.regions.PhantomRegionManager;
 import com.jcwhatever.phantom.nms.v1_8_R3.NmsHandler_v1_8_R3;
 import com.jcwhatever.phantom.scripts.PhantomScriptApi;
@@ -67,6 +66,7 @@ public class PhantomPackets extends NucleusPlugin {
     private PhantomRegionManager _regionManager;
     private PhantomEntitiesManager _entitiesManager;
     private BlockContextManager _contextManager;
+    private LightManager _lightManager;
     private IScriptApi _scriptApi;
 
     private NmsManager _reflectionManager;
@@ -82,6 +82,10 @@ public class PhantomPackets extends NucleusPlugin {
 
     public static PhantomEntitiesManager getEntitiesManager() {
         return _instance._entitiesManager;
+    }
+
+    public static LightManager getLightManager() {
+        return _instance._lightManager;
     }
 
     public static NmsManager getReflectionManager() {
@@ -111,9 +115,7 @@ public class PhantomPackets extends NucleusPlugin {
     @Override
     protected void onEnablePlugin() {
 
-        _reflectionManager = new NmsManager(this, "v1_8_R1", "v1_8_R2", "v1_8_R3");
-        _reflectionManager.registerHandler("v1_8_R1", "nms", NmsHandler_v1_8_R1.class);
-        _reflectionManager.registerHandler("v1_8_R2", "nms", NmsHandler_v1_8_R2.class);
+        _reflectionManager = new NmsManager(this, "v1_8_R3");
         _reflectionManager.registerHandler("v1_8_R3", "nms", NmsHandler_v1_8_R3.class);
 
         _reflectionHandler = _reflectionManager.getHandler("nms");
@@ -126,6 +128,7 @@ public class PhantomPackets extends NucleusPlugin {
         _contextManager = new BlockContextManager();
         _regionManager = new PhantomRegionManager();
         _entitiesManager = new PhantomEntitiesManager();
+        _lightManager = new LightManager();
 
         ProtocolLibrary.getProtocolManager()
                 .addPacketListener(new BlocksProtocolListener(_contextManager));

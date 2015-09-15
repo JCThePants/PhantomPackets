@@ -36,6 +36,7 @@ import com.jcwhatever.phantom.nms.packets.IBlockDigPacket;
 import com.jcwhatever.phantom.nms.packets.IBlockPlacePacket;
 import com.jcwhatever.phantom.nms.packets.IMultiBlockChangePacket;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 
@@ -59,4 +60,6 @@ public interface INmsHandler {
     ChunkBulkData getChunkBulkData(PacketContainer packet, World world);
 
     ChunkData getChunkData(PacketContainer packet, World world);
+
+    void setLightSource(Location location, int intensity, boolean updateChunks);
 }

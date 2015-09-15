@@ -46,6 +46,8 @@ import com.jcwhatever.phantom.nms.v1_8_R3.packets.MultiBlockChangePacket_v1_8_R3
 import net.minecraft.server.v1_8_R3.BaseBlockPosition;
 import net.minecraft.server.v1_8_R3.ChunkCoordIntPair;
 import net.minecraft.server.v1_8_R3.PacketPlayOutMapChunk.ChunkMap;
+
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 
@@ -53,6 +55,8 @@ import org.bukkit.World;
  * 
  */
 public class NmsHandler_v1_8_R3 implements com.jcwhatever.phantom.nms.INmsHandler, INmsHandler {
+
+    private Lights_v1_8_R3 _lights = new Lights_v1_8_R3();
 
     public NmsHandler_v1_8_R3() {}
 
@@ -157,6 +161,11 @@ public class NmsHandler_v1_8_R3 implements com.jcwhatever.phantom.nms.INmsHandle
         chunkData.init(chunkX, chunkZ, mask, data, isContinuous != null && isContinuous);
 
         return chunkData;
+    }
+
+    @Override
+    public void setLightSource(Location location, int intensity, boolean updateChunks) {
+        _lights.setLightSource(location, intensity, updateChunks);
     }
 
     @Override

@@ -31,6 +31,10 @@ import com.jcwhatever.phantom.IPhantomBlockContext;
 import com.jcwhatever.phantom.PhantomPackets;
 import com.jcwhatever.phantom.blocks.regions.PhantomRegion;
 import com.jcwhatever.phantom.entities.PhantomEntity;
+import com.jcwhatever.phantom.light.LightManager;
+import com.jcwhatever.phantom.light.LightSource;
+
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -50,6 +54,7 @@ public class PhantomScriptApi implements IDisposable {
 
     Map<Player, Set<PhantomRegion>> _regionMap = new WeakHashMap<>(30);
     Map<Player, Set<PhantomEntity>> _entityMap = new WeakHashMap<>(30);
+    Map<LightSource, Void> _lights = new WeakHashMap<>(30);
     private boolean _isDisposed;
 
     public final PhantomRegionsAPI regions = new PhantomRegionsAPI();
@@ -71,6 +76,43 @@ public class PhantomScriptApi implements IDisposable {
         IPhantomBlockContext context = PhantomPackets.getBlockContexts().addBlocksContext(world, name);
         _contexts.add(context);
         return context;
+    }
+
+    /**
+     * Set a light source at the specified location.
+     *
+     * @param location   The location to set the light source at.
+     * @param intensity  The intensity of the light. (0-15)
+     *
+     * @return  The light source.
+     */
+    public LightSource light(String name, Location location, int intensity) {
+        PreCon.notNullOrEmpty(name, "name");
+        PreCon.notNull(location, "location");
+        PreCon.notNull(location.getWorld(), "location world");
+        PreCon.positiveNumber(intensity, "intensity");
+
+        LightManager manager = PhantomPackets.getLightManager();
+        LightSource lightSource = manager.get(name);
+        if (lightSource != null) {
+            lightSource.setIntensity(intensity);
+        }
+        else {
+            lightSource = manager.create(name, location, intensity);
+        }
+        _lights.put(lightSource, null);
+        return lightSource;
+    }
+
+    /**
+     * Remove a light source.
+     *
+     * @param name  The name of the light source.
+     */
+    public void removeLight(String name) {
+        PreCon.notNullOrEmpty(name, "name");
+
+        PhantomPackets.getLightManager().remove(name);
     }
 
     @Override
@@ -104,6 +146,11 @@ public class PhantomScriptApi implements IDisposable {
             context.dispose();
         }
         _contexts.clear();
+
+        for (LightSource lightSource : _lights.keySet()) {
+            lightSource.dispose();
+        }
+        _lights.clear();
 
         _isDisposed = true;
     }
