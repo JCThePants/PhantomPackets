@@ -28,10 +28,10 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.StructureModifier;
 import com.jcwhatever.phantom.Utils;
 import com.jcwhatever.phantom.nms.INmsHandler;
-import com.jcwhatever.phantom.nms.packets.AbstractPacket;
-import com.jcwhatever.phantom.nms.packets.IMultiBlockChangePacket;
-import com.jcwhatever.phantom.nms.packets.PacketBlock;
-import com.jcwhatever.phantom.nms.v1_8_R3.MultiBlockChangeInfoUtil;
+import com.jcwhatever.phantom.packets.AbstractPacket;
+import com.jcwhatever.phantom.packets.IMultiBlockChangePacket;
+import com.jcwhatever.phantom.packets.PacketBlock;
+import com.jcwhatever.phantom.nms.v1_8_R3.MultiBlockChangeUtils;
 import net.minecraft.server.v1_8_R3.Block;
 import net.minecraft.server.v1_8_R3.BlockPosition;
 import net.minecraft.server.v1_8_R3.IBlockData;
@@ -65,6 +65,16 @@ public class MultiBlockChangePacket_v1_8_R3 extends AbstractPacket implements IM
     }
 
     @Override
+    public int getX() {
+        return _chunkX;
+    }
+
+    @Override
+    public int getZ() {
+        return _chunkZ;
+    }
+
+    @Override
     public int getChunkX() {
         return _chunkX;
     }
@@ -92,7 +102,7 @@ public class MultiBlockChangePacket_v1_8_R3 extends AbstractPacket implements IM
 
             IBlockData nmsBlockData = Block.getByCombinedId(id);
 
-            MultiBlockChangeInfo blockChangeInfo = MultiBlockChangeInfoUtil.create(
+            MultiBlockChangeInfo blockChangeInfo = MultiBlockChangeUtils.create(
                     (PacketPlayOutMultiBlockChange) _packet.getHandle(), blockPosition, nmsBlockData
             );
 
@@ -117,7 +127,7 @@ public class MultiBlockChangePacket_v1_8_R3 extends AbstractPacket implements IM
             short blockPosition = info.b();
             IBlockData nmsBlockData = info.c();
 
-            MultiBlockChangeInfo multiBlockChangeInfo = MultiBlockChangeInfoUtil.create(
+            MultiBlockChangeInfo multiBlockChangeInfo = MultiBlockChangeUtils.create(
                     (PacketPlayOutMultiBlockChange) clone.getHandle(), blockPosition, nmsBlockData
             );
 

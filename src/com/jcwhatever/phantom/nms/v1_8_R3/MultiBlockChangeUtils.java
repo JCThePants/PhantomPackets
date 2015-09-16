@@ -28,13 +28,20 @@ import com.jcwhatever.nucleus.managed.reflection.IReflectedInstance;
 import com.jcwhatever.nucleus.managed.reflection.IReflectedType;
 import com.jcwhatever.nucleus.managed.reflection.IReflection;
 import com.jcwhatever.nucleus.managed.reflection.Reflection;
+
+import net.minecraft.server.v1_8_R3.ChunkCoordIntPair;
 import net.minecraft.server.v1_8_R3.IBlockData;
 import net.minecraft.server.v1_8_R3.PacketPlayOutMultiBlockChange;
 import net.minecraft.server.v1_8_R3.PacketPlayOutMultiBlockChange.MultiBlockChangeInfo;
 
-public class MultiBlockChangeInfoUtil {
+public class MultiBlockChangeUtils {
 
     static final IReflection reflection = Reflection.newContext();
+
+    static final IReflectedType _PacketPlayOutMultiBlockChange =
+            reflection.nmsType("PacketPlayOutMultiBlockChange")
+                .fieldAlias("coords", "a")
+                .fieldAlias("infoArray", "b");
 
     static final IReflectedType _MultiBlockChangeInfo =
             reflection.nmsType("PacketPlayOutMultiBlockChange$MultiBlockChangeInfo")
@@ -56,5 +63,13 @@ public class MultiBlockChangeInfoUtil {
     public static MultiBlockChangeInfo create(
             PacketPlayOutMultiBlockChange packet, short position, IBlockData data) {
         return (MultiBlockChangeInfo)_MultiBlockChangeInfo.construct("new", packet, position, data);
+    }
+
+    public static void initPacket(PacketPlayOutMultiBlockChange packet,
+                                  ChunkCoordIntPair coords,
+                                  PacketPlayOutMultiBlockChange.MultiBlockChangeInfo[] infoArray) {
+        IReflectedInstance instance = _PacketPlayOutMultiBlockChange.reflect(packet);
+        instance.set("coords", coords);
+        instance.set("infoArray", infoArray);
     }
 }

@@ -40,9 +40,14 @@ import com.jcwhatever.nucleus.utils.observer.future.FutureSubscriber;
 import com.jcwhatever.nucleus.utils.observer.future.IFuture;
 import com.jcwhatever.nucleus.utils.observer.future.IFuture.FutureStatus;
 import com.jcwhatever.nucleus.utils.performance.queued.QueueTask;
-import com.jcwhatever.phantom.*;
+import com.jcwhatever.phantom.IBlockContextManager;
+import com.jcwhatever.phantom.IPhantomBlock;
+import com.jcwhatever.phantom.IPhantomBlockContext;
+import com.jcwhatever.phantom.IPhantomChunk;
+import com.jcwhatever.phantom.Msg;
+import com.jcwhatever.phantom.PhantomPackets;
 import com.jcwhatever.phantom.blocks.PhantomBlocks;
-import com.jcwhatever.phantom.nms.packets.IMultiBlockChangePacket;
+import com.jcwhatever.phantom.packets.IMultiBlockChangePacket;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -171,16 +176,19 @@ public class PhantomRegion extends RestorableRegion implements IPhantomBlockCont
 
     @Override
     public boolean addViewer(Player player) {
+        Msg.debug("Add viewer {0} to phantom region {1}.", player.getName(), getName());
         return _blocks.addViewer(player);
     }
 
     @Override
     public boolean removeViewer(Player player) {
+        Msg.debug("Remove viewer {0} from phantom region {1}.", player.getName(), getName());
         return _blocks.removeViewer(player);
     }
 
     @Override
     public void clearViewers() {
+        Msg.debug("Clear all viewers from phantom region {0}.", getName());
         _blocks.clearViewers();
     }
 
@@ -279,8 +287,8 @@ public class PhantomRegion extends RestorableRegion implements IPhantomBlockCont
 
             if (currentChunk == null) {
 
-                int chunkX = (int) Math.floor(x / 16.0D);
-                int chunkZ = (int) Math.floor(z / 16.0D);
+                int chunkX = x >> 4;
+                int chunkZ = z >> 4;
                 currentChunk = new ChunkCoords(getWorld(), chunkX, chunkZ);
             }
 

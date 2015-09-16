@@ -24,6 +24,8 @@
 
 package com.jcwhatever.phantom;
 
+import com.jcwhatever.nucleus.utils.coords.ICoords2Di;
+import com.jcwhatever.nucleus.utils.coords.ICoords3Di;
 import com.jcwhatever.nucleus.utils.managers.INamedManager;
 
 import org.bukkit.World;
@@ -57,11 +59,30 @@ public interface IBlockContextManager extends INamedManager<IPhantomBlockContext
     IPhantomBlock getBlockAt(World world, int x, int y, int z);
 
     /**
+     * Get phantom block at a location.
+     *
+     * @param world  The world to check in.
+     * @param coords  The coordinates of the block.
+     *
+     * @return  The phantom block or null if there is no phantom block.
+     */
+    @Nullable
+    IPhantomBlock getBlockAt(World world, ICoords3Di coords);
+
+    /**
      * Get all phantom block contexts that have blocks inside the specified chunk.
      *
      * @param world   The world.
-     * @param chunkX  The chunk X coordinates.
-     * @param chunkZ  The chunk Z coordinates.
+     * @param chunkX  The chunk X coordinate.
+     * @param chunkZ  The chunk Z coordinate.
      */
     Collection<IPhantomBlockContext> getChunkContexts(World world, int chunkX, int chunkZ);
+
+    /**
+     * Get all phantom block contexts that have blocks inside the specified chunk.
+     *
+     * @param world   The world.
+     * @param coords  The chunk coordinates.
+     */
+    Collection<IPhantomBlockContext> getChunkContexts(World world, ICoords2Di coords);
 }

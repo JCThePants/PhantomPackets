@@ -22,18 +22,38 @@
  * THE SOFTWARE.
  */
 
-package com.jcwhatever.phantom.nms.factory;
+package com.jcwhatever.phantom.packets;
+
 
 import com.comphenix.protocol.events.PacketContainer;
-
-import org.bukkit.Chunk;
+import com.jcwhatever.nucleus.utils.PreCon;
 
 /**
- * Create multi block change packets.
+ * Abstract implementation of {@link IPacket}.
  */
-public interface IMultiBlockChangeFactory {
+public abstract class AbstractPacket implements IPacket {
 
-    PacketContainer createPacket(boolean ignoreAir);
+    protected final PacketContainer _packet;
 
-    PacketContainer createPacket(Chunk chunk);
+    /**
+     * Constructor.
+     *
+     * @param packet  The packet container to encapsulate.
+     */
+    protected AbstractPacket (PacketContainer packet) {
+        PreCon.notNull(packet);
+
+        _packet = packet;
+    }
+
+    @Override
+    public PacketContainer getPacket() {
+        return _packet;
+    }
+
+    @Override
+    public abstract void saveChanges();
+
+    @Override
+    public abstract AbstractPacket clonePacket();
 }

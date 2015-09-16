@@ -22,27 +22,43 @@
  * THE SOFTWARE.
  */
 
-package com.jcwhatever.phantom.nms.packets;
+package com.jcwhatever.phantom.packets;
 
-import com.comphenix.protocol.events.PacketContainer;
+import com.jcwhatever.nucleus.utils.coords.ICoords3Di;
+import com.jcwhatever.phantom.IPhantomBlock;
+
+import org.bukkit.Material;
 
 /**
- * Interface for a packet wrapping translator helper.
+ * Block change packet.
  */
-public interface IPacket {
+public interface IBlockChangePacket extends IPacket, ICoords3Di {
 
     /**
-     * Get the encapsulated packet container.
+     * Get the block material.
      */
-    PacketContainer getPacket();
+    Material getMaterial();
 
     /**
-     * Save changes to the encapsulated packet container.
+     * Get the block data.
      */
-    void saveChanges();
+    byte getData();
 
     /**
-     * Clone the packet.
+     * Set the block material and data.
+     *
+     * @param material  The material.
+     * @param data      The data.
      */
-    IPacket clonePacket();
+    void setBlock(Material material, byte data);
+
+    /**
+     * Set the block material and data.
+     *
+     * @param block  The phantom block.
+     */
+    void setBlock(IPhantomBlock block);
+
+    @Override
+    IBlockChangePacket clonePacket();
 }

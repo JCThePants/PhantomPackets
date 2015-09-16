@@ -29,12 +29,12 @@ import com.jcwhatever.nucleus.utils.coords.ICoords2Di;
 import com.jcwhatever.phantom.IPhantomChunk;
 import com.jcwhatever.phantom.data.ChunkBulkData;
 import com.jcwhatever.phantom.data.ChunkData;
-import com.jcwhatever.phantom.nms.factory.IBlockChangeFactory;
-import com.jcwhatever.phantom.nms.factory.IMultiBlockChangeFactory;
-import com.jcwhatever.phantom.nms.packets.IBlockChangePacket;
-import com.jcwhatever.phantom.nms.packets.IBlockDigPacket;
-import com.jcwhatever.phantom.nms.packets.IBlockPlacePacket;
-import com.jcwhatever.phantom.nms.packets.IMultiBlockChangePacket;
+import com.jcwhatever.phantom.packets.factory.IBlockChangeFactory;
+import com.jcwhatever.phantom.packets.factory.IMultiBlockChangeFactory;
+import com.jcwhatever.phantom.packets.IBlockChangePacket;
+import com.jcwhatever.phantom.packets.IBlockDigPacket;
+import com.jcwhatever.phantom.packets.IBlockPlacePacket;
+import com.jcwhatever.phantom.packets.IMultiBlockChangePacket;
 
 import org.bukkit.Location;
 import org.bukkit.Material;

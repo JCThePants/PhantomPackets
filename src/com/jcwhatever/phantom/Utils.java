@@ -121,8 +121,8 @@ public class Utils {
     public static boolean isChunkNearby(int chunkX, int chunkZ, Location location) {
         PreCon.notNull(location);
 
-        int locChunkX = (int)Math.floor(location.getX() / 16.0D);
-        int locChunkZ = (int)Math.floor(location.getZ() / 16.0D);
+        int locChunkX = location.getBlockX() >> 4;
+        int locChunkZ = location.getBlockZ() >> 4;
 
         int viewDistance = Bukkit.getServer().getViewDistance();
 

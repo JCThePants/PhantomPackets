@@ -30,6 +30,8 @@ import com.jcwhatever.nucleus.collections.ElementCounter;
 import com.jcwhatever.nucleus.collections.ElementCounter.RemovalPolicy;
 import com.jcwhatever.nucleus.utils.CollectionUtils;
 import com.jcwhatever.nucleus.utils.PreCon;
+import com.jcwhatever.nucleus.utils.coords.ICoords2Di;
+import com.jcwhatever.nucleus.utils.coords.ICoords3Di;
 import com.jcwhatever.nucleus.utils.managers.NamedInsensitiveManager;
 import com.jcwhatever.phantom.IBlockContextManager;
 import com.jcwhatever.phantom.IPhantomBlock;
@@ -129,6 +131,12 @@ public class BlockContextManager extends NamedInsensitiveManager<IPhantomBlockCo
         return null;
     }
 
+    @Nullable
+    @Override
+    public IPhantomBlock getBlockAt(World world, ICoords3Di coords) {
+        return getBlockAt(world, coords.getX(), coords.getY(), coords.getZ());
+    }
+
     @Override
     public Collection<IPhantomBlockContext> getChunkContexts(World world, int chunkX, int chunkZ) {
         PreCon.notNull(world);
@@ -148,5 +156,10 @@ public class BlockContextManager extends NamedInsensitiveManager<IPhantomBlockCo
         }
 
         return results;
+    }
+
+    @Override
+    public Collection<IPhantomBlockContext> getChunkContexts(World world, ICoords2Di coords) {
+        return getChunkContexts(world, coords.getX(), coords.getZ());
     }
 }

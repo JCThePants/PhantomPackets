@@ -22,60 +22,16 @@
  * THE SOFTWARE.
  */
 
-package com.jcwhatever.phantom.nms.packets;
+package com.jcwhatever.phantom.packets.factory;
 
-import org.bukkit.Material;
+import com.comphenix.protocol.events.PacketContainer;
+
+import org.bukkit.World;
 
 /**
- * Information about a block.
+ * Creates Block Change packets.
  */
-public class PacketBlock {
+public interface IBlockChangeFactory {
 
-    private int _x;
-    private int _y;
-    private int _z;
-    private Material _material;
-    private byte _data;
-
-    /**
-     * Constructor.
-     *
-     * @param x         The block X coordinates.
-     * @param y         The block Y coordinates.
-     * @param z         The block Z coordinates.
-     * @param material  The material.
-     * @param data      The data.
-     */
-    public PacketBlock(int x, int y, int z, Material material, byte data) {
-        _x = x;
-        _y = y;
-        _z = z;
-        _material = material;
-        _data = data;
-    }
-
-    public int getX() {
-        return _x;
-    }
-
-    public int getY() {
-        return _y;
-    }
-
-    public int getZ() {
-        return _z;
-    }
-
-    public Material getMaterial() {
-        return _material;
-    }
-
-    public byte getData() {
-        return _data;
-    }
-
-    public void setBlock(Material material, int meta) {
-        _material = material;
-        _data = (byte)meta;
-    }
+    PacketContainer createPacket(World world);
 }

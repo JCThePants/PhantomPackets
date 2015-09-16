@@ -22,48 +22,60 @@
  * THE SOFTWARE.
  */
 
-package com.jcwhatever.phantom.nms.packets;
+package com.jcwhatever.phantom.packets;
 
 import org.bukkit.Material;
 
 /**
- * Block change packet.
+ * Information about a block.
  */
-public interface IBlockChangePacket extends IPacket {
+public class PacketBlock {
+
+    private int _x;
+    private int _y;
+    private int _z;
+    private Material _material;
+    private byte _data;
 
     /**
-     * Get the blocks X coordinates.
-     */
-    int getX();
-
-    /**
-     * Get the blocks Y coordinates.
-     */
-    int getY();
-
-    /**
-     * Get the blocks Z coordinates.
-     */
-    int getZ();
-
-    /**
-     * Get the block material.
-     */
-    Material getMaterial();
-
-    /**
-     * Get the block data.
-     */
-    byte getData();
-
-    /**
-     * Set the block material and data.
+     * Constructor.
      *
+     * @param x         The block X coordinates.
+     * @param y         The block Y coordinates.
+     * @param z         The block Z coordinates.
      * @param material  The material.
      * @param data      The data.
      */
-    void setBlock(Material material, byte data);
+    public PacketBlock(int x, int y, int z, Material material, byte data) {
+        _x = x;
+        _y = y;
+        _z = z;
+        _material = material;
+        _data = data;
+    }
 
-    @Override
-    IBlockChangePacket clonePacket();
+    public int getX() {
+        return _x;
+    }
+
+    public int getY() {
+        return _y;
+    }
+
+    public int getZ() {
+        return _z;
+    }
+
+    public Material getMaterial() {
+        return _material;
+    }
+
+    public byte getData() {
+        return _data;
+    }
+
+    public void setBlock(Material material, int meta) {
+        _material = material;
+        _data = (byte)meta;
+    }
 }

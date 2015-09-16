@@ -40,9 +40,9 @@ import com.jcwhatever.phantom.*;
 import com.jcwhatever.phantom.data.ChunkBulkData;
 import com.jcwhatever.phantom.data.ChunkData;
 import com.jcwhatever.phantom.data.IChunkData;
-import com.jcwhatever.phantom.nms.factory.IMultiBlockChangeFactory;
-import com.jcwhatever.phantom.nms.packets.IMultiBlockChangePacket;
-import com.jcwhatever.phantom.nms.packets.PacketBlock;
+import com.jcwhatever.phantom.packets.factory.IMultiBlockChangeFactory;
+import com.jcwhatever.phantom.packets.IMultiBlockChangePacket;
+import com.jcwhatever.phantom.packets.PacketBlock;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -261,8 +261,8 @@ public class PhantomBlocks implements IPhantomBlockContext {
     @Override
     public IPhantomBlock getBlock(int x, int y, int z) {
 
-        int chunkX = getChunkCoord(x);
-        int chunkZ = getChunkCoord(z);
+        int chunkX = x >> 4;
+        int chunkZ = z >> 4;
 
         PhantomChunk chunkContext = _chunks.get(matcher(chunkX, chunkZ));
         if (chunkContext == null)
@@ -282,7 +282,7 @@ public class PhantomBlocks implements IPhantomBlockContext {
     @Override
     public IPhantomBlock getPhantomBlock(int x, int y, int z) {
 
-        PhantomChunk chunk = _chunks.get(matcher(getChunkCoord(x), getChunkCoord(z)));
+        PhantomChunk chunk = _chunks.get(matcher(x >> 4, z >> 4));
         if (chunk == null)
             return null;
 
@@ -442,13 +442,6 @@ public class PhantomBlocks implements IPhantomBlockContext {
     }
 
     /*
-     * Convert world coordinate to chunk coordinate.
-     */
-    private int getChunkCoord(int worldCoord) {
-        return (int)Math.floor(worldCoord / 16.0D);
-    }
-
-    /*
      * Set and get the chunk matcher instance.
      */
     private ICoords2Di matcher(int x, int z) {
@@ -510,7 +503,7 @@ public class PhantomBlocks implements IPhantomBlockContext {
 
     private void resendChunk(final Player player, final PhantomChunk chunk) {
 
-        final Location location = player.getLocation(PLAYER_LOCATIONS.get());
+        Location location = player.getLocation(PLAYER_LOCATIONS.get());
 
         if (!Utils.isChunkNearby(chunk.getX(), chunk.getZ(), location))
             return;
@@ -522,13 +515,18 @@ public class PhantomBlocks implements IPhantomBlockContext {
                 : factory.createPacket(chunk.coords.getChunk(_world));
 
         if (PlayerUtils.getWorldSessionTime(player) < 1500 ||
-                !location.getWorld().isChunkLoaded(chunk.getX(), chunk.getZ())) {
+                !_world.isChunkLoaded(chunk.getX(), chunk.getZ())) {
+
+            Msg.debug("Rescheduling resend chunk [{0}, {1}]", chunk.getX(), chunk.getZ());
 
             Scheduler.runTaskLater(PhantomPackets.getPlugin(), 31, new Runnable() {
                 @Override
                 public void run() {
-                    if (location.getWorld().isChunkLoaded(chunk.getX(), chunk.getZ())) {
+                    if (_world.isChunkLoaded(chunk.getX(), chunk.getZ())) {
                         resendChunk(player, chunk);
+                    }
+                    else {
+                        Msg.debug("Failed to resend chunk [{0}, {1}] because it's not loaded.", chunk.getX(), chunk.getZ());
                     }
                 }
             });
@@ -723,8 +721,8 @@ public class PhantomBlocks implements IPhantomBlockContext {
         byte data;
 
         PhantomBlock(int x, int y, int z, Material material, int data) {
-            this.chunkX = getChunkCoord(x);
-            this.chunkZ = getChunkCoord(z);
+            this.chunkX = x >> 4;
+            this.chunkZ = z >> 4;
             this.x = x;
             this.y = y;
             this.z = z;

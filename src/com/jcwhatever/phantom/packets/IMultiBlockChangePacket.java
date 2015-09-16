@@ -22,14 +22,26 @@
  * THE SOFTWARE.
  */
 
-package com.jcwhatever.phantom.nms.factory;
+package com.jcwhatever.phantom.packets;
 
-import com.comphenix.protocol.events.PacketContainer;
+import com.jcwhatever.nucleus.utils.coords.ICoords2Di;
 
 /**
- * Creates Block Change packets.
+ * Multi block change packet.
  */
-public interface IBlockChangeFactory {
+public interface IMultiBlockChangePacket extends IPacket, ICoords2Di, Iterable<PacketBlock> {
 
-    PacketContainer createPacket();
+    /**
+     * Get the chunk X coordinates.
+     */
+    int getChunkX();
+
+    /**
+     * Get the chunk Z coordinates.
+     */
+    int getChunkZ();
+
+    @Override
+    IMultiBlockChangePacket clonePacket();
+
 }

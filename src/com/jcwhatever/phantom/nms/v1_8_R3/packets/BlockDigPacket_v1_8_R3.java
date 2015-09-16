@@ -26,7 +26,7 @@ package com.jcwhatever.phantom.nms.v1_8_R3.packets;
 
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.StructureModifier;
-import com.jcwhatever.phantom.nms.packets.IBlockDigPacket;
+import com.jcwhatever.phantom.packets.IBlockDigPacket;
 import net.minecraft.server.v1_8_R3.BlockPosition;
 import net.minecraft.server.v1_8_R3.EnumDirection;
 import net.minecraft.server.v1_8_R3.PacketPlayInBlockDig.EnumPlayerDigType;

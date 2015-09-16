@@ -29,11 +29,15 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.StructureModifier;
 import com.jcwhatever.nucleus.utils.PreCon;
 import com.jcwhatever.phantom.Utils;
-import com.jcwhatever.phantom.nms.factory.IBlockChangeFactory;
+import com.jcwhatever.phantom.packets.factory.IBlockChangeFactory;
 import net.minecraft.server.v1_8_R3.Block;
 import net.minecraft.server.v1_8_R3.BlockPosition;
 import net.minecraft.server.v1_8_R3.IBlockData;
+import net.minecraft.server.v1_8_R3.PacketPlayOutBlockChange;
+
 import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 
 
 public class BlockChangeFactory_v1_8_R3 implements IBlockChangeFactory {
@@ -55,23 +59,21 @@ public class BlockChangeFactory_v1_8_R3 implements IBlockChangeFactory {
     }
 
     @Override
-    public PacketContainer createPacket() {
+    public PacketContainer createPacket(World world) {
+        PreCon.notNull(world);
 
-        PacketContainer packet = new PacketContainer(Server.BLOCK_CHANGE);
-        packet.getModifier().writeDefaults();
+        net.minecraft.server.v1_8_R3.World nmsWorld = ((CraftWorld)world).getHandle();
 
         BlockPosition position = new BlockPosition(_x, _y, _z);
-
-        StructureModifier<Object> objects = packet.getModifier();
-        objects.write(0, position);
 
         int id = Utils.getCombinedId(_material, _meta);
         IBlockData blockData = Block.getByCombinedId(id);
         if (blockData == null)
             throw new IllegalArgumentException("Failed to create block data.");
 
-        objects.write(1, blockData);
+        PacketPlayOutBlockChange packet = new PacketPlayOutBlockChange(nmsWorld, position);
+        packet.block = blockData;
 
-        return packet;
+        return PacketContainer.fromPacket(packet);
     }
 }

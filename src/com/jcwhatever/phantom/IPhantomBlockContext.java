@@ -27,7 +27,7 @@ package com.jcwhatever.phantom;
 import com.comphenix.protocol.events.PacketContainer;
 import com.jcwhatever.nucleus.mixins.IDisposable;
 import com.jcwhatever.nucleus.mixins.INamedInsensitive;
-import com.jcwhatever.phantom.nms.packets.IMultiBlockChangePacket;
+import com.jcwhatever.phantom.packets.IMultiBlockChangePacket;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 

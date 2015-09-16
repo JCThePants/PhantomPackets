@@ -37,12 +37,13 @@ import com.jcwhatever.nucleus.utils.PreCon;
 import com.jcwhatever.phantom.IPhantomBlock;
 import com.jcwhatever.phantom.IPhantomBlockContext;
 import com.jcwhatever.phantom.IBlockContextManager;
+import com.jcwhatever.phantom.Msg;
 import com.jcwhatever.phantom.PhantomPackets;
-import com.jcwhatever.phantom.nms.factory.IBlockChangeFactory;
-import com.jcwhatever.phantom.nms.packets.IBlockChangePacket;
-import com.jcwhatever.phantom.nms.packets.IBlockDigPacket;
-import com.jcwhatever.phantom.nms.packets.IBlockPlacePacket;
-import com.jcwhatever.phantom.nms.packets.IMultiBlockChangePacket;
+import com.jcwhatever.phantom.packets.factory.IBlockChangeFactory;
+import com.jcwhatever.phantom.packets.IBlockChangePacket;
+import com.jcwhatever.phantom.packets.IBlockDigPacket;
+import com.jcwhatever.phantom.packets.IBlockPlacePacket;
+import com.jcwhatever.phantom.packets.IMultiBlockChangePacket;
 
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -108,51 +109,108 @@ public class BlocksProtocolListener extends PacketAdapter {
 
         /* Block Change */
         if (type == Server.BLOCK_CHANGE) {
-
-            IBlockChangePacket wrapper = PhantomPackets.getNms().getBlockChangePacket(packet);
-
-            IPhantomBlock block = _manager.getBlockAt(
-                    world, wrapper.getX(), wrapper.getY(), wrapper.getZ());
-            if (block == null)
-                return;
-
-            if (!block.canSee(event.getPlayer()))
-                return;
-
-            IBlockChangePacket clone = wrapper.clonePacket();
-
-            clone.setBlock(block.getMaterial(), block.getData());
-            clone.saveChanges();
-            event.setPacket(clone.getPacket());
+            handleBlock(event, packet, world, event.getPlayer());
         }
         /* Multi Block Change */
         else if (type == Server.MULTI_BLOCK_CHANGE) {
-
-            IMultiBlockChangePacket wrapper = PhantomPackets.getNms().getMultiBlockChangePacket(packet);
-
-            Collection<IPhantomBlockContext> contexts = _manager.getChunkContexts(
-                    world, wrapper.getChunkX(), wrapper.getChunkZ());
-            if (contexts.isEmpty())
-                return;
-
-            for (IPhantomBlockContext context : contexts) {
-
-                if (!context.canSee(event.getPlayer()))
-                    continue;
-
-                IMultiBlockChangePacket cloned = wrapper.clonePacket();
-
-                context.translateMultiBlock(event.getPlayer(), cloned);
-                cloned.saveChanges();
-                event.setPacket(cloned.getPacket());
-            }
+            handleMultiBlock(event, packet, world, event.getPlayer());
         }
         /* Map Chunk */
         else if (type == Server.MAP_CHUNK) {
+            handleMapChunk(packet, world, event.getPlayer());
+        }
+        /* Map Chunk Bulk */
+        else if (type == Server.MAP_CHUNK_BULK) {
+            handleMapChunkBulk(packet, world, event.getPlayer());
+        }
+    }
 
-            StructureModifier<Integer> integers = packet.getSpecificModifier(int.class);
-            int chunkX = integers.read(0);
-            int chunkZ = integers.read(1);
+    private void handleBlock(PacketEvent event, PacketContainer packet, World world, Player player) {
+
+        IBlockChangePacket wrapper = PhantomPackets.getNms().getBlockChangePacket(packet);
+
+        Msg.debug("Handling PacketPlayOutBlockChange for player {0}. [{1}, {2}, {3}, {4}]",
+                world.getName(), wrapper.getX(), wrapper.getY(), wrapper.getZ());
+
+        IPhantomBlock block = _manager.getBlockAt(world, wrapper);
+        if (block == null)
+            return;
+
+        if (!block.canSee(event.getPlayer()))
+            return;
+
+        IBlockChangePacket clone = wrapper.clonePacket();
+
+        clone.setBlock(block);
+        clone.saveChanges();
+        event.setPacket(clone.getPacket());
+    }
+
+    private void handleMultiBlock(PacketEvent event, PacketContainer packet, World world, Player player) {
+
+        IMultiBlockChangePacket wrapper = PhantomPackets.getNms().getMultiBlockChangePacket(packet);
+
+        Msg.debug("Handling PacketPlayOutMultiBlockChange for player {0}. [{1}, {2}, {3}]",
+                player.getName(), world.getName(), wrapper.getChunkX(), wrapper.getChunkZ());
+
+        Collection<IPhantomBlockContext> contexts = _manager.getChunkContexts(world, wrapper);
+        if (contexts.isEmpty())
+            return;
+
+        for (IPhantomBlockContext context : contexts) {
+
+            if (!context.canSee(player))
+                continue;
+
+            Msg.debug("Found visible context ({0}) for PacketPlayOutMultiBlockChange for player {1}.",
+                    context.getName(), player.getName());
+
+            IMultiBlockChangePacket cloned = wrapper.clonePacket();
+
+            context.translateMultiBlock(player, cloned);
+            cloned.saveChanges();
+            event.setPacket(cloned.getPacket());
+        }
+    }
+
+    private void handleMapChunk(PacketContainer packet, World world, Player player) {
+
+        StructureModifier<Integer> integers = packet.getSpecificModifier(int.class);
+        int chunkX = integers.read(0);
+        int chunkZ = integers.read(1);
+
+        Msg.debug("Handling PacketPlayOutMapChunk for player {0}. [{1}, {2}, {3}]",
+                player.getName(), world.getName(), chunkX, chunkZ);
+
+        Collection<IPhantomBlockContext> contexts = _manager.getChunkContexts(
+                world, chunkX, chunkZ);
+        if (contexts.isEmpty())
+            return;
+
+        for (IPhantomBlockContext context : contexts) {
+            if (!context.canSee(player))
+                continue;
+
+            Msg.debug("Found visible context ({0}) for PacketPlayOutMapChunk for player {1}.",
+                    context.getName(), player.getName());
+
+            context.translateMapChunk(player, packet);
+        }
+    }
+
+    private void handleMapChunkBulk(PacketContainer packet, World world, Player player) {
+
+        StructureModifier<int[]> integerArrays = packet.getSpecificModifier(int[].class);
+        int[] chunkXArray = integerArrays.read(0);
+        int[] chunkZArray = integerArrays.read(1);
+
+        Msg.debug("Handling PacketPlayOutMapChunkBulk for player {0}. [{1}, {2}, {3}]",
+                player.getName(), world.getName(), chunkXArray, chunkZArray);
+
+        for (int i = 0; i < chunkXArray.length; i++) {
+
+            int chunkX = chunkXArray[i];
+            int chunkZ = chunkZArray[i];
 
             Collection<IPhantomBlockContext> contexts = _manager.getChunkContexts(
                     world, chunkX, chunkZ);
@@ -160,35 +218,13 @@ public class BlocksProtocolListener extends PacketAdapter {
                 return;
 
             for (IPhantomBlockContext context : contexts) {
-                if (!context.canSee(event.getPlayer()))
+                if (!context.canSee(player))
                     continue;
 
-                context.translateMapChunk(event.getPlayer(), packet);
-            }
-        }
-        /* Map Chunk Bulk */
-        else if (type == Server.MAP_CHUNK_BULK) {
+                Msg.debug("Found visible context ({0}) for PacketPlayOutMapChunkBulk for player {1}.",
+                        context.getName(), player.getName());
 
-            StructureModifier<int[]> integerArrays = packet.getSpecificModifier(int[].class);
-            int[] chunkXArray = integerArrays.read(0);
-            int[] chunkZArray = integerArrays.read(1);
-
-            for (int i = 0; i < chunkXArray.length; i++) {
-
-                int chunkX = chunkXArray[i];
-                int chunkZ = chunkZArray[i];
-
-                Collection<IPhantomBlockContext> contexts = _manager.getChunkContexts(
-                        world, chunkX, chunkZ);
-                if (contexts.isEmpty())
-                    return;
-
-                for (IPhantomBlockContext context : contexts) {
-                    if (!context.canSee(event.getPlayer()))
-                        continue;
-
-                    context.translateMapChunkBulk(event.getPlayer(), packet);
-                }
+                context.translateMapChunkBulk(player, packet);
             }
         }
     }
@@ -207,7 +243,7 @@ public class BlocksProtocolListener extends PacketAdapter {
         IBlockChangeFactory factory = PhantomPackets.getNms().getBlockChangeFactory(
                 x, y, z, block.getMaterial(), block.getData());
 
-        final PacketContainer packet = factory.createPacket();
+        final PacketContainer packet = factory.createPacket(world);
 
         Scheduler.runTaskLater(PhantomPackets.getPlugin(), new Runnable() {
             @Override

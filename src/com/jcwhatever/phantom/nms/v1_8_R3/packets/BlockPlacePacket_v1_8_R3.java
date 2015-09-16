@@ -26,7 +26,7 @@ package com.jcwhatever.phantom.nms.v1_8_R3.packets;
 
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.StructureModifier;
-import com.jcwhatever.phantom.nms.packets.IBlockPlacePacket;
+import com.jcwhatever.phantom.packets.IBlockPlacePacket;
 import net.minecraft.server.v1_8_R3.BlockPosition;
 import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;

@@ -22,24 +22,27 @@
  * THE SOFTWARE.
  */
 
-package com.jcwhatever.phantom.nms.packets;
+package com.jcwhatever.phantom.packets;
+
+import com.comphenix.protocol.events.PacketContainer;
 
 /**
- * Multi block change packet.
+ * Interface for a packet wrapping translator helper.
  */
-public interface IMultiBlockChangePacket extends IPacket, Iterable<PacketBlock> {
+public interface IPacket {
 
     /**
-     * Get the chunk X coordinates.
+     * Get the encapsulated packet container.
      */
-    int getChunkX();
+    PacketContainer getPacket();
 
     /**
-     * Get the chunk Z coordinates.
+     * Save changes to the encapsulated packet container.
      */
-    int getChunkZ();
+    void saveChanges();
 
-    @Override
-    IMultiBlockChangePacket clonePacket();
-
+    /**
+     * Clone the packet.
+     */
+    IPacket clonePacket();
 }

@@ -22,14 +22,12 @@
  * THE SOFTWARE.
  */
 
-package com.jcwhatever.phantom.nms.packets;
-
-import org.bukkit.inventory.ItemStack;
+package com.jcwhatever.phantom.packets;
 
 /**
- * Block place packet.
+ * Block dig packet.
  */
-public interface IBlockPlacePacket {
+public interface IBlockDigPacket {
 
     /**
      * Get the block X coordinates.
@@ -47,9 +45,30 @@ public interface IBlockPlacePacket {
     int getZ();
 
     /**
-     * Get the item stack.
+     * Get the dig direction.
      */
-    ItemStack getItemStack();
+    Direction getDirection();
 
-    long timeStamp();
+    /**
+     * Get the dig type.
+     */
+    DigType getDigType();
+
+    enum Direction {
+        DOWN,
+        UP,
+        NORTH,
+        SOUTH,
+        WEST,
+        EAST;
+    }
+
+    enum DigType {
+        START_DESTROY_BLOCK,
+        ABORT_DESTROY_BLOCK,
+        STOP_DESTROY_BLOCK,
+        DROP_ALL_ITEMS,
+        DROP_ITEM,
+        RELEASE_USE_ITEM;
+    }
 }

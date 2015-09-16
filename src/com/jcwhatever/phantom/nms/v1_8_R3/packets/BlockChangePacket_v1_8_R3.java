@@ -26,10 +26,11 @@ package com.jcwhatever.phantom.nms.v1_8_R3.packets;
 
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.StructureModifier;
+import com.jcwhatever.phantom.IPhantomBlock;
 import com.jcwhatever.phantom.Utils;
 import com.jcwhatever.phantom.nms.INmsHandler;
-import com.jcwhatever.phantom.nms.packets.AbstractPacket;
-import com.jcwhatever.phantom.nms.packets.IBlockChangePacket;
+import com.jcwhatever.phantom.packets.AbstractPacket;
+import com.jcwhatever.phantom.packets.IBlockChangePacket;
 import net.minecraft.server.v1_8_R3.Block;
 import net.minecraft.server.v1_8_R3.IBlockData;
 import org.bukkit.Material;
@@ -45,8 +46,6 @@ public class BlockChangePacket_v1_8_R3 extends AbstractPacket implements IBlockC
     private final int _y;
     private final int _z;
     private IBlockData _nmsBlockData;
-
-
 
     public BlockChangePacket_v1_8_R3(INmsHandler handler, PacketContainer packet, int x, int y, int z) {
         super(packet);
@@ -107,6 +106,11 @@ public class BlockChangePacket_v1_8_R3 extends AbstractPacket implements IBlockC
             throw new IllegalArgumentException("Failed to create block data.");
 
         _nmsBlockData = data;
+    }
+
+    @Override
+    public void setBlock(IPhantomBlock block) {
+        setBlock(block.getMaterial(), block.getData());
     }
 
     @Override
