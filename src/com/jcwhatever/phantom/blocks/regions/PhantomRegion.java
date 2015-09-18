@@ -54,6 +54,8 @@ import org.bukkit.entity.Player;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -280,7 +282,7 @@ public class PhantomRegion extends RestorableRegion implements IPhantomBlockCont
     private class RegionData implements IRegionFileData {
 
         private ChunkCoords currentChunk;
-        private LinkedList<ChunkBlockInfo> blocks = new LinkedList<>();
+        private Deque<ChunkBlockInfo> blocks = new ArrayDeque<>(255);
 
         @Override
         public void addBlock(int x, int y, int z, Material material, int data, int light, int skylight) {
