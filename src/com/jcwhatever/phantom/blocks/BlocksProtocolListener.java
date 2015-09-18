@@ -129,15 +129,15 @@ public class BlocksProtocolListener extends PacketAdapter {
 
         IBlockChangePacket wrapper = PhantomPackets.getNms().getBlockChangePacket(packet);
 
-        Msg.debug("Handling PacketPlayOutBlockChange for player {0}. [{1}, {2}, {3}, {4}]",
-                world.getName(), wrapper.getX(), wrapper.getY(), wrapper.getZ());
-
         IPhantomBlock block = _manager.getBlockAt(world, wrapper);
         if (block == null)
             return;
 
         if (!block.canSee(event.getPlayer()))
             return;
+
+        Msg.debug("Handling PacketPlayOutBlockChange for player {0}. [{1}, {2}, {3}, {4}]",
+                world.getName(), wrapper.getX(), wrapper.getY(), wrapper.getZ());
 
         IBlockChangePacket clone = wrapper.clonePacket();
 
@@ -150,9 +150,6 @@ public class BlocksProtocolListener extends PacketAdapter {
 
         IMultiBlockChangePacket wrapper = PhantomPackets.getNms().getMultiBlockChangePacket(packet);
 
-        Msg.debug("Handling PacketPlayOutMultiBlockChange for player {0}. [{1}, {2}, {3}]",
-                player.getName(), world.getName(), wrapper.getChunkX(), wrapper.getChunkZ());
-
         Collection<IPhantomBlockContext> contexts = _manager.getChunkContexts(world, wrapper);
         if (contexts.isEmpty())
             return;
@@ -162,8 +159,8 @@ public class BlocksProtocolListener extends PacketAdapter {
             if (!context.canSee(player))
                 continue;
 
-            Msg.debug("Found visible context ({0}) for PacketPlayOutMultiBlockChange for player {1}.",
-                    context.getName(), player.getName());
+            Msg.debug("Handling PacketPlayOutMultiBlockChange for player {0} [{1}, {2}, {3}] for context: {4}",
+                    player.getName(), world.getName(), wrapper.getChunkX(), wrapper.getChunkZ(), context.getName());
 
             IMultiBlockChangePacket cloned = wrapper.clonePacket();
 
@@ -179,9 +176,6 @@ public class BlocksProtocolListener extends PacketAdapter {
         int chunkX = integers.read(0);
         int chunkZ = integers.read(1);
 
-        Msg.debug("Handling PacketPlayOutMapChunk for player {0}. [{1}, {2}, {3}]",
-                player.getName(), world.getName(), chunkX, chunkZ);
-
         Collection<IPhantomBlockContext> contexts = _manager.getChunkContexts(
                 world, chunkX, chunkZ);
         if (contexts.isEmpty())
@@ -191,8 +185,8 @@ public class BlocksProtocolListener extends PacketAdapter {
             if (!context.canSee(player))
                 continue;
 
-            Msg.debug("Found visible context ({0}) for PacketPlayOutMapChunk for player {1}.",
-                    context.getName(), player.getName());
+            Msg.debug("Handling PacketPlayOutMapChunk for player {0}. [{1}, {2}, {3}] for context: {4}",
+                    player.getName(), world.getName(), chunkX, chunkZ, context.getName());
 
             context.translateMapChunk(player, packet);
         }
@@ -203,9 +197,6 @@ public class BlocksProtocolListener extends PacketAdapter {
         StructureModifier<int[]> integerArrays = packet.getSpecificModifier(int[].class);
         int[] chunkXArray = integerArrays.read(0);
         int[] chunkZArray = integerArrays.read(1);
-
-        Msg.debug("Handling PacketPlayOutMapChunkBulk for player {0}. [{1}, {2}, {3}]",
-                player.getName(), world.getName(), chunkXArray, chunkZArray);
 
         for (int i = 0; i < chunkXArray.length; i++) {
 
@@ -221,8 +212,8 @@ public class BlocksProtocolListener extends PacketAdapter {
                 if (!context.canSee(player))
                     continue;
 
-                Msg.debug("Found visible context ({0}) for PacketPlayOutMapChunkBulk for player {1}.",
-                        context.getName(), player.getName());
+                Msg.debug("Handling PacketPlayOutMapChunkBulk for player {0}. [{1}, {2}, {3}] for context: {4}",
+                        player.getName(), world.getName(), chunkX, chunkZ, context.getName());
 
                 context.translateMapChunkBulk(player, packet);
             }
