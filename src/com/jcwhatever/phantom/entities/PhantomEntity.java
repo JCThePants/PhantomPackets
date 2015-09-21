@@ -143,9 +143,7 @@ public class PhantomEntity implements IViewable {
     public boolean addViewer(Player player) {
         initViewers();
 
-        if (!_viewers.add(player)) {
-            return false;
-        }
+        boolean add = _viewers.add(player);
 
         switch (_viewPolicy) {
             case WHITELIST:
@@ -158,7 +156,7 @@ public class PhantomEntity implements IViewable {
                 throw new AssertionError();
         }
 
-        return true;
+        return add;
     }
 
     @Override

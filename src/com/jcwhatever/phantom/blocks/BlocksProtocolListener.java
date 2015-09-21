@@ -156,6 +156,9 @@ public class BlocksProtocolListener extends PacketAdapter {
 
         for (IPhantomBlockContext context : contexts) {
 
+            Msg.debug("Iterating PacketPlayOutMultiBlockChange [{0}, {1}, {2}] context: {3}",
+                    world.getName(), wrapper.getChunkX(), wrapper.getChunkZ(), context.getName());
+
             if (!context.canSee(player))
                 continue;
 
@@ -182,6 +185,10 @@ public class BlocksProtocolListener extends PacketAdapter {
             return;
 
         for (IPhantomBlockContext context : contexts) {
+
+            Msg.debug("Iterating PacketPlayOutMapChunk [{0}, {1}, {2}] context: {3}",
+                    world.getName(), chunkX, chunkZ, context.getName());
+
             if (!context.canSee(player))
                 continue;
 
@@ -209,6 +216,10 @@ public class BlocksProtocolListener extends PacketAdapter {
                 return;
 
             for (IPhantomBlockContext context : contexts) {
+
+                Msg.debug("Iterating PacketPlayOutMapChunkBulk [{0}, {1}, {2}] context: {3}",
+                        world.getName(), chunkX, chunkZ, context.getName());
+
                 if (!context.canSee(player))
                     continue;
 

@@ -346,12 +346,9 @@ public class PhantomBlocks implements IPhantomBlockContext {
         if (_viewers == null)
             _viewers = new PlayerSet(PhantomPackets.getPlugin());
 
-        if (_viewers.add(player)) {
-            resendChunks(player);
-            return true;
-        }
-
-        return false;
+        boolean added = _viewers.add(player);
+        resendChunks(player);
+        return added;
     }
 
     @Override
