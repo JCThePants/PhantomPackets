@@ -24,10 +24,6 @@
 
 package com.jcwhatever.phantom.commands;
 
-import com.jcwhatever.phantom.Lang;
-import com.jcwhatever.phantom.PhantomPackets;
-import com.jcwhatever.phantom.blocks.regions.PhantomRegion;
-import com.jcwhatever.phantom.blocks.regions.PhantomRegionManager;
 import com.jcwhatever.nucleus.managed.commands.CommandInfo;
 import com.jcwhatever.nucleus.managed.commands.arguments.ICommandArguments;
 import com.jcwhatever.nucleus.managed.commands.exceptions.CommandException;
@@ -37,11 +33,14 @@ import com.jcwhatever.nucleus.managed.language.Localizable;
 import com.jcwhatever.nucleus.utils.observer.future.FutureSubscriber;
 import com.jcwhatever.nucleus.utils.observer.future.IFuture;
 import com.jcwhatever.nucleus.utils.observer.future.IFuture.FutureStatus;
-
+import com.jcwhatever.phantom.Lang;
+import com.jcwhatever.phantom.PhantomPackets;
+import com.jcwhatever.phantom.blocks.regions.PhantomRegion;
+import com.jcwhatever.phantom.blocks.regions.PhantomRegionManager;
 import org.bukkit.command.CommandSender;
 
-import java.io.IOException;
 import javax.annotation.Nullable;
+import java.io.IOException;
 
 @CommandInfo(
         command="save",
@@ -77,7 +76,7 @@ public class SaveCommand extends AbstractCommand implements IExecutableCommand {
 
             future.onError(new FutureSubscriber() {
                 @Override
-                public void on(FutureStatus status, @Nullable String message) {
+                public void on(FutureStatus status, @Nullable CharSequence message) {
                     if (message != null)
                         tellError(sender, message);
                 }
@@ -85,7 +84,7 @@ public class SaveCommand extends AbstractCommand implements IExecutableCommand {
 
             future.onCancel(new FutureSubscriber() {
                 @Override
-                public void on(FutureStatus status, @Nullable String message) {
+                public void on(FutureStatus status, @Nullable CharSequence message) {
                     if (message != null)
                         tellError(sender, message);
                 }
@@ -93,7 +92,7 @@ public class SaveCommand extends AbstractCommand implements IExecutableCommand {
 
             future.onSuccess(new FutureSubscriber() {
                 @Override
-                public void on(FutureStatus status, @Nullable String message) {
+                public void on(FutureStatus status, @Nullable CharSequence message) {
                     tellSuccess(sender, Lang.get(_SUCCESS, regionName));
                 }
             });

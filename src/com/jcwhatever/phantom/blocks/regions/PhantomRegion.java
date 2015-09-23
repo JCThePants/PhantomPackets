@@ -56,7 +56,6 @@ import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.LinkedList;
 import java.util.List;
 
 /*
@@ -208,7 +207,7 @@ public class PhantomRegion extends RestorableRegion implements IPhantomBlockCont
     public IFuture saveData() throws IOException {
         return super.saveData().onSuccess(new FutureSubscriber() {
             @Override
-            public void on(FutureStatus status, @Nullable String message) {
+            public void on(FutureStatus status, @Nullable CharSequence message) {
                 try {
                     loadDisguise();
                 } catch (IOException e) {
@@ -272,7 +271,7 @@ public class PhantomRegion extends RestorableRegion implements IPhantomBlockCont
                 LoadType.ALL_BLOCKS, LoadSpeed.FAST, new RegionData())
                 .onError(new FutureSubscriber() {
                     @Override
-                    public void on(FutureStatus status, @Nullable String message) {
+                    public void on(FutureStatus status, @Nullable CharSequence message) {
                         Msg.warning("Failed to load chunk data for phantom region named '{0}' because:",
                                 getName(), message);
                     }
